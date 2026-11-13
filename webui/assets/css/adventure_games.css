@@ -1,0 +1,769 @@
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08) harness:openlumara
+   adventure_games: a Twine/SugarCube skin for the webui chat window.
+   Everything is scoped under html.adv-on so normal chats are untouched. */
+
+/* =================SugarCube palettes=================== */
+/* the passage surfaces read the webui theme vars by default ('follow theme');
+   forced light/dark re-declare the same custom props with Sugarcube colors */
+:root {
+    --adv-page: var(--bg-tertiary);
+    --adv-ink: var(--text-primary);
+    --adv-ink-soft: var(--text-secondary);
+    --adv-line: var(--border-color);
+    --adv-accent: #b48ead;
+    --adv-link: #c792ea;
+    --adv-link-hover: #f0abfc;
+    --adv-good: #4ade80;
+    --adv-bad: #f87171;
+    --adv-bar: linear-gradient(90deg, #f472b6 0%, #a78bfa 100%);
+    --adv-bar-low: linear-gradient(90deg, #f43f5e 0%, #fb7185 100%);
+    --adv-serif: Georgia, 'Palatino Linotype', 'Book Antiqua', 'Times New Roman', serif;
+    --adv-sans: 'Trebuchet MS', Verdana, Tahoma, sans-serif;
+}
+html.adv-light {
+    --adv-page: #e3c28c;
+    --adv-ink: #2e2012;
+    --adv-ink-soft: #6a5134;
+    --adv-line: #c9a468;
+    --adv-accent: #9a3412;
+    --adv-link: #7c2d12;
+    --adv-link-hover: #c2410c;
+    --adv-good: #15803d;
+    --adv-bad: #b91c1c;
+}
+html.adv-dark {
+    --adv-page: #14101c;
+    --adv-ink: #e8e0f0;
+    --adv-ink-soft: #a99bbd;
+    --adv-line: #352b47;
+    --adv-accent: #c084fc;
+    --adv-link: #d8b4fe;
+    --adv-link-hover: #f9a8d4;
+    --adv-good: #86efac;
+    --adv-bad: #fca5a5;
+}
+
+/* =================passage view=================== */
+/* hide everything but the current passage */
+html.adv-on #messages .turn {
+    display: none;
+}
+html.adv-on #messages .turn.adv-current {
+    display: block;
+    animation: adv-passage-in 0.55s ease both;
+}
+@keyframes adv-passage-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* the player's own messages stay hidden - Twine doesn't echo the clicked link */
+html.adv-on #messages .message-wrapper.user {
+    display: none !important;
+}
+
+/* buttons below messages: keep only for the current passage, tinted */
+html.adv-on .turn.adv-current .message-buttons,
+html.adv-on .turn.adv-current [class*="buttons"] {
+    opacity: 0.25;
+    transition: opacity 0.2s ease;
+}
+html.adv-on .turn.adv-current .message-buttons:hover,
+html.adv-on .turn.adv-current [class*="buttons"]:hover {
+    opacity: 1;
+}
+
+/* hide the agent chain for immersion (setting-controlled class on html) */
+html.adv-on.adv-hide-chain .agent-chain {
+    display: none !important;
+}
+
+/* the core three-dot typing indicator has no place on a story page -
+   the adventure's own rune overlay covers the waiting beats instead */
+html.adv-on #typing,
+html.adv-on .typing-indicator {
+    display: none !important;
+}
+
+/* the copy/edit/regenerate/delete row breaks the fourth wall - hide it
+   entirely while a game is active (rewind lives in the sidebar instead) */
+html.adv-on #messages .message-buttons {
+    display: none !important;
+}
+
+/* the passage itself: a centered story column. no card chrome - the text
+   sits directly on the chat window's primary background, which the
+   campaign theme paints with its own ui color anyway, so the whole window
+   IS the story page */
+html.adv-on #messages .turn.adv-current .message.assistant {
+    max-width: 46rem;
+    margin: 0 auto 24px auto;
+    background: transparent;
+    /* core's .message applies a backdrop blur; on a transparent card it
+       would ghost a frosted rectangle over the page */
+    backdrop-filter: none;
+    color: var(--adv-ink);
+    border: none;
+    box-shadow: none;
+    padding: 34px 42px 30px 42px;
+    font-family: var(--adv-serif);
+    font-size: var(--adv-font-size, 17.5px);
+    line-height: 1.75;
+}
+html.adv-on #messages .turn.adv-current .message.assistant h1,
+html.adv-on #messages .turn.adv-current .message.assistant h2,
+html.adv-on #messages .turn.adv-current .message.assistant h3 {
+    font-family: var(--adv-sans);
+    color: var(--adv-accent);
+    letter-spacing: 0.02em;
+}
+html.adv-on #messages .turn.adv-current .message.assistant blockquote {
+    border-left: 3px solid var(--adv-accent);
+    margin: 0.8em 0;
+    padding-left: 1em;
+    color: var(--adv-ink-soft);
+}
+
+/* story links the AI writes as plain markdown links inside passages */
+html.adv-on .message.assistant a,
+.adv-choice {
+    color: var(--adv-link);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+html.adv-on .message.assistant a:hover,
+.adv-choice:hover {
+    color: var(--adv-link-hover);
+    text-decoration: underline;
+}
+
+/* =================choice links=================== */
+.adv-choice {
+    display: inline;
+}
+.adv-choice::before {
+    content: "\25B8";  /* small triangle, like a story-game choice marker */
+    font-size: 0.8em;
+    margin-right: 0.45em;
+    color: var(--adv-accent);
+    opacity: 0.85;
+}
+.adv-choice:hover::before {
+    opacity: 1;
+}
+.adv-choice.adv-disabled {
+    color: var(--adv-ink-soft);
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+}
+.adv-choice.adv-disabled::before {
+    content: "\1F512";
+    font-size: 0.75em;
+}
+.adv-choice.adv-disabled:hover {
+    animation: adv-nudge 0.3s ease;
+    text-decoration: line-through;
+}
+.adv-choice.adv-blocked {
+    display: block;
+    margin: 0.15em 0;
+}
+@keyframes adv-nudge {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* a choice still being written (mid-stream partial [[..]]): the finished
+   look from its first character, but inert until the closing ]] lands -
+   no pointer, no hover, nothing to aim at yet */
+.adv-choice.adv-choice-pending {
+    cursor: default;
+}
+.adv-choice.adv-choice-pending:hover {
+    color: var(--adv-link);
+    text-decoration: none;
+}
+.adv-choices .adv-choice.adv-choice-pending:hover {
+    border-color: var(--adv-line);
+    color: var(--adv-link);
+    box-shadow: none;
+    transform: none;
+    text-decoration: none;
+}
+
+/* choices that sit on their own paragraph get block spacing */
+p > .adv-choice:only-child {
+    display: block;
+    margin: 0.35em 0;
+}
+
+/* a markdown bullet list of choices ("- [[..]]"): each choice already
+   wears its own ▸ marker, so the browser bullet is redundant - drop it
+   from any list item holding one, and when a list is entirely choices
+   also lose the bullet indent (the base pads the ul, not the li) */
+li:has(> .adv-choice) {
+    list-style: none;
+}
+html.adv-on .message.assistant ul:not(:has(li:not(:has(.adv-choice)))) {
+    padding-left: 0;
+}
+/* and no underline on hover either - a hovered choice should light up
+   with its color, not strike itself through like prose (the rail gets
+   this from adventure_plus.css; this covers the unconsolidated list) */
+html.adv-on .message.assistant li > .adv-choice:hover {
+    text-decoration: none;
+}
+
+/* =================game over ribbon=================== */
+#adv-gameover {
+    display: none;
+    max-width: 46rem;
+    margin: 0 auto 14px auto;
+    padding: 12px 22px;
+    text-align: center;
+    font-family: var(--adv-sans);
+    font-size: 14.5px;
+    color: var(--adv-ink);
+    /* no card surface either: the ribbon marks the ending with its accent
+       rule alone, sitting on the campaign's primary background */
+    background: transparent;
+    border: none;
+    border-top: 4px solid var(--adv-accent);
+}
+html.adv-on.adv-ended #adv-gameover {
+    display: block;
+    animation: adv-passage-in 0.7s ease both;
+}
+/* a finished story offers nothing to type into: the "Or do something
+   else" prompt stands down with the choices (the ribbon closes the
+   book; the sidebar's Rewind is how you step back out of it) */
+html.adv-on.adv-ended #adv-prompt {
+    display: none !important;
+}
+#adv-gameover .adv-go-title {
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--adv-accent);
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* =================input: core bar hidden, custom prompt takes over=================== */
+/* the real #input stays home and invisible; the adventure page gets its own
+   slim single-line prompt bar (#adv-prompt, styled in adventure_plus.css)
+   docked as the story footer - moving #input into the Alpine-managed turn
+   subtree proved fragile (renders could strand it inside a hidden turn) */
+html.adv-on #input {
+    display: none !important;
+}
+/* the prompt-eval progress card spoils the thinking mystery */
+html.adv-on .prompt-processing-indicator-wrapper {
+    display: none !important;
+}
+
+/* =================delta chips + dice popups=================== */
+/* centered horizontally, anchored just ABOVE the thinking rune (which owns
+   roughly +/-67px around the viewport center). the box hangs from its
+   bottom edge, so each fresh popup appears right above the rune and older
+   ones get pushed upward - and rolls that resolve before the passage
+   starts writing stay clear of the sigil */
+#adv-fx {
+    position: fixed;
+    left: 50%;
+    top: calc(50% - 84px);
+    transform: translate(-50%, -100%);
+    z-index: 9990;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    font-family: var(--adv-sans);
+}
+/* popups follow the campaign theme: the chip wears the same surface as the
+   page and the dice card (campaign --adv-page + --adv-line), with the
+   semantic good/bad hue carried by the text instead of a loud solid pill */
+.adv-chip {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--adv-good);
+    background: var(--adv-page);
+    border: 1px solid var(--adv-line);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    animation: adv-chip 1.5s ease both;
+}
+.adv-chip.adv-chip-bad {
+    color: var(--adv-bad);
+}
+/* anchor left where a state macro ({{stat}}, {{item}}, {{status}}...)
+   was streamed - the delta chip pops from its position so the badge
+   blooms under the very words that changed the world. zero-size by
+   default (inline-block keeps the rect meaningful); the kinds that
+   echo themselves into the prose (stat, item) unlock their box */
+.adv-macromark {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+.adv-macromark.adv-shown {
+    width: auto;
+    height: auto;
+    overflow: visible;
+}
+/* {{stat|Gold +40, Health -15}}: a row of little signed pills, green
+   for gains, red for losses - the change written into the sentence */
+.adv-m-stat {
+    display: inline-block;
+    margin: 0 3px;
+    padding: 1px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--adv-line);
+    background: var(--adv-page);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+    font-family: var(--adv-sans);
+    font-size: 0.74em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    vertical-align: 0.08em;
+    white-space: nowrap;
+    color: var(--adv-good);
+}
+.adv-m-stat.adv-m-stat-bad {
+    color: var(--adv-bad);
+}
+/* {{item|Torch +1}}: just the thing itself, icon + name, quietly bold */
+.adv-macro-item {
+    font-weight: 700;
+    color: var(--adv-accent);
+    white-space: nowrap;
+}
+/* {{status|✨ Blessed}}: the condition signs itself in the sentence -
+   italic, glowing in the campaign's hover-link hue */
+.adv-macro-status {
+    font-style: italic;
+    font-weight: 700;
+    color: var(--adv-link-hover, var(--adv-accent));
+    white-space: nowrap;
+}
+/* {{statusoff|Poisoned}}: "Poisoned faded" (timed) / "removed"
+   (permanent), muted and italic - the cure read as prose, not as an
+   interface */
+.adv-macro-status-off {
+    font-style: italic;
+    font-weight: 600;
+    color: var(--adv-ink-soft);
+}
+.adv-macro-status-removed {
+    font-weight: 400;
+    opacity: 0.75;
+}
+/* {{sfx|sword_clash}}: the sound admits itself in the margin of the prose */
+.adv-macro-sfx {
+    font-family: var(--adv-sans);
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--adv-ink-soft);
+    opacity: 0.75;
+    white-space: nowrap;
+}
+/* {{img|name}} scene-art: a framed picture that owns its own block line,
+   centered, never wider than the passage column. The pending caption shows
+   the name until the url map resolves it (then it is removed by JS). */
+.adv-img-wrap {
+    display: block;
+    margin: 0.9em auto;
+    text-align: center;
+    line-height: 0;
+}
+.adv-img-wrap img.adv-img {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--adv-line);
+    background: var(--adv-ui-bg2);
+}
+.adv-img-pending {
+    display: block;
+    line-height: 1.4;
+    margin-top: 0.5em;
+    font-family: var(--adv-sans);
+    font-size: 0.78em;
+    color: var(--adv-ink-soft);
+    opacity: 0.7;
+}
+.adv-img[data-img] {
+    min-width: 1px;
+    min-height: 1px;
+}
+/* {{img|name|left}} / {{img|name|right}}: the frame floats beside the
+   paragraph the macro sits in and the prose wraps around it - a modest
+   slice of the column with a soft gutter, never fighting the text. The
+   frame's top hugs the top of its paragraph (games.js lifts it there),
+   and it keeps only that paragraph's company - the clearing rules below
+   send every following block fully under the picture.
+   center (and a bare {{img|name}}) keeps the block-line rule above.
+   the arrival wipe is painted by JS (games.js ticker writes the frame's
+   inline height + edge mask every frame) - no curtain classes live in
+   this stylesheet; floats need nothing extra for it. */
+.adv-img-wrap.adv-img-left {
+    float: left;
+    width: min(320px, 44%);
+    margin: 0 1.3em 0.7em 0;
+}
+.adv-img-wrap.adv-img-right {
+    float: right;
+    width: min(320px, 44%);
+    margin: 0 0 0.7em 1.3em;
+}
+/* paragraph clearing - classes stamped by the same pre-paint lift pass
+   in games.js: every block that follows the floated picture's paragraph
+   starts fully below the picture (only its own paragraph shares lines
+   with it), and flow-root on the host container keeps a picture in the
+   LAST paragraph from leaning out of the passage into the next one. */
+.adv-float-host ~ * {
+    clear: both;
+}
+.adv-bfc {
+    display: flow-root;
+}
+/* one-shot holder that parks a chip at an anchor's coordinates; the
+   chip's own keyframes own its transform, so the holder centers it */
+.adv-chip-at {
+    position: fixed;
+    z-index: 9990;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+}
+@keyframes adv-chip {
+    0%   { opacity: 0; transform: translateY(14px) scale(0.9); }
+    12%  { opacity: 1; transform: translateY(0) scale(1); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-18px); }
+}
+.adv-dice {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    color: var(--adv-ink);
+    background: var(--adv-page);
+    border: 1px solid var(--adv-line);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    animation: adv-chip 3.4s ease both;
+}
+.adv-dice .adv-dice-total {
+    font-weight: 800;
+    color: var(--adv-accent);
+}
+
+/* =================sidebar panel=================== */
+/* close affordance: the immersive view hides the tabbar, and on mobile the
+   sidebar is an overlay without its own close button - the panel provides
+   one (and the floating ⚜ button reopens it) */
+.adv-panel {
+    position: relative;
+    /* long campaigns (stats + inventory + quests) scroll inside the panel:
+       .sidebar-panel is a clipping flex column, so claim the space and
+       scroll within it */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.adv-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+.adv-close:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.adv-panel {
+    padding: 14px;
+    font-family: var(--adv-sans);
+    font-size: 13.5px;
+    color: var(--text-primary);
+}
+.adv-panel .adv-empty {
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    line-height: 1.6;
+    padding: 8px 2px;
+}
+.adv-panel .adv-empty code {
+    background: var(--tool-bg, rgba(255,255,255,0.06));
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.adv-panel h3.adv-head {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    color: var(--adv-accent, #c084fc);
+    letter-spacing: 0.03em;
+}
+.adv-panel .adv-sub {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+.adv-panel .adv-section {
+    margin: 14px 0 6px 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted, #777);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 3px;
+}
+.adv-panel .adv-scene {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    margin: 2px 0;
+}
+.adv-panel .adv-scene .adv-loc {
+    color: var(--text-secondary);
+}
+
+/* stat rows */
+.adv-stat {
+    margin: 9px 0;
+}
+.adv-stat .adv-stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+.adv-stat .adv-stat-name {
+    font-weight: 600;
+}
+.adv-stat .adv-stat-val {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+}
+.adv-bar {
+    margin-top: 4px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--tool-bg, rgba(255, 255, 255, 0.07));
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+.adv-bar .adv-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--adv-bar, linear-gradient(90deg, #f472b6, #a78bfa));
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.adv-bar.adv-low .adv-bar-fill {
+    background: var(--adv-bar-low, linear-gradient(90deg, #f43f5e, #fb7185));
+}
+
+/* inventory */
+.adv-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+.adv-item:last-child {
+    border-bottom: none;
+}
+.adv-item .adv-item-qty {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+.adv-panel .adv-none {
+    color: var(--text-muted, #777);
+    font-style: italic;
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+/* panel buttons */
+.adv-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.adv-actions button {
+    flex: 1;
+    min-width: 80px;
+    padding: 7px 10px;
+    font-family: var(--adv-sans);
+    font-size: 12.5px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.adv-actions button:hover {
+    color: var(--adv-accent, #c084fc);
+    border-color: var(--adv-accent, #c084fc);
+    box-shadow: 0 0 10px var(--accent-glow, rgba(192, 132, 252, 0.25));
+}
+.adv-panel button {
+    background: transparent;
+}
+
+/* =================core header hidden / floating panel toggle=================== */
+/* during an adventure the core chrome header disappears; the story's only
+   header is the full-width banner strip. Rewind/Journal live in the
+   campaign panel, and the floating button below toggles that panel
+   (works on mobile too, where hiding the header also hid the hamburger) */
+html.adv-on #chat-window > header {
+    display: none !important;
+}
+
+/* visibility is Alpine's job (x-show/x-cloak): mobile-only, and hidden
+   automatically while the sidebar overlay is open */
+#adv-panel-toggle {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 18px;
+    z-index: 9990;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--adv-line, var(--border-color));
+    background: var(--adv-page, var(--bg-secondary));
+    color: var(--adv-accent, var(--accent));
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft, 0 2px 8px rgba(0, 0, 0, 0.25));
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+#adv-panel-toggle:hover {
+    box-shadow: 0 0 12px var(--adv-accent, rgba(192, 132, 252, 0.35));
+    transform: scale(1.06);
+}
+
+/* =================journal modal=================== */
+.adv-journal {
+    max-width: 46rem;
+}
+.adv-journal .adv-journal-body {
+    padding: 18px 26px 26px 26px;
+    overflow-y: auto;
+    max-height: 65vh;
+    font-family: var(--adv-serif);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+.adv-journal .adv-jp {
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+.adv-journal .adv-jp:last-child {
+    border-bottom: none;
+}
+.adv-journal .adv-jp-n {
+    font-family: var(--adv-sans);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted, #777);
+    margin-bottom: 6px;
+}
+.adv-journal .adv-jp p:empty { display: none; }
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    html.adv-on #messages .turn.adv-current,
+    #adv-gameover,
+    .adv-chip,
+    .adv-dice {
+        animation: none;
+    }
+    .adv-bar .adv-bar-fill {
+        transition: none;
+    }
+}
+
+/* narrow screens */
+@media (max-width: 720px) {
+    html.adv-on #messages .turn.adv-current .message.assistant {
+        padding: 22px 20px;
+        font-size: 16px;
+        margin-left: 8px;
+        margin-right: 8px;
+    }
+}
+
+/* =================typewriter skip=================== */
+/* the typewriter's fast-forward (adventure_type.js): shown only while the
+   reveal lags behind the stream (or the tail holds it open on a sound /
+   badge beat). a free-standing floating pill at the bottom of the page,
+   centered over the story column by JS (#messages' rect - the sidebar
+   shifts it); the normal input bar is hidden in adventures and the story's
+   own prompt lives inside the passage, so this never touches either */
+#adv-tw-skip {
+    position: fixed;
+    z-index: 9991;
+    /* visibility (not display) so the fade actually animates - and the
+       pill keeps a measurable size for the JS positioning pass */
+    visibility: hidden;
+    pointer-events: none;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-family: var(--adv-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--adv-ink);
+    background: var(--adv-page);
+    border: 1px solid var(--adv-line);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+}
+#adv-tw-skip.adv-tw-on {
+    visibility: visible;
+    pointer-events: auto;
+    opacity: 0.9;
+    transform: none;
+}
+#adv-tw-skip.adv-tw-on:hover {
+    opacity: 1;
+    border-color: var(--adv-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-tw-skip { transition: none; }
+}

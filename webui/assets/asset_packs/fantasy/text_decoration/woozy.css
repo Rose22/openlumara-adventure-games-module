@@ -1,0 +1,32 @@
+/* text decoration: woozy - default set  (render mode: "woozy")
+   dizzy words: blurred, and every letter reels on its own slice of the
+   wobble - the motion chains through the word like a wave. the letter
+   spans (.adv-woozy-w / .adv-woozy-l and their --adv-lbase stagger) are
+   BUILT by the engines' woozy renderer - this sheet is the contract for
+   that markup: keep those class names. */
+.adv-macro-woozy {
+    filter: blur(1.6px) saturate(1.35);
+    color: var(--adv-accent);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--adv-accent) 60%, transparent);
+}
+.adv-macro-woozy .adv-woozy-w {
+    display: inline-block;
+}
+.adv-macro-woozy .adv-woozy-l {
+    display: inline-block;
+    font-style: normal;
+    animation: adv-woozy 1.8s ease-in-out infinite;
+    /* one shared phase shift keeps the reel continuous across re-renders,
+       the per-letter base delay keeps the wave stagger inside the word */
+    animation-delay: calc(var(--adv-phase, 0s) + var(--adv-lbase, 0s));
+}
+@keyframes adv-woozy {
+    0%   { transform: translateY(0)    rotate(0deg)    scale(1); }
+    20%  { transform: translateY(-2px) rotate(-3deg)   scale(1.03); }
+    45%  { transform: translateY(2px)  rotate(2.5deg)  scale(0.98); }
+    70%  { transform: translateY(-1px) rotate(-1.5deg) scale(1.02); }
+    100% { transform: translateY(0)    rotate(0deg)    scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-woozy .adv-woozy-l { animation: none; }
+}

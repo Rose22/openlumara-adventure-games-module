@@ -1,0 +1,24 @@
+/* weather kind: meteor - scifi set
+   the rock is coming apart overhead: fast slanted streaks, each burning
+   to a white head that dies as the tail goes cold */
+.adv-weather-meteor .adv-wp {
+    width: 2px !important;
+    height: 60px;
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(255, 170, 90, 0.5) 40%,
+        rgba(255, 120, 60, 0) 100%);
+    animation-name: adv-scifi-met-streak;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-weather-meteor .adv-wp:nth-child(2n) { height: 90px; opacity: 0.8; }
+@keyframes adv-scifi-met-streak {
+    from { transform: translate(0, -12vh) rotate(24deg); opacity: 0; }
+    6%   { opacity: 1; }
+    85%  { opacity: 0.9; }
+    to   { transform: translate(-26vw, 115vh) rotate(24deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-weather-meteor .adv-wp { animation: none; opacity: 0; }
+}

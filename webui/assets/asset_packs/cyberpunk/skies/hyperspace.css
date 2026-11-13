@@ -1,0 +1,33 @@
+/* sky kind: hyperspace - scifi set
+   the jump: starlight stretched into long violet-white streaks raking
+   past the viewport, a bright core glowing where the exit waits */
+#adv-sky.adv-sky-hyperspace::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(40% 34% at 50% 46%, rgba(190, 170, 255, 0.28), transparent 70%),
+        #04020c;
+}
+.adv-sky-hyperspace .adv-wp {
+    width: 1px !important;
+    height: 74px;
+    background: linear-gradient(180deg,
+        rgba(200, 190, 255, 0),
+        rgba(220, 210, 255, 0.5) 55%, #fff 100%);
+    animation-name: adv-scifi-hyper-run;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-sky-hyperspace .adv-wp:nth-child(3n) { height: 110px; opacity: 0.65; }
+@keyframes adv-scifi-hyper-run {
+    from { transform: translate(0, -20vh) rotate(18deg); }
+    to   { transform: translate(-22vw, 120vh) rotate(18deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-sky-hyperspace .adv-wp {
+        animation: none;
+        opacity: 0.35;
+        transform: translate(0, 40vh) rotate(18deg);
+    }
+}

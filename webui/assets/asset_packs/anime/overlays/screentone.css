@@ -1,0 +1,33 @@
+/* overlay mood: screentone - anime set
+   the manga page asserts itself: a halftone dot field creeps in from
+   the edges, dense where the story is, transparent at the reading
+   heart, over a tightening dramatic vignette. Fits: melodrama peaks,
+   flashback gravity, the panel closing on a realization. */
+.adv-fx-screentone {
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(10, 8, 16, 0.38) 100%);
+    animation: adv-fx-in 1s ease forwards;
+}
+.adv-fx-screentone::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(20, 16, 28, 0.32) 1.2px, transparent 1.3px);
+    background-size: 6px 6px;
+    -webkit-mask-image: radial-gradient(ellipse at center, transparent 28%, black 85%);
+    mask-image: radial-gradient(ellipse at center, transparent 28%, black 85%);
+    animation: adv-screentone-breathe 9s ease-in-out infinite alternate;
+}
+.adv-fx-screentone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(20, 16, 28, 0.18) 1px, transparent 1.1px);
+    background-size: 10px 10px;
+    background-position: 3px 3px;
+    -webkit-mask-image: radial-gradient(ellipse at center, transparent 55%, black 95%);
+    mask-image: radial-gradient(ellipse at center, transparent 55%, black 95%);
+}
+@keyframes adv-screentone-breathe {
+    from { opacity: 0.75; }
+    to   { opacity: 1; }
+}

@@ -1,0 +1,34 @@
+/* sky kind: magical_night - anime set
+   the night the plot thickens: deep indigo-violet with a huge pale
+   moon hanging over the rooftops and real stars twinkling above it
+   (motes ride the default base's adv-twinkle keyframes, styled
+   here). Fireflies recommended below it. */
+#adv-sky.adv-sky-magical_night::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+                rgba(14, 12, 44, 0.52) 0%,
+                rgba(38, 24, 74, 0.46) 60%,
+                rgba(70, 44, 100, 0.40) 100%);
+}
+#adv-sky.adv-sky-magical_night::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 76% 18%, rgba(255, 252, 235, 0.85) 0%, rgba(255, 250, 225, 0.55) 5%, rgba(210, 200, 255, 0.22) 10%, transparent 22%);
+    animation: adv-magical_night-moon 6s ease-in-out infinite alternate;
+}
+.adv-sky-magical_night .adv-wp {
+    background: #fffbe6;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255, 250, 210, 0.9);
+    animation-name: adv-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-magical_night-moon {
+    from { opacity: 0.85; }
+    to   { opacity: 1; }
+}

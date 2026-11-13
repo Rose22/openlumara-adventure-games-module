@@ -1,0 +1,36 @@
+{
+  "label": "Dove (soft mauve-gray hush)",
+  "prefers": "light",
+  "light": {
+    "dark": false,
+    "accent": "#8d7f95", "link": "#7b6a86", "link_hover": "#96839f",
+    "page": "#f4f2f4", "ink": "#262228", "ink_soft": "#6a626c", "line": "#ddd6dd",
+    "ui_bg1": "#edeaf0", "ui_bg2": "#e5e1e9", "ui_bg3": "#ddd8e2",
+    "ui_text": "#262228", "ui_text_soft": "#544c58", "ui_text_muted": "#867d8a",
+    "ui_border": "#d8d2da",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(230,200,196,0.19), rgba(230,216,222,0.09))",
+      "morning": "linear-gradient(180deg, rgba(244,238,244,0.11), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(238,232,240,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(200,146,150,0.19), rgba(120,106,130,0.12))",
+      "night": "linear-gradient(180deg, rgba(56,44,66,0.32), rgba(26,20,34,0.20))",
+      "deepnight": "linear-gradient(180deg, rgba(30,22,40,0.44), rgba(13,10,20,0.30))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#b3a3bd", "link": "#bfaec8", "link_hover": "#d6c7dd",
+    "page": "#191619", "ink": "#ded8de", "ink_soft": "#a39aa5", "line": "#2e292f",
+    "ui_bg1": "#151215", "ui_bg2": "#1c181d", "ui_bg3": "#231f25",
+    "ui_text": "#e8e2e8", "ui_text_soft": "#b0a7b3", "ui_text_muted": "#78707c",
+    "ui_border": "#2f2a31",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(228,204,200,0.11), rgba(196,184,196,0.04))",
+      "morning": "linear-gradient(180deg, rgba(232,224,232,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(226,218,228,0.05), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(206,156,160,0.10), rgba(130,114,140,0.07))",
+      "night": "linear-gradient(180deg, rgba(200,184,208,0.12), rgba(84,72,94,0.09))",
+      "deepnight": "linear-gradient(180deg, rgba(150,134,160,0.17), rgba(36,30,42,0.13))"
+    }
+  }
+}

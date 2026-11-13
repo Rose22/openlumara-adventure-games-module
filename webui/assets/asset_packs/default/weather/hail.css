@@ -1,0 +1,13 @@
+/* weather kind: hail - default set
+   hard white pellets hammering down on a slant - fast, unforgiving */
+.adv-weather-hail .adv-wp {
+    background: radial-gradient(circle at 35% 30%, #ffffff, rgba(205, 218, 235, 0.85));
+    border-radius: 50%;
+    animation-name: adv-fall-hail;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-hail {
+    0%   { transform: translate(0, -3vh); opacity: 0.95; }
+    100% { transform: translate(-7vw, 104vh); opacity: 0.5; }
+}

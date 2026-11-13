@@ -1,0 +1,41 @@
+/* one-shot pulse: pyon - anime set
+   the SYSTEM window pops in with its iconic "pyon!": a soft blue
+   rounded panel overshoots into existence center-stage, shows off
+   its glowing border for a beat, and retracts. Fired as {{pyon}}
+   whenever the System interrupts with a notification. */
+.adv-fx-pyon::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44%;
+    height: 26%;
+    margin: -13% 0 0 -22%;
+    border-radius: 14px;
+    background: rgba(120, 190, 255, 0.22);
+    border: 2px solid rgba(160, 215, 255, 0.85);
+    box-shadow: 0 0 22px rgba(120, 190, 255, 0.55),
+                inset 0 0 26px rgba(160, 215, 255, 0.3);
+    opacity: 0;
+    animation: adv-pyon-pop 0.7s cubic-bezier(0.2, 1.6, 0.4, 1) forwards;
+}
+@keyframes adv-pyon-pop {
+    0%   { opacity: 0; transform: scale(0.2); }
+    40%  { opacity: 1; transform: scale(1.06); }
+    52%  { transform: scale(1); }
+    78%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.7); }
+}
+.adv-fx-pyon {
+    animation: adv-fx-pyon-base 0.7s linear forwards;
+}
+@keyframes adv-fx-pyon-base {
+    0%   { opacity: 0; }
+    1%   { opacity: 1; }
+    99%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-pyon,
+    #adv-pulses .adv-fx-pyon { opacity: 0; }
+}

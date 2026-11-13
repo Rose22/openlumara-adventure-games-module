@@ -1,0 +1,29 @@
+/* overlay mood: confession - anime set
+   golden hour on the school roof: a saturated warm wash with a band
+   of sunset light across the middle, everything beautiful enough to
+   say the thing you were going to say. Fits: confessions,
+   reconciliations, the last bus you will not miss. */
+.adv-fx-confession {
+    background: linear-gradient(180deg,
+                rgba(255, 170, 120, 0.16),
+                rgba(255, 130, 140, 0.20) 55%,
+                rgba(150, 90, 160, 0.22));
+    animation: adv-fx-in 1.6s ease forwards,
+               adv-confession-glow 6.5s ease-in-out 1.6s infinite alternate;
+}
+.adv-fx-confession::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(70% 34% at 50% 46%, rgba(255, 214, 150, 0.26), transparent 75%);
+}
+.adv-fx-confession::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 68%, rgba(90, 40, 60, 0.26) 100%);
+}
+@keyframes adv-confession-glow {
+    from { filter: brightness(0.96) saturate(1); }
+    to   { filter: brightness(1.08) saturate(1.15); }
+}

@@ -1,0 +1,6 @@
+{
+  "desc": "circled numbers on the dice (the marumasu of Japanese answer sheets); the coin flips maru vs batsu - the circle wins, the cross doesn't. Merges field by field over the default base.",
+  "faces": ["\u2460", "\u2461", "\u2462", "\u2463", "\u2464", "\u2465"],
+  "heads": "\u25EF",
+  "tails": "\u2715"
+}

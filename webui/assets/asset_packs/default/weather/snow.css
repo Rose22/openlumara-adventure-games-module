@@ -1,0 +1,16 @@
+/* weather kind: snow - default set */
+.adv-weather-snow .adv-wp {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    animation-name: adv-fall-snow;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    filter: blur(0.4px);
+}
+@keyframes adv-fall-snow {
+    0%   { transform: translate(0, -2vh); }
+    25%  { transform: translate(2.5vw, 25vh); }
+    50%  { transform: translate(-1.5vw, 52vh); }
+    75%  { transform: translate(2vw, 78vh); }
+    100% { transform: translate(0, 104vh); opacity: 0.2; }
+}

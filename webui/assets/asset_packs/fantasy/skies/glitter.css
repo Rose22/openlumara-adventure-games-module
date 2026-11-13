@@ -1,0 +1,12 @@
+/* weather kind: glitter - default set
+   shimmer rising on the embers' path, tinted through --adv-w-hue */
+#adv-weather.adv-weather-glitter .adv-wp {
+    top: auto;
+    bottom: -10px;
+    background: hsl(calc(var(--adv-w-hue, 300)) 90% 75%);
+    border-radius: 50%;
+    box-shadow: 0 0 6px 1px hsla(300, 95%, 80%, 0.8);
+    animation-name: adv-rise-embers;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}

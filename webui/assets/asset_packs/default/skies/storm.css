@@ -1,0 +1,18 @@
+/* sky kind: thunderhead - default set
+   css fallback for the storm belly: a dark gloom wash, deepest up top
+   where the anvil is, breathing slowly like distant rumble-light;
+   the hammering rain is weather/storm */
+#adv-sky.adv-sky-thunderhead::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(13, 14, 23, 0.46),
+        rgba(41, 41, 61, 0.30) 55%,
+        rgba(26, 28, 44, 0.38));
+    animation: adv-thunderhead-breathe 8s ease-in-out infinite alternate;
+}
+@keyframes adv-thunderhead-breathe {
+    from { opacity: 0.75; }
+    to   { opacity: 1; }
+}

@@ -1,0 +1,21 @@
+/* weather kind: sparks - default set
+   electric crackles rising off machinery or raw magic: cyan pinpricks
+   that flicker out on the way up */
+#adv-weather.adv-weather-sparks .adv-wp {
+    top: auto;
+    bottom: -10px;
+    background: rgba(150, 225, 255, 0.95);
+    border-radius: 50%;
+    box-shadow: 0 0 7px rgba(90, 190, 255, 0.9);
+    animation-name: adv-rise-sparks;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-sparks {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+    10%  { opacity: 1; }
+    35%  { opacity: 0.25; }
+    50%  { opacity: 0.9; transform: translate(1.5vw, -45vh) scale(0.7); }
+    70%  { opacity: 0.2; }
+    100% { transform: translate(-1.5vw, -100vh) scale(0.3); opacity: 0; }
+}

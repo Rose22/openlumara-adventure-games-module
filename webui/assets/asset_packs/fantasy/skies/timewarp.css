@@ -1,0 +1,22 @@
+/* weather kind: timewarp - default set
+   clock faces and roman numerals drifting up like reversed
+   embers, slowly turning - time magic, prophecy trances, thin clocks
+   (the glyphs themselves ride the spec json: text particles) */
+#adv-weather.adv-weather-timewarp .adv-wp {
+    top: auto;
+    bottom: -34px;
+    background: none;
+    color: rgba(232, 208, 152, 0.55);
+    font-family: var(--adv-serif, Georgia, serif);
+    font-weight: 600;
+    text-shadow: 0 0 9px rgba(255, 226, 160, 0.5);
+    animation-name: adv-rise-timewarp;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-timewarp {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    12%  { opacity: 0.8; }
+    50%  { transform: translate(2vw, -52vh) rotate(180deg); opacity: 0.5; }
+    100% { transform: translate(-1.5vw, -106vh) rotate(360deg); opacity: 0; }
+}

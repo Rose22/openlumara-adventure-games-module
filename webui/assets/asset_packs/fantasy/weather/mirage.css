@@ -1,0 +1,17 @@
+/* weather kind: mirage - default set
+   columns of warping air standing over the hot ground -
+   deserts, hallucinations, promises just out of reach */
+.adv-weather-mirage .adv-wp {
+    background: linear-gradient(180deg, transparent, rgba(255, 250, 240, 0.10) 45%, rgba(255, 244, 228, 0.16));
+    border-radius: 45%;
+    filter: blur(3px);
+    transform-origin: bottom center;
+    animation-name: adv-mirage-warp;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-mirage-warp {
+    0%   { transform: skewX(-7deg) scaleX(1); opacity: 0.7; }
+    50%  { transform: skewX(7deg) scaleX(1.18); opacity: 1; }
+    100% { transform: skewX(-7deg) scaleX(1); opacity: 0.7; }
+}

@@ -1,0 +1,29 @@
+/* thinking_text.css - anime set (chrome slot: thinking_text.css)
+   REPLACES the default sheet whole. The line under the star is soft
+   and round with wide air around the letters, breathing like a held
+   note before the chorus. Wording lives in thinking_text.json; the
+   prompt phase burns --adv-think-charge into the words. */
+.adv-think-word {
+    font-size: calc(var(--adv-font-size, 17.5px) * 0.78);
+    letter-spacing: 0.16em;
+    font-style: italic;
+    color: var(--adv-ink-soft, var(--text-secondary));
+    opacity: 0.85;
+    animation: adv-think-word-anime 2.8s ease-in-out infinite;
+}
+@keyframes adv-think-word-anime {
+    0%, 100% { opacity: 0.55; transform: translateY(0.5px); }
+    50%      { opacity: 1; transform: translateY(-0.5px); }
+}
+.adv-think-word.adv-think-prompt {
+    font-style: normal;
+    opacity: calc(0.4 + 0.6 * var(--adv-think-charge, 0));
+    animation: none;
+}
+.adv-think-word.adv-think-tool {
+    font-style: normal;
+    color: var(--adv-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-think-word { animation: none; opacity: 0.85; }
+}

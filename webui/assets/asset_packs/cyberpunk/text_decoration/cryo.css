@@ -1,0 +1,17 @@
+/* text decoration: cryo - scifi set
+   frozen words: pale ice tint with a rime glow that breathes like a
+   pod lamp through the dark */
+.adv-macro-cryo {
+    color: #dff6ff;
+    text-shadow: 0 0 10px rgba(140, 220, 255, 0.5), 0 1px 0 rgba(70, 130, 170, 0.8);
+    letter-spacing: 0.12em;
+    animation: adv-scifi-cryo-breathe 4.5s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-scifi-cryo-breathe {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-cryo { animation: none; }
+}

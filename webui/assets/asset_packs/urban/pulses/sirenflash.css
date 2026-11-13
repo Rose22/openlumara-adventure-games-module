@@ -1,0 +1,54 @@
+/* one-shot pulse: sirenflash - urban set
+   the passing cruiser: red and blue washes alternating across the
+   walls twice, then gone. Fired as {{sirenflash}}. */
+.adv-fx-sirenflash {
+    animation: adv-fx-sirenflash 1.5s ease-out forwards;
+}
+.adv-fx-sirenflash::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 55%;
+    background: radial-gradient(60% 70% at 8% 45%, rgba(255, 59, 48, 0.5), transparent 75%);
+    animation: adv-siren-red 1.5s ease-out both;
+}
+.adv-fx-sirenflash::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 55%;
+    background: radial-gradient(60% 70% at 92% 45%, rgba(48, 120, 255, 0.5), transparent 75%);
+    animation: adv-siren-blue 1.5s ease-out both;
+}
+@keyframes adv-fx-sirenflash {
+    0%   { opacity: 0; }
+    5%   { opacity: 1; }
+    88%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+@keyframes adv-siren-red {
+    0%   { opacity: 0; }
+    6%   { opacity: 1; }
+    22%  { opacity: 0.1; }
+    40%  { opacity: 1; }
+    58%  { opacity: 0.1; }
+    74%  { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+@keyframes adv-siren-blue {
+    0%   { opacity: 0; }
+    14%  { opacity: 1; }
+    30%  { opacity: 0.1; }
+    48%  { opacity: 1; }
+    66%  { opacity: 0.1; }
+    82%  { opacity: 0.8; }
+    100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-sirenflash,
+    #adv-pulses .adv-fx-sirenflash { opacity: 0; }
+}

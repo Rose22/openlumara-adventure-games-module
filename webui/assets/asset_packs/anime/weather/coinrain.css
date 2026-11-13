@@ -1,0 +1,25 @@
+/* weather kind: coinrain - anime set
+   the loot geyser erupted: gold pieces tumbling down with the coins'
+   telltale FLIP - scaleX squashes so each one turns edge-on mid-fall
+   and catches the light again. Dungeons, jackpots, the guild reward
+   that finally cleared. */
+.adv-weather-coinrain .adv-wp {
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, #ffe89a 0%, #f5b942 45%, #b47c14 100%);
+    box-shadow: 0 0 5px rgba(245, 185, 66, 0.6);
+    animation-name: adv-fall-coinrain;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-weather-coinrain .adv-wp:nth-child(7n) {
+    background: radial-gradient(circle at 32% 30%, #f4f6fa 0%, #c9d2dd 45%, #7c8794 100%);
+    box-shadow: 0 0 5px rgba(210, 220, 235, 0.6);
+}
+@keyframes adv-fall-coinrain {
+    0%   { transform: translateY(-4vh) scaleX(1); opacity: 0; }
+    8%   { opacity: 1; }
+    38%  { transform: translateY(38vh) scaleX(0.22); }
+    66%  { transform: translateY(66vh) scaleX(1); }
+    86%  { transform: translateY(86vh) scaleX(0.35); }
+    100% { transform: translateY(104vh) scaleX(0.9); opacity: 0.75; }
+}

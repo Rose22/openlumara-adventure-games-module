@@ -1,0 +1,27 @@
+/* sky kind: white_void - anime set
+   the space before the other world: infinite white with a soft halo
+   where the goddess will float in, a faint ring of brighter nothing
+   pulsing at center. Alpha stays capped so the briefing stays
+   readable - even divine orientation scenes need contrast. */
+#adv-sky.adv-sky-white_void::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 110% at 50% 50%,
+                rgba(252, 252, 255, 0.50) 0%,
+                rgba(240, 242, 252, 0.40) 55%,
+                rgba(222, 228, 246, 0.42) 100%);
+}
+#adv-sky.adv-sky-white_void::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.55) 0%, transparent 16%),
+        radial-gradient(circle at 50% 46%, transparent 18%, rgba(255, 255, 255, 0.35) 22%, transparent 26%);
+    animation: adv-white_void-pulse 5s ease-in-out infinite alternate;
+}
+@keyframes adv-white_void-pulse {
+    from { opacity: 0.7; transform: scale(0.98); }
+    to   { opacity: 1; transform: scale(1.02); }
+}

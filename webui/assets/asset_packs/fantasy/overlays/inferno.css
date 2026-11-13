@@ -1,0 +1,15 @@
+/* overlay mood: inferno - default set
+   being inside the fire: heat climbs the bottom of the window and the
+   whole view shimmers in its updraft - distinct from the embers weather */
+.adv-fx-inferno {
+    background:
+        radial-gradient(85% 42% at 50% 108%, rgba(255, 140, 40, 0.30), transparent 70%),
+        radial-gradient(65% 30% at 28% 104%, rgba(255, 80, 20, 0.20), transparent 72%),
+        radial-gradient(60% 34% at 76% 106%, rgba(255, 190, 70, 0.18), transparent 70%);
+    filter: blur(6px);
+    animation: adv-fx-in 1s ease forwards, adv-inferno-dance 3.4s ease-in-out 1s infinite alternate;
+}
+@keyframes adv-inferno-dance {
+    from { opacity: 0.75; transform: scaleY(1); }
+    to   { opacity: 1; transform: scaleY(1.06); }
+}

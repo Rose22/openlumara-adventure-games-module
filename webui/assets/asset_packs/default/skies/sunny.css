@@ -1,0 +1,37 @@
+/* sky kind: sunny - default set
+   warm gold light spilling in from a high corner, dust motes
+   glittering inside it */
+#adv-sky.adv-sky-sunny::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(52% 40% at 78% 4%, rgba(255, 214, 130, 0.22), transparent 72%),
+        /* one soft shaft raking in from the sun corner to mid-floor */
+        linear-gradient(115deg, transparent 32%, rgba(255, 222, 152, 0.10) 46%,
+                                  rgba(255, 222, 152, 0.02) 58%, transparent 68%);
+    animation: adv-sunny-wash 7s ease-in-out infinite alternate;
+}
+@keyframes adv-sunny-wash {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+}
+.adv-sky-sunny .adv-wp {
+    background: rgba(255, 226, 150, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 6px 1px rgba(255, 220, 140, 0.55);
+    filter: blur(0.3px);
+    animation-name: adv-sunny-motes;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+/* dust rides air currents: drifts across, hangs, sinks, drifts back -
+   never a straight raindrop fall */
+@keyframes adv-sunny-motes {
+    0%   { transform: translate(0, -2vh); opacity: 0.12; }
+    22%  { transform: translate(2.2vw, 24vh); opacity: 0.9; }
+    45%  { transform: translate(0.6vw, 42vh); opacity: 0.45; }
+    68%  { transform: translate(2.8vw, 62vh); opacity: 0.95; }
+    86%  { transform: translate(1.1vw, 84vh); opacity: 0.3; }
+    100% { transform: translate(2.4vw, 104vh); opacity: 0.1; }
+}

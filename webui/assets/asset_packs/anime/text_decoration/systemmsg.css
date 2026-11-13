@@ -1,0 +1,21 @@
+/* text decoration: systemmsg - anime set
+   the System speaks: cool blue small-caps behind its diamond marker,
+   flatter and calmer than any human voice in the story - because it
+   is. {{systemmsg|you have acquired Appraisal}} */
+.adv-macro-systemmsg {
+    color: #8ecbff;
+    font-variant: small-caps;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(110, 190, 255, 0.4);
+}
+html.adv-light .adv-macro-systemmsg {
+    color: #1668b0;
+    text-shadow: none;
+}
+.adv-macro-systemmsg::before {
+    content: "\25C6\00a0";
+    font-size: 0.8em;
+    color: #6fbcff;
+}
+html.adv-light .adv-macro-systemmsg::before { color: #1668b0; }

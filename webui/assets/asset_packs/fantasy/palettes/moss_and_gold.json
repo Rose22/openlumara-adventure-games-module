@@ -1,0 +1,36 @@
+{
+  "label": "Moss & Gold (forest quest)",
+  "prefers": "dark",
+  "light": {
+    "dark": false,
+    "accent": "#4d7c0f", "link": "#3f6212", "link_hover": "#65a30d",
+    "page": "#f2f7ea", "ink": "#1a2912", "ink_soft": "#53664a", "line": "#ceddbf",
+    "ui_bg1": "#e9f1df", "ui_bg2": "#dfe9d3", "ui_bg3": "#d6e2c8",
+    "ui_text": "#1a2912", "ui_text_soft": "#4a5d40", "ui_text_muted": "#7a8f6e",
+    "ui_border": "#c4d5b6",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,200,120,0.20), rgba(200,230,150,0.10))",
+      "morning": "linear-gradient(180deg, rgba(245,255,235,0.12), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(240,250,210,0.15), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(220,140,50,0.22), rgba(70,80,30,0.14))",
+      "night": "linear-gradient(180deg, rgba(25,50,25,0.32), rgba(10,25,12,0.20))",
+      "deepnight": "linear-gradient(180deg, rgba(8,20,10,0.45), rgba(3,10,4,0.32))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#a3e635", "link": "#bef264", "link_hover": "#d9f99d",
+    "page": "#101a0f", "ink": "#e7f3dd", "ink_soft": "#a3bc96", "line": "#24391f",
+    "ui_bg1": "#0a120a", "ui_bg2": "#0e1a0d", "ui_bg3": "#122311",
+    "ui_text": "#eaf5e0", "ui_text_soft": "#abc49d", "ui_text_muted": "#6c8461",
+    "ui_border": "#1f351c",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,200,110,0.13), rgba(190,220,110,0.06))",
+      "morning": "linear-gradient(180deg, rgba(210,250,170,0.06), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(200,245,150,0.08), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(230,140,40,0.14), rgba(80,70,20,0.10))",
+      "night": "linear-gradient(180deg, rgba(70,140,60,0.15), rgba(15,40,20,0.14))",
+      "deepnight": "linear-gradient(180deg, rgba(25,70,35,0.24), rgba(4,15,6,0.20))"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+/* overlay mood: chroma - scifi set
+   the world seen through a cheap lens: red bleeds off the left edge,
+   cyan off the right (aberration is always worst at the edges), a fine
+   red/cyan fringe grain over everything, the whole split breathing
+   wider and narrower - and every few seconds the lens mount slips: a
+   hard sideways snap of the overlay. mix-blend-mode: screen so the
+   fringes ride as light wherever they can. */
+.adv-fx-chroma {
+    background:
+        linear-gradient(90deg, rgba(255, 32, 96, 0.18) 0%, transparent 20%, transparent 80%, rgba(32, 190, 255, 0.18) 100%),
+        linear-gradient(180deg, rgba(0, 200, 255, 0.1) 0%, transparent 26%, transparent 74%, rgba(255, 32, 96, 0.1) 100%),
+        repeating-linear-gradient(0deg, rgba(255, 0, 80, 0.04) 0 2px, rgba(0, 255, 255, 0.04) 2px 4px);
+    /* oversized layers so the drift can slide them without exposing a
+       bare edge */
+    background-size: calc(100% + 12px) 100%, 100% calc(100% + 8px), auto;
+    background-position: -6px 0, 0 -4px, 0 0;
+    mix-blend-mode: screen;
+    animation:
+        adv-fx-in 0.25s ease forwards,
+        adv-fx-chroma-drift 6s ease-in-out 0.25s infinite alternate both,
+        adv-fx-chroma-jit 2.9s steps(1, end) 0.25s infinite both;
+}
+/* the split breathes: red and cyan edges slide apart and back */
+@keyframes adv-fx-chroma-drift {
+    from { background-position: -6px 0, 0 -4px, 0 0; }
+    to   { background-position: 6px 0, 0 4px, 0 0; }
+}
+/* the mount slip: 2.4 s of calm, then four hard sideways frames */
+@keyframes adv-fx-chroma-jit {
+    0%, 90% { transform: translateX(0); }
+    92% { transform: translateX(-4px); }
+    94% { transform: translateX(3px); }
+    96% { transform: translateX(-2px); }
+    98% { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-fx-chroma { animation: none; transform: none; }
+}

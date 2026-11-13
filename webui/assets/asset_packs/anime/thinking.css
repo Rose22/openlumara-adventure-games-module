@@ -1,0 +1,52 @@
+/* thinking sigil skin - anime set (chrome slot: thinking.css)
+   REPLACES the default sheet whole. The big star breathes its glow
+   while the little satellite star orbits overhead and background
+   sparkles twinkle off-beat - the magical-girl compact turning over. */
+#adv-thinking > svg {
+    width: clamp(84px, 10vw, 120px);
+    height: auto;
+    color: var(--adv-accent);
+    filter: drop-shadow(0 0 14px var(--adv-accent));
+}
+#adv-thinking .adv-star-core {
+    transform-box: view-box;
+    transform-origin: 50px 50px;
+    animation: adv-star-breathe 2.8s ease-in-out infinite;
+}
+@keyframes adv-star-breathe {
+    0%, 100% { transform: scale(0.92) rotate(-3deg); opacity: 0.75; }
+    50%      { transform: scale(1.06) rotate(3deg); opacity: 1; }
+}
+#adv-thinking .adv-star-orbit {
+    transform-box: view-box;
+    transform-origin: 50px 50px;
+    animation: adv-star-orbit 4.2s linear infinite;
+}
+@keyframes adv-star-orbit {
+    to { transform: rotate(360deg); }
+}
+#adv-thinking .adv-star-mini {
+    animation: adv-star-mini 1.4s ease-in-out infinite alternate;
+}
+@keyframes adv-star-mini {
+    from { opacity: 0.35; }
+    to   { opacity: 1; }
+}
+/* the background twinkles fire off-beat against the orbit */
+#adv-thinking .adv-star-sparkles circle {
+    animation: adv-star-twinkle 2.2s ease-in-out infinite;
+}
+#adv-thinking .adv-star-sparkles circle:nth-child(2) { animation-delay: -0.8s; }
+#adv-thinking .adv-star-sparkles circle:nth-child(3) { animation-delay: -1.5s; }
+@keyframes adv-star-twinkle {
+    0%, 100% { opacity: 0.1; }
+    50%      { opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-thinking .adv-star-core,
+    #adv-thinking .adv-star-orbit,
+    #adv-thinking .adv-star-mini,
+    #adv-thinking .adv-star-sparkles circle { animation: none; }
+    #adv-thinking .adv-star-core { opacity: 1; }
+    #adv-thinking .adv-star-mini { opacity: 0.8; }
+}

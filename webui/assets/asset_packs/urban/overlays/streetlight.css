@@ -1,0 +1,27 @@
+/* overlay mood: streetlight - urban set
+   the pool of a sodium lamp after dark: warm amber glow from above,
+   the rest of the world falling off into soft black. Fits: midnight
+   conversations, waiting for a bus, the one lit corner of a bad
+   neighborhood. */
+.adv-fx-streetlight {
+    background: radial-gradient(90% 70% at 50% 0%, rgba(255, 176, 80, 0.16), transparent 55%),
+                radial-gradient(ellipse at center, transparent 45%, rgba(30, 18, 8, 0.50) 100%);
+    animation: adv-fx-in 1.2s ease forwards,
+               adv-streetlight-flicker 9s ease-in-out 1.2s infinite;
+}
+.adv-fx-streetlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(40% 28% at 50% 0%, rgba(255, 196, 110, 0.14), transparent 75%);
+}
+@keyframes adv-streetlight-flicker {
+    0%   { opacity: 1; }
+    47%  { opacity: 1; }
+    49%  { opacity: 0.82; }
+    51%  { opacity: 1; }
+    78%  { opacity: 1; }
+    79%  { opacity: 0.88; }
+    80%  { opacity: 1; }
+    100% { opacity: 1; }
+}

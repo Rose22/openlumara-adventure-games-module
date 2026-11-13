@@ -1,0 +1,29 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08)
+   adventure_games: journal modal - every story passage so far, Twine-style. #}
+
+<template x-if="$store.ui.currentModal === 'adventure_journal'" x-cloak>
+    <div @keydown.escape.window="$store.ui.closeModal()">
+        <div class="modal adv-journal">
+            <div class="header">
+                <h2>⌘ Story Journal</h2>
+                <button class="close" @click="$store.ui.closeModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="adv-journal-body">
+                <template x-if="!$store.adv?.campaign">
+                    <p style="font-style: italic;">No campaign in this chat.</p>
+                </template>
+                <template x-if="$store.adv?.campaign">
+                    <div>
+                        <p style="font-style: italic; opacity: 0.8;" x-text="$store.adv.campaign.title"></p>
+                        <template x-for="p in ($store.adv?.journalPassages() ?? [])" :key="p.n">
+                            <div class="adv-jp">
+                                <div class="adv-jp-n" x-text="'Passage ' + p.n"></div>
+                                <div x-md="{ message: { content: p.text }, live: false }"></div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

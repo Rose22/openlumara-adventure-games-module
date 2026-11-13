@@ -1,0 +1,25 @@
+/* weather kind: fireflies - anime set
+   the summer festival field: warm glowing motes climbing lazily,
+   blinking like the ones you were told not to catch. Rising, so the
+   css parks the spawn below the window; the multi-stop opacity is
+   the blink. */
+.adv-weather-fireflies .adv-wp {
+    background: #f4ffb0;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(232, 255, 130, 0.95), 0 0 14px rgba(232, 255, 130, 0.5);
+    top: auto;
+    bottom: -8px;
+    animation-name: adv-rise-fireflies;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-fireflies {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    12%  { opacity: 0.9; }
+    24%  { opacity: 0.25; }
+    38%  { transform: translate(2.4vw, -34vh); opacity: 1; }
+    52%  { opacity: 0.35; }
+    66%  { transform: translate(-1.8vw, -62vh); opacity: 0.95; }
+    80%  { opacity: 0.2; }
+    100% { transform: translate(1.2vw, -102vh); opacity: 0; }
+}

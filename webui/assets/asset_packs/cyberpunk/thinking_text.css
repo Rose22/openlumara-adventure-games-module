@@ -1,0 +1,78 @@
+/* thinking_text.css - scifi set. The wait line reads as a terminal
+   status: monospace, uppercase, wide tracking - and the signal carries
+   the campaign's colors: everything rides the palette vars applyTheme
+   paints (--adv-accent is the live signal, --adv-link-hover the hard
+   tool glow), the set's authored cyan/green kept as fallback for when
+   no palette is active.
+   The thinking beat flickers like a weak signal; the tool beat snaps
+   into a hard, steady glow - machines do not hesitate. */
+.adv-think-word {
+    font-family: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+    font-size: calc(var(--adv-font-size, 17.5px) * 0.69);   /* tracks the adventure's story size */
+    letter-spacing: 0.32em;
+    text-indent: 0.32em;         /* re-centers the trailing letter-space */
+    text-transform: uppercase;
+    font-style: normal;
+    color: var(--adv-accent, #6fe3ff);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--adv-accent, #6fe3ff) 50%, transparent);
+    animation: adv-scifi-think-flicker 2.2s steps(1, end) infinite;
+}
+/* the prompt beat: the words ARE the loading bar. plus.js feeds
+   --adv-think-charge (0..1) from the real prompt-eval progress and the
+   gradient fill stops exactly where the progress is - letters behind
+   the boundary are lit accent and glow hotter the fuller the bar gets,
+   the handful of glyphs at the boundary burn white-hot (that's the
+   receiver working), everything ahead of it stays dull steel, waiting
+   to be transmitted. no sweep, no blur - just the line filling up. */
+.adv-think-word.adv-think-prompt {
+    --adv-sc-p: calc(var(--adv-think-charge, 0) * 100%);
+    --adv-sc-lit: color-mix(in srgb, var(--adv-accent, #6fe3ff)
+                            calc(55% + 30% * var(--adv-think-charge, 0)), #fff);
+    --adv-sc-edge: color-mix(in srgb, var(--adv-accent, #6fe3ff) 12%, #fff);
+    --adv-sc-wait: color-mix(in srgb, var(--adv-accent, #6fe3ff) 22%,
+                             var(--adv-ink-soft, #9db4c4));
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background: linear-gradient(90deg,
+        var(--adv-sc-lit) 0,
+        var(--adv-sc-lit) calc(var(--adv-sc-p) - 7%),
+        var(--adv-sc-edge) calc(var(--adv-sc-p) - 3%),
+        var(--adv-sc-edge) var(--adv-sc-p),
+        color-mix(in srgb, var(--adv-sc-wait) 60%, transparent) calc(var(--adv-sc-p) + 1%),
+        color-mix(in srgb, var(--adv-sc-wait) 60%, transparent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    opacity: calc(0.85 + 0.15 * var(--adv-think-charge, 0));
+    /* the bloom must follow the fill, and text-shadow cannot (it paints
+       every glyph's silhouette equally, dim or lit - that made the whole
+       line murky). drop-shadow reads ALPHA instead: the waiting glyphs
+       ride translucent in the gradient above, so only the solid,
+       white-hot lit section actually blooms. hot core + wide halo, both
+       scaling with the charge. */
+    text-shadow: none;
+    filter:
+        drop-shadow(0 0 calc(3px + 6px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #6fe3ff)
+                       calc(45% + 40% * var(--adv-think-charge, 0)), transparent))
+        drop-shadow(0 0 calc(12px + 34px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #6fe3ff)
+                       calc(30% + 45% * var(--adv-think-charge, 0)), transparent));
+    animation: none;
+}
+@keyframes adv-scifi-think-flicker {
+    0%, 100% { opacity: 0.85; }
+    7%  { opacity: 0.4; }
+    9%  { opacity: 0.85; }
+    48% { opacity: 0.85; }
+    52% { opacity: 0.55; }
+    54% { opacity: 0.85; }
+}
+.adv-think-word.adv-think-tool {
+    color: var(--adv-link-hover, #8fffc7);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--adv-link-hover, #8fffc7) 60%, transparent);
+    animation: none;
+    opacity: 0.95;
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-think-word { animation: none; }
+}

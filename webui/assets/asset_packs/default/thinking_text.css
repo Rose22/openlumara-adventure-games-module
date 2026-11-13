@@ -1,0 +1,49 @@
+/* thinking_text.css - default set. The line of words under the thinking
+   sigil. The wording itself lives in thinking_text.json, one entry per
+   phase: "thinking" = the GM pondering, "prompt" = the request is away
+   and the tokens have not started (and while tool RESULTS run), "tool" =
+   the model writing out its tool calls. Each
+   phase may name ONE string or a LIST of them - a list rotates to a new
+   random entry every 2-5 s while the phase holds. THIS sheet owns the
+   look: font, color and the animation that lives here.
+   It loads AFTER the module css (whose baseline keeps the line quiet and
+   breathing), so everything below restyles that line whole. A campaign
+   set's own thinking_text.css replaces this one for file (no cascade
+   between sets).
+
+   The word sits as <div class="adv-think-word"> inside #adv-thinking
+   (a flex column: sigil, then this line). While the prompt phase runs
+   the element also carries .adv-think-prompt, and during the tool phase
+   .adv-think-tool - style those classes to give each beat a visibly
+   different look, or leave them alone and only the words change. While
+   the prompt phase runs the element also receives --adv-think-charge,
+   a 0..1 css variable plus.js fills from the real prompt-eval progress
+   - a gauge a set can burn straight into the words, no bar needed. On
+   the same meter plus.js sheds .adv-think-spark motes off the line at
+   charge rate; a sheet that styles that class makes the wait literally
+   glitter (unstyled, they are invisible - see the fantasy set).
+   Colors ride the campaign palette vars applyTheme paints (--adv-accent,
+   --adv-ink-soft, --adv-link-hover, ... - see default/palettes/AI_GUIDE.md):
+   the line speaks the campaign's own tongue. A set's sheet should do the
+   same, keeping its authored hexes only as no-palette fallbacks. */
+.adv-think-word {
+    font-size: calc(var(--adv-font-size, 17.5px) * 0.8);   /* tracks the adventure's story size */
+    letter-spacing: 0.12em;
+    font-style: italic;
+    color: var(--adv-ink-soft, var(--text-secondary));
+    opacity: 0.85;
+    animation: adv-think-word-breathe 2.6s ease-in-out infinite;
+}
+/* the prompt beat doubles as the progress meter: the line fades up and
+   focuses as the charge fills, so the wait reads its own length. */
+.adv-think-word.adv-think-prompt {
+    font-style: normal;
+    opacity: calc(0.4 + 0.6 * var(--adv-think-charge, 0));
+    filter: blur(calc((1 - var(--adv-think-charge, 0)) * 1px));
+    animation: none;
+}
+/* the tool beat keeps the same breath in the default world - only the
+   words swap. a set is free to diverge hard here. */
+.adv-think-word.adv-think-tool {
+    font-style: normal;
+}

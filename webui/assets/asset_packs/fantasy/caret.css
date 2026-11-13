@@ -1,0 +1,138 @@
+/* typewriter caret effect - fantasy set (chrome slot: caret.css)
+   EMISSION MODEL, sparkles only: the caret itself is a blurred halo
+   that EMITS .adv-caret-p particles - each spawn pairs a dot in the
+   CAMPAIGN PALETTE'S ACCENT (--adv-accent, live: change the palette
+   and the caret recolors itself; the fallback is a warm gold) and a
+   pale white-tinted one, shooting up-left and dying a fifth of a
+   second later, so the typed line trails scattered pinprick sparks
+   while the caret moves on. No core orb, no glyphs - pure dots.
+   Self-contained sheet - it replaces the default set's mote whole. */
+#adv-caret {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    position: fixed;
+    z-index: 9995;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+#adv-caret.adv-caret-on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.12s ease, visibility 0s;
+}
+/* the emitter's halo: a blurred aura breathing at the caret's center -
+   a soft gold-violet bloom, blurred into the page, fading in and out
+   with the caret itself while the stars stream out of it */
+#adv-caret::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: -8px;
+    width: 4px;
+    height: 26px;
+    border-radius: 999px;
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--adv-accent, #ffd76e) 45%, transparent) 0%, color-mix(in srgb, var(--adv-accent, #ffd76e) 16%, transparent) 60%, transparent 100%);
+    filter: blur(4px);
+    animation: adv-caret-halo 1.1s ease-in-out infinite;
+}
+@keyframes adv-caret-halo {
+    0%, 100% { transform: scale(0.85); opacity: 0.7; }
+    50%      { transform: scale(1.1); opacity: 1; }
+}
+/* the halo's after-image: the engine leaves one .adv-caret-ghost at
+   the caret's abandoned centre every ~30ms while typing - here each
+   ghost is a paler copy of the halo that spreads and fades out in
+   place, so the caret streams a comet-trail of itself between the
+   dot-sparks. finite animation (the engine recycles on animationend
+   + a 2s net). */
+.adv-caret-ghost {
+    position: fixed;
+    z-index: 9993;
+    width: 26px;
+    height: 26px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--adv-accent, #ffd76e) 48%, transparent) 0%, color-mix(in srgb, var(--adv-accent, #ffd76e) 22%, transparent) 45%, transparent 70%);
+    filter: blur(6px);
+    animation: adv-caret-ghost 0.7s ease-out forwards;
+}
+@keyframes adv-caret-ghost {
+    0%   { opacity: 0.75; transform: translate(-50%, -50%) scale(0.75); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55); }
+}
+/* EMITTED PARTICLES: the engine drops a .adv-caret-p at the caret's
+   current spot and leaves it there (the caret moves on) - each spawn
+   twinkles up and dies AT ITS BIRTH PLACE, so the typed word trails
+   little stars scattered along the line. The engine recycles every
+   particle on animationend (+ a 3s safety net), so the animation here
+   is FINITE. The v0/v1/v2 variant classes (the engine picks one at
+   random per spawn) scatter the stars' offsets, sizes and timing so
+   the trail never reads as a metronome. */
+.adv-caret-p {
+    position: fixed;
+    z-index: 9994;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.adv-caret-p::before,
+.adv-caret-p::after {
+    position: absolute;
+    line-height: 1;
+    opacity: 0;
+}
+.adv-caret-p::before {
+    content: "";                  /* accent dot */
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--adv-accent, #ffd76e);
+    box-shadow: 0 0 8px var(--adv-accent, #ffd76e), 0 0 16px color-mix(in srgb, var(--adv-accent, #ffd76e) 55%, white);
+    left: -6px;
+    top: -7px;
+    animation: adv-caret-pop 0.2s ease-out forwards;
+}
+.adv-caret-p::after {
+    content: "";                  /* pale accent-tint dot */
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--adv-accent, #ffd76e) 55%, white);
+    box-shadow: 0 0 8px var(--adv-accent, #ffd76e);
+    left: 3px;
+    top: 0;
+    animation: adv-caret-pop 0.2s ease-out 0.02s forwards;
+}
+.adv-caret-p.v1::before { left: -3px; top: -10px; width: 2px; height: 2px; animation: adv-caret-pop2 0.17s ease-out forwards; }
+.adv-caret-p.v1::after  { left: 5px; top: 3px; animation-name: adv-caret-pop2; animation-duration: 0.17s; }
+.adv-caret-p.v2::before { left: -9px; top: -4px; width: 4px; height: 4px; animation-duration: 0.23s; }
+.adv-caret-p.v2::after  { left: 1px; top: 4px; animation-duration: 0.23s; }
+/* the drift sweeps LEFT as it rises - back along the line the caret
+   just came from, so the trail reads as being shed behind the typing.
+   v1 rides a steeper, lazier variant so the field isn't all one gust. */
+/* diagonal wake: the stars pop at the caret's spot and sweep left
+   AND up - mostly along the line, with a little lift so the trail
+   feels like sparks, not a flat scrape. v1 rides the steeper, lazier
+   variant so the field isn't all one gust. */
+@keyframes adv-caret-pop {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(-20deg); }
+    25%  { opacity: 0.4; }
+    70%  { opacity: 0.32; }
+    100% { opacity: 0; transform: translate(-4px, -22px) scale(1.15) rotate(25deg); }
+}
+@keyframes adv-caret-pop2 {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(-12deg); }
+    25%  { opacity: 0.4; }
+    70%  { opacity: 0.32; }
+    100% { opacity: 0; transform: translate(-2px, -30px) scale(1.1) rotate(14deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-caret::before { animation: none; }
+    .adv-caret-ghost { animation: none; opacity: 0; }
+    .adv-caret-p::before,
+    .adv-caret-p::after { animation-duration: 1.6s; }
+}

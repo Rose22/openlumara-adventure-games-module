@@ -1,0 +1,33 @@
+/* text decoration: kawaii - anime set
+   cute contagion: pastel pink words with a soft glow while seeded
+   little stars pop around each one (render mode "sparkle" from the
+   json sidecar). This sheet styles the sparkle stars too - the
+   default base ships no sparkle sheet of its own, so the dots are
+   authored here: 4-point clip-path stars breathing on the seeded
+   --adv-sdur / --adv-sdelay the builder rolls per word.
+   {{kawaii|sparkle sparkle}} */
+.adv-macro-kawaii {
+    color: #ee6fb4;
+    text-shadow: 0 0 10px rgba(255, 130, 190, 0.45);
+}
+html.adv-light .adv-macro-kawaii { color: #d23d8c; }
+.adv-macro-kawaii .adv-sparkle-w {
+    position: relative;
+}
+.adv-macro-kawaii .adv-sparkle-dot {
+    position: absolute;
+    display: block;
+    background: linear-gradient(135deg, #ffe29a, #ff9ed2);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    -webkit-clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    opacity: 0;
+    animation: adv-kawaii-spark var(--adv-sdur, 5s) ease-in-out infinite;
+    animation-delay: var(--adv-sdelay, 0s);
+}
+@keyframes adv-kawaii-spark {
+    0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+    50%      { opacity: 0.95; transform: scale(1) rotate(40deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-kawaii .adv-sparkle-dot { animation: none; opacity: 0.6; }
+}

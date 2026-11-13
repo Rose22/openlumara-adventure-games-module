@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thinking sigil - scifi set (chrome slot: thinking.svg)
+     a dormant memory panel: an 8x8 grid of cells whose bits flicker on
+     and off while the GM ponders, with a read-bar sweeping the panel.
+     The randomness is pure css: each cell carries a flash program
+     (p1..p5 = keyframe pattern x coprime duration) and a start offset
+     (d0..d7); the overlapping loops never visibly sync. The look rides
+     in scifi/thinking.css. Safe markup only: no scripts, no handlers,
+     no external refs - it is injected straight into the page. -->
+<svg class="adv-mp" viewBox="0 0 100 100" aria-hidden="true">
+    <defs>
+        <linearGradient id="adv-mp-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="currentColor" stop-opacity="0"/>
+            <stop offset="0.5" stop-color="currentColor" stop-opacity="0.5"/>
+            <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
+        </linearGradient>
+    </defs>
+    <g class="adv-mp-frame" fill="none" stroke="currentColor">
+        <rect x="1.5" y="1.5" width="97" height="97" rx="5" stroke-width="1" opacity="0.35"/>
+        <path d="M6 14 L6 6 L14 6 M86 6 L94 6 L94 14 M94 86 L94 94 L86 94 M14 94 L6 94 L6 86" stroke-width="2" opacity="0.85"/>
+    </g>
+    <g class="adv-mp-grid">
+        <rect class="m p2 d1" x="2"  y="2"  width="10" height="10"/>
+        <rect class="m p4 d5" x="14" y="2"  width="10" height="10"/>
+        <rect class="m p1 d3" x="26" y="2"  width="10" height="10"/>
+        <rect class="m p5 d7" x="38" y="2"  width="10" height="10"/>
+        <rect class="m p3 d0" x="50" y="2"  width="10" height="10"/>
+        <rect class="m p2 d6" x="62" y="2"  width="10" height="10"/>
+        <rect class="m p4 d2" x="74" y="2"  width="10" height="10"/>
+        <rect class="m p1 d4" x="86" y="2"  width="10" height="10"/>
+        <rect class="m p3 d6" x="2"  y="14" width="10" height="10"/>
+        <rect class="m p1 d0" x="14" y="14" width="10" height="10"/>
+        <rect class="m p5 d4" x="26" y="14" width="10" height="10"/>
+        <rect class="m p2 d7" x="38" y="14" width="10" height="10"/>
+        <rect class="m p4 d1" x="50" y="14" width="10" height="10"/>
+        <rect class="m p3 d5" x="62" y="14" width="10" height="10"/>
+        <rect class="m p2 d3" x="74" y="14" width="10" height="10"/>
+        <rect class="m p4 d7" x="86" y="14" width="10" height="10"/>
+        <rect class="m p1 d5" x="2"  y="26" width="10" height="10"/>
+        <rect class="m p4 d2" x="14" y="26" width="10" height="10"/>
+        <rect class="m p2 d6" x="26" y="26" width="10" height="10"/>
+        <rect class="m p3 d1" x="38" y="26" width="10" height="10"/>
+        <rect class="m p5 d3" x="50" y="26" width="10" height="10"/>
+        <rect class="m p1 d7" x="62" y="26" width="10" height="10"/>
+        <rect class="m p4 d0" x="74" y="26" width="10" height="10"/>
+        <rect class="m p3 d4" x="86" y="26" width="10" height="10"/>
+        <rect class="m p5 d2" x="2"  y="38" width="10" height="10"/>
+        <rect class="m p3 d7" x="14" y="38" width="10" height="10"/>
+        <rect class="m p4 d0" x="26" y="38" width="10" height="10"/>
+        <rect class="m p1 d4" x="38" y="38" width="10" height="10"/>
+        <rect class="m p2 d5" x="50" y="38" width="10" height="10"/>
+        <rect class="m p4 d3" x="62" y="38" width="10" height="10"/>
+        <rect class="m p1 d6" x="74" y="38" width="10" height="10"/>
+        <rect class="m p5 d1" x="86" y="38" width="10" height="10"/>
+        <rect class="m p4 d3" x="2"  y="50" width="10" height="10"/>
+        <rect class="m p2 d4" x="14" y="50" width="10" height="10"/>
+        <rect class="m p1 d7" x="26" y="50" width="10" height="10"/>
+        <rect class="m p5 d0" x="38" y="50" width="10" height="10"/>
+        <rect class="m p3 d6" x="50" y="50" width="10" height="10"/>
+        <rect class="m p2 d2" x="62" y="50" width="10" height="10"/>
+        <rect class="m p5 d5" x="74" y="50" width="10" height="10"/>
+        <rect class="m p2 d0" x="86" y="50" width="10" height="10"/>
+        <rect class="m p2 d5" x="2"  y="62" width="10" height="10"/>
+        <rect class="m p5 d1" x="14" y="62" width="10" height="10"/>
+        <rect class="m p3 d2" x="26" y="62" width="10" height="10"/>
+        <rect class="m p4 d6" x="38" y="62" width="10" height="10"/>
+        <rect class="m p1 d4" x="50" y="62" width="10" height="10"/>
+        <rect class="m p5 d7" x="62" y="62" width="10" height="10"/>
+        <rect class="m p3 d3" x="74" y="62" width="10" height="10"/>
+        <rect class="m p1 d2" x="86" y="62" width="10" height="10"/>
+        <rect class="m p1 d1" x="2"  y="74" width="10" height="10"/>
+        <rect class="m p3 d4" x="14" y="74" width="10" height="10"/>
+        <rect class="m p4 d5" x="26" y="74" width="10" height="10"/>
+        <rect class="m p2 d3" x="38" y="74" width="10" height="10"/>
+        <rect class="m p5 d2" x="50" y="74" width="10" height="10"/>
+        <rect class="m p3 d6" x="62" y="74" width="10" height="10"/>
+        <rect class="m p4 d7" x="74" y="74" width="10" height="10"/>
+        <rect class="m p3 d1" x="86" y="74" width="10" height="10"/>
+        <rect class="m p4 d6" x="2"  y="86" width="10" height="10"/>
+        <rect class="m p1 d2" x="14" y="86" width="10" height="10"/>
+        <rect class="m p5 d1" x="26" y="86" width="10" height="10"/>
+        <rect class="m p3 d5" x="38" y="86" width="10" height="10"/>
+        <rect class="m p2 d0" x="50" y="86" width="10" height="10"/>
+        <rect class="m p4 d4" x="62" y="86" width="10" height="10"/>
+        <rect class="m p1 d5" x="74" y="86" width="10" height="10"/>
+        <rect class="m p5 d3" x="86" y="86" width="10" height="10"/>
+    </g>
+    <rect class="adv-mp-scan" x="2" y="0" width="94" height="12" fill="url(#adv-mp-grad)" opacity="0.6"/>
+</svg>

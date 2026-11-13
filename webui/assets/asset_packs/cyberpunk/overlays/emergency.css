@@ -1,0 +1,16 @@
+/* overlay mood: emergency - scifi set
+   red alert held: the edges darken and breathe with klaxon red while
+   the beacon turns somewhere nobody is looking */
+.adv-fx-emergency {
+    background: radial-gradient(ellipse at center,
+        transparent 52%, rgba(160, 10, 30, 0.34) 100%);
+    animation: adv-fx-in 0.3s ease forwards,
+        adv-scifi-em-breathe 1.6s ease-in-out 0.3s infinite both;
+}
+@keyframes adv-scifi-em-breathe {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-fx-emergency { animation: none; }
+}

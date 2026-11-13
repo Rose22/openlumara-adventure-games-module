@@ -1,0 +1,17 @@
+/* text decoration: whisper - default set
+   hushed words: smaller, italic, softly pulsing */
+.adv-macro-whisper {
+    font-size: 0.8em;
+    font-style: italic;
+    letter-spacing: 0.14em;
+    opacity: 0.75;
+    animation: adv-whisper-pulse 3.2s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-whisper-pulse {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-whisper { animation: none; }
+}

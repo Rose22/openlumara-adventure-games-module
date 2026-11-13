@@ -1,0 +1,19 @@
+/* one-shot pulse: surge - urban set
+   the transformer blows: a hard white pop with a cold blue afterglow,
+   gone before your eyes adjust. Fired as {{surge}}. */
+.adv-fx-surge {
+    background: radial-gradient(ellipse at center,
+                rgba(255, 250, 235, 0.95) 0%,
+                rgba(140, 180, 255, 0.35) 55%,
+                transparent 80%);
+    animation: adv-fx-surge 1.15s ease-out forwards;
+}
+@keyframes adv-fx-surge {
+    0%   { opacity: 0; }
+    7%   { opacity: 1; }
+    100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-surge,
+    #adv-pulses .adv-fx-surge { opacity: 0; }
+}

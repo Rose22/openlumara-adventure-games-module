@@ -1,0 +1,36 @@
+{
+  "label": "Rooftop (warm brick night)",
+  "prefers": "dark",
+  "light": {
+    "dark": false,
+    "accent": "#c2410c", "link": "#9a3412", "link_hover": "#c2410c",
+    "page": "#faf3ec", "ink": "#241a12", "ink_soft": "#6d5a4c", "line": "#e7dbd0",
+    "ui_bg1": "#f3eae1", "ui_bg2": "#ece0d5", "ui_bg3": "#e3d5c8",
+    "ui_text": "#241a12", "ui_text_soft": "#54453a", "ui_text_muted": "#8a7868",
+    "ui_border": "#ddd0c4",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,206,170,0.20), rgba(240,226,216,0.08))",
+      "morning": "linear-gradient(180deg, rgba(250,244,236,0.10), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(246,238,228,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(232,140,90,0.20), rgba(140,100,110,0.12))",
+      "night": "linear-gradient(180deg, rgba(70,44,52,0.32), rgba(34,24,32,0.22))",
+      "deepnight": "linear-gradient(180deg, rgba(32,20,28,0.44), rgba(16,10,14,0.30))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#ff8a4c", "link": "#ffc79c", "link_hover": "#ffdcc0",
+    "page": "#17120e", "ink": "#ecdcd0", "ink_soft": "#a08c7d", "line": "#2c221b",
+    "ui_bg1": "#1c1611", "ui_bg2": "#231b15", "ui_bg3": "#2b211a",
+    "ui_text": "#eedfd3", "ui_text_soft": "#b09a8a", "ui_text_muted": "#7a6858",
+    "ui_border": "#33271e",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,200,160,0.10), rgba(170,140,130,0.04))",
+      "morning": "linear-gradient(180deg, rgba(226,210,196,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(222,206,192,0.05), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,150,90,0.10), rgba(150,100,110,0.07))",
+      "night": "linear-gradient(180deg, rgba(255,170,110,0.09), rgba(90,60,44,0.07))",
+      "deepnight": "linear-gradient(180deg, rgba(210,140,90,0.13), rgba(30,20,16,0.12))"
+    }
+  }
+}

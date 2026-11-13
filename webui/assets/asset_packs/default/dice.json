@@ -1,0 +1,6 @@
+{
+  "desc": "classic unicode pips; the coin shows the sun (heads) and the moon (tails). A campaign set's dice.json merges field by field over this base, so shipping only heads/tails keeps the default faces (and vice versa). Faces are text glyphs shown one per die - emoji work; the first six entries are used, keep each short (a full word breaks the fixed die cell).",
+  "faces": ["\u2680", "\u2681", "\u2682", "\u2683", "\u2684", "\u2685"],
+  "heads": "\u2600",
+  "tails": "\u263E"
+}

@@ -1,0 +1,48 @@
+/* thinking sigil skin - default set (chrome slot: thinking.css)
+   a campaign set's own thinking.css REPLACES this sheet whole (same
+   slot, file for file - so a set that wants the base look plus a tweak
+   should fork this file rather than count on a cascade). The generic
+   "> svg" stage rule sizes and lights ANY sigil (custom ones included,
+   even without the class names below); the .adv-rune-* rules animate
+   the default thinking.svg. */
+#adv-thinking > svg {
+    width: clamp(84px, 10vw, 120px);
+    height: auto;
+    color: var(--adv-accent);
+    filter: drop-shadow(0 0 18px var(--adv-accent));
+}
+/* breathing rune sigil: a glowing arcane circle that inhales (scale +
+   glow) while its outer rune ring spins one way and the inner dashed
+   ring counter-spins - the ward turning as the GM ponders */
+#adv-thinking .adv-rune {
+    animation: adv-rune-breathe 3.6s ease-in-out infinite;
+}
+#adv-thinking .adv-rune-glyphs {
+    font-size: 9px;
+    fill: currentColor;
+    letter-spacing: 2.5px;
+    opacity: 0.9;
+}
+#adv-thinking .adv-rune-ring {
+    transform-box: view-box;
+    transform-origin: 50px 50px;
+    animation: adv-rune-spin 16s linear infinite;
+}
+#adv-thinking .adv-rune-erring {
+    transform-box: view-box;
+    transform-origin: 50px 50px;
+    animation: adv-rune-spin 10s linear infinite reverse;
+}
+@keyframes adv-rune-spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes adv-rune-breathe {
+    0%, 100% { transform: scale(0.9);  opacity: 0.65; }
+    50%      { transform: scale(1.08); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-thinking > svg,
+    #adv-thinking .adv-rune,
+    #adv-thinking .adv-rune-ring,
+    #adv-thinking .adv-rune-erring { animation: none; }
+}

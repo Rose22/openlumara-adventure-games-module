@@ -1,0 +1,20 @@
+/* one-shot pulse: poof - default set
+   smoke burst: a magician's exit, a vanished object;
+   fired by the {{poof}} text macro (fresh element per firing) */
+.adv-fx-poof {
+    background: radial-gradient(circle at 50% 52%, rgba(235, 228, 240, 0.5) 0%, rgba(190, 180, 205, 0.42) 32%, rgba(120, 108, 140, 0.18) 55%, transparent 72%);
+    animation: adv-fx-poof 1.1s ease-out forwards;
+}
+@keyframes adv-fx-poof {
+    0%   { opacity: 0; transform: scale(0.15); }
+    18%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(2.4); }
+}
+@media (prefers-reduced-motion: reduce) {
+    /* the pure-motion one-shot would linger (a smoke cloud) without its
+       animation, so it stays invisible instead */
+    #adv-effects .adv-fx-poof,
+    #adv-pulses .adv-fx-poof {
+        opacity: 0;
+    }
+}

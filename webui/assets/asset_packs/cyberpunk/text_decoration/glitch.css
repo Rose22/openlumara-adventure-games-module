@@ -1,0 +1,27 @@
+/* text decoration: glitch - scifi set
+   the rgb channels keep losing sync: the fringe re-jumps its offset AND
+   its color pair every ~63 ms (hot pink, cyan, violet, acid green,
+   amber, orange, ultramarine) - a bad capture card, not a lazy pulse.
+   The ghosts ride well clear of the letters (up to ~5px) so the three
+   copies read as separate images, not a fuzzy edge. steps(1,end) keeps
+   every frame a hard cut; the base rule carries a static split so
+   reduced-motion still reads as aberration. */
+.adv-macro-glitch {
+    color: var(--adv-link-hover);
+    text-shadow: 2.5px 0 rgba(255, 0, 80, 0.75), -2.5px 0 rgba(0, 200, 255, 0.75);
+    animation: adv-glitch 0.5s steps(1, end) infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-glitch {
+    0%   { text-shadow: 2.8px 0 rgba(255, 0, 80, 0.85), -2.8px 0 rgba(0, 225, 255, 0.85); }
+    12%  { text-shadow: -2.2px 1.5px rgba(255, 0, 200, 0.85), 2.2px -1.5px rgba(0, 255, 140, 0.7); }
+    25%  { text-shadow: 4.5px -1.5px rgba(255, 120, 0, 0.75), -4.5px 1.5px rgba(110, 0, 255, 0.85); }
+    37%  { text-shadow: -4px 0 rgba(0, 255, 255, 0.85), 4px 0 rgba(255, 60, 200, 0.8); }
+    50%  { text-shadow: 2px 2.2px rgba(160, 0, 255, 0.8), -2px -2.2px rgba(255, 210, 0, 0.7); }
+    62%  { text-shadow: -4.8px 1.5px rgba(255, 0, 60, 0.85), 4.8px -1.5px rgba(0, 255, 210, 0.85); }
+    75%  { text-shadow: 1.6px -2.8px rgba(255, 0, 240, 0.8), -1.6px 2.8px rgba(120, 255, 0, 0.7); }
+    87%  { text-shadow: 3.5px 1.8px rgba(255, 80, 0, 0.75), -3.5px -1.8px rgba(0, 120, 255, 0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-glitch { animation: none; }
+}

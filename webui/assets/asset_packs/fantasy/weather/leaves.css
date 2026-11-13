@@ -1,0 +1,17 @@
+/* weather kind: leaves - default set
+   autumn leaves tumbling on a crosswind, each one spinning as it goes */
+.adv-weather-leaves .adv-wp {
+    background: linear-gradient(135deg, #d97b2f, #8f4a1d);
+    border-radius: 70% 15% 70% 15%;
+    opacity: 0.9;
+    animation-name: adv-fall-leaves;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-leaves {
+    0%   { transform: translate(0, -2vh) rotate(0deg); }
+    25%  { transform: translate(5vw, 26vh) rotate(150deg); }
+    50%  { transform: translate(-1vw, 52vh) rotate(260deg); }
+    75%  { transform: translate(6vw, 78vh) rotate(400deg); }
+    100% { transform: translate(2vw, 104vh) rotate(520deg); opacity: 0.4; }
+}

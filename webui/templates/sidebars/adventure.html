@@ -1,0 +1,141 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08)
+   adventure_games: stats / inventory sidebar tab. #}
+
+<div class="adv-panel" x-data="advPanel()">
+
+    {# mobile only: the mobile overlay needs a dismiss button (its tabbar is
+       hidden while immersed); desktop keeps the panel open during the
+       adventure, since immersive view hides the tabbar it reopens with #}
+    <button type="button" class="adv-close" title="Close panel" x-show="$store.ui.isMobile" x-cloak
+            @click="$store.ui.showSidebar = false">✕</button>
+
+    <template x-if="!campaign">
+        <div class="adv-empty">
+            <p>No campaign in this chat yet.</p>
+            <p>Ask the AI to <em>"start a fantasy adventure"</em> and watch this panel come alive ✨</p>
+            <p>Commands: <code>/adventure status</code></p>
+        </div>
+    </template>
+
+    <template x-if="campaign && !active">
+        <div>
+            <h3 class="adv-head" x-text="campaign.title"></h3>
+            <p class="adv-sub">You stepped out of the story. Everything is exactly as you left it.</p>
+            <div class="adv-actions">
+                <button type="button" style="flex: 2;" @click="reenter()">✨ Re-enter adventure</button>
+                <button type="button" @click="journal()">⌘ Journal</button>
+            </div>
+        </div>
+    </template>
+
+    <template x-if="campaign && active">
+        <div>
+            <h3 class="adv-head" x-text="campaign.title"></h3>
+
+            <div class="adv-section">Scene</div>
+            <div class="adv-scene">
+                <span x-text="campaign.scene_title"></span>
+                <template x-if="campaign.location">
+                    <span class="adv-loc"> — <span x-text="campaign.location"></span></span>
+                </template>
+            </div>
+            <template x-if="campaign.ended">
+                <div class="adv-scene" style="margin-top:6px;">
+                    ⚰ <strong x-text="campaign.ending"></strong>
+                    <div class="adv-loc" x-text="campaign.epitaph"></div>
+                </div>
+            </template>
+            <template x-if="campaign.clock">
+                <div class="adv-scene adv-clock" style="margin-top:4px;">
+                    🕐 Day <span x-text="campaign.clock.day"></span>
+                    · <span x-text="String(campaign.clock.hour).padStart(2, '0') + ':' + String(campaign.clock.minute || 0).padStart(2, '0')"></span>
+                    <span class="adv-loc" x-text="dayPart(campaign.clock.hour)"></span>
+                </div>
+            </template>
+
+            <div class="adv-section">Stats</div>
+            <template x-if="Object.keys(campaign.stats || {}).length === 0">
+                <div class="adv-none">no stats (yet)</div>
+            </template>
+            <template x-for="row in statList" :key="row.name">
+                <div class="adv-stat" :data-stat="row.name">
+                    <div class="adv-stat-top">
+                        <span class="adv-stat-name">
+                            <span x-show="row.s.icon" x-text="row.s.icon + ' '"></span><span x-text="row.name"></span>
+                        </span>
+                        <span class="adv-stat-val">
+                            <span x-text="row.s.value"></span><span x-show="row.s.max != null" x-text="' / ' + row.s.max"></span>
+                        </span>
+                    </div>
+                    <template x-if="row.s.max != null">
+                        <div class="adv-bar" :class="{ 'adv-low': isLow(row.s) }">
+                            <div class="adv-bar-fill" :style="`width: ${barWidth(row.s)}`"></div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <div class="adv-section">Inventory</div>
+            <template x-if="Object.keys(campaign.inventory || {}).length === 0">
+                <div class="adv-none">empty</div>
+            </template>
+            <template x-for="[name, item] in Object.entries(campaign.inventory || {})" :key="name">
+                <div class="adv-item" :data-desc="item.desc || ''">
+                    <span><span x-show="item.icon" x-text="item.icon + ' '"></span><span x-text="name"></span></span>
+                    <span class="adv-item-qty" x-text="item.qty > 1 ? '×' + item.qty : ''"></span>
+                </div>
+            </template>
+
+            <template x-if="Object.keys(campaign.quests || {}).length > 0">
+                <div>
+                    <div class="adv-section">Quests</div>
+                    {# NOTE: the x-for must have a SINGLE root element or Alpine
+                       drops the siblings - the quest row AND its sub-goal
+                       checklist live together inside one .adv-quest-row. #}
+                    <template x-for="[name, q] in Object.entries(campaign.quests || {})" :key="name">
+                        <div class="adv-quest-row">
+                            <div class="adv-quest" :class="'adv-quest-' + q.status" :title="q.desc + (q.fail_reason ? ' — ' + q.fail_reason : '')">
+                                <span class="adv-quest-mark" x-text="q.status === 'done' ? '✔' : q.status === 'failed' ? '✖' : '◆'"></span>
+                                <span x-show="q.icon" x-text="q.icon + ' '"></span>
+                                <span class="adv-quest-name" x-text="name"></span>
+                                <template x-if="q.status === 'active' && (q.subgoals || []).length">
+                                    <span class="adv-quest-stage" x-text="q.subgoals.filter(function (g) { return g.done; }).length + '/' + q.subgoals.length"></span>
+                                </template>
+                            </div>
+                            <template x-if="q.status === 'active' && (q.subgoals || []).length">
+                                <div class="adv-quest-subgoals">
+                                    <template x-for="(g, gi) in q.subgoals" :key="gi">
+                                        <div class="adv-quest-subgoal" :class="{ 'adv-sub-done': g.done }">
+                                            <span class="adv-sub-box" aria-hidden="true"></span><span class="adv-sub-text" x-text="g.text"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template x-if="Object.keys(campaign.statuses || {}).length > 0">
+                <div>
+                    <div class="adv-section">Conditions</div>
+                    <div class="adv-status-row">
+                        <template x-for="[name, s] in Object.entries(campaign.statuses || {})" :key="name">
+                            <span class="adv-status" :title="s.note || name">
+                                <span x-show="s.icon" x-text="s.icon + ' '"></span><span x-text="name"></span><span x-show="s.turns" x-text="' · ' + s.turns"></span>
+                            </span>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <div class="adv-actions">
+                <button type="button" @click="rewind()" title="Undo the last passage and its stat changes">↶ Rewind</button>
+                <button type="button" @click="journal()" title="Read all passages so far">⌘ Journal</button>
+            </div>
+            <div class="adv-actions" style="margin-top: 7px;">
+                <button type="button" @click="exit()" title="Leave the immersive view (the campaign is kept)">🚪 Exit adventure</button>
+            </div>
+        </div>
+    </template>
+</div>

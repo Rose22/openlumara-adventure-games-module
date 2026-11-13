@@ -1,0 +1,28 @@
+/* weather kind: heatstroke - default set
+   heat's meaner cousin - an orange veil that slowly
+   suffocates the window and heavier blobs crawling upward
+   (the particles ride heat's adv-heat-rise, kept in its own sheet -
+   the default set always loads both) */
+#adv-weather.adv-weather-heatstroke::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 112%, rgba(255, 110, 40, 0.18), transparent 62%),
+        linear-gradient(180deg, rgba(125, 42, 15, 0.12), transparent 48%);
+    animation: adv-heatstroke-pulse 9s ease-in-out infinite alternate;
+}
+@keyframes adv-heatstroke-pulse {
+    from { opacity: 0.45; }
+    to   { opacity: 1; }
+}
+#adv-weather.adv-weather-heatstroke .adv-wp {
+    top: auto;
+    bottom: -40px;
+    background: radial-gradient(circle, rgba(255, 155, 75, 0.16), transparent 62%);
+    border-radius: 50%;
+    filter: blur(9px);
+    animation-name: adv-heat-rise;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}

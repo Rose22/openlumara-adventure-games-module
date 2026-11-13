@@ -1,0 +1,10 @@
+/* overlay mood: blood - default set
+   combat dread: red edges breathing fast */
+.adv-fx-blood {
+    background: radial-gradient(ellipse at center, transparent 26%, rgba(152, 12, 22, 0.5) 72%, rgba(105, 4, 14, 0.88) 100%);
+    animation: adv-fx-in 0.6s ease forwards, adv-blood-pulse 1.4s ease-in-out 0.6s infinite both;
+}
+@keyframes adv-blood-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.62; }
+}

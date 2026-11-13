@@ -1,0 +1,14 @@
+/* overlay mood: heartbeat - default set
+   tension: pulsing dark-red edges with a lub-dub rhythm */
+.adv-fx-heartbeat {
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(122, 0, 14, 0.58) 100%);
+    animation: adv-fx-in 0.5s ease forwards, adv-hb 1.6s ease-in-out 0.5s infinite both;
+}
+@keyframes adv-hb {
+    0%   { opacity: 0.32; }
+    10%  { opacity: 1; }
+    22%  { opacity: 0.42; }
+    33%  { opacity: 0.88; }
+    46%  { opacity: 0.32; }
+    100% { opacity: 0.32; }
+}

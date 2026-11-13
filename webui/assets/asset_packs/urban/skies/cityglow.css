@@ -1,0 +1,25 @@
+/* sky kind: cityglow - urban set
+   the night sky the city never lets you see: dark blue up top bleeding
+   into a warm sodium haze at the horizon, the whole skyline lit from
+   below by its own streetlights. Breathes very slowly. */
+#adv-sky.adv-sky-cityglow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+                rgba(9, 13, 30, 0.50) 0%,
+                rgba(28, 26, 44, 0.40) 55%,
+                rgba(92, 62, 44, 0.42) 88%,
+                rgba(255, 158, 74, 0.36) 100%);
+}
+#adv-sky.adv-sky-cityglow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(90% 55% at 50% 108%, rgba(255, 170, 90, 0.32), transparent 70%);
+    animation: adv-cityglow-breathe 7s ease-in-out infinite alternate;
+}
+@keyframes adv-cityglow-breathe {
+    from { opacity: 0.8; }
+    to   { opacity: 1; }
+}

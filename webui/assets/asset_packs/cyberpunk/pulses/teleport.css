@@ -1,0 +1,22 @@
+/* one-shot pulse: teleport - scifi set
+   the beam: a pillar of cyan light slams down through the scene and
+   collapses to a thread */
+.adv-fx-teleport {
+    background: linear-gradient(90deg,
+        transparent 30%,
+        rgba(140, 225, 255, 0.18) 38%,
+        rgba(220, 250, 255, 0.85) 50%,
+        rgba(140, 225, 255, 0.18) 62%,
+        transparent 70%);
+    animation: adv-fx-teleport 0.95s ease-in forwards;
+}
+@keyframes adv-fx-teleport {
+    0%   { opacity: 0; transform: scaleY(0.3) scaleX(1.6); }
+    16%  { opacity: 1; transform: scaleY(1) scaleX(1); }
+    70%  { opacity: 0.9; transform: scaleY(1) scaleX(0.5); }
+    100% { opacity: 0; transform: scaleY(0.15) scaleX(0.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-teleport,
+    #adv-pulses .adv-fx-teleport { opacity: 0; }
+}

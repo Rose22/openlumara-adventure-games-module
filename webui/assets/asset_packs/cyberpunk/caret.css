@@ -1,0 +1,51 @@
+/* typewriter caret effect - scifi set (chrome slot: caret.css)
+   the fantasy tuning, dressed as HUD: a thin accent-colored cursor bar
+   that blinks on STEPPED timing (nothing here glides): a translucent
+   terminal BLOCK in the campaign palette's accent (--adv-accent,
+   live; cyan fallback) sitting a breath right of the typed text. No
+   particles, no ghost trail - the HUD does not smear. Every animation
+   is steps() - this world ticks. */
+#adv-caret {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    position: fixed;
+    z-index: 9995;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+/* keyed off .adv-caret-stay, NOT .adv-caret-on: the block is visible
+   from the caret's first placement until the turn retires it (user
+   message / chat switch / out of game). typewriter pauses and stream
+   end do NOT hide it - the terminal keeps blinking right of the final
+   character, exactly like a shell waiting for input */
+#adv-caret.adv-caret-stay {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.12s ease, visibility 0s;
+}
+/* the cursor bar: 4x26 accent strip, blurred into a HUD glow, flickering
+   on stepped timing where the fantasy set breathes */
+#adv-caret::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: -7px;
+    width: 11px;
+    height: 24px;
+    background: var(--adv-accent, #7df9ff);
+    animation: adv-caret-blink 1s steps(1, end) infinite;
+}
+@keyframes adv-caret-blink {
+    0%  { opacity: 0.5; }
+    50% { opacity: 0; }
+}
+/* no particles and no ghost trail: this set ships neither a
+   .adv-caret-p nor a .adv-caret-ghost look, so the engine's emission
+   channels stay invisible here (the unstyled spawns are recycled
+   either way). just the block, blinking. */
+@media (prefers-reduced-motion: reduce) {
+    #adv-caret::before { animation: none; }
+}

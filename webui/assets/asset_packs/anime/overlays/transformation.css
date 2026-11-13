@@ -1,0 +1,36 @@
+/* overlay mood: transformation - anime set
+   the sequence: a pastel spectrum wash cycling hue behind a soft
+   bloom rising from the feet of the page, colors too bright for the
+   mundane world. Held it becomes the whole transformation arc; short
+   it scores the sparkle mid-transformation. Keeps its alpha gentle so
+   the story stays readable through the sequence. */
+.adv-fx-transformation {
+    background: linear-gradient(135deg,
+                rgba(255, 150, 210, 0.30),
+                rgba(160, 190, 255, 0.28),
+                rgba(190, 255, 210, 0.26),
+                rgba(255, 225, 150, 0.30));
+    animation: adv-fx-in 0.8s ease forwards,
+               adv-transformation-cycle 8s linear 0.8s infinite;
+}
+.adv-fx-transformation::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(80% 60% at 50% 112%, rgba(255, 255, 255, 0.4), transparent 65%);
+    animation: adv-transformation-bloom 2.6s ease-in-out infinite alternate;
+}
+.adv-fx-transformation::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    backdrop-filter: saturate(1.5) brightness(1.05);
+    -webkit-backdrop-filter: saturate(1.5) brightness(1.05);
+}
+@keyframes adv-transformation-cycle {
+    to { filter: hue-rotate(360deg); }
+}
+@keyframes adv-transformation-bloom {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+}

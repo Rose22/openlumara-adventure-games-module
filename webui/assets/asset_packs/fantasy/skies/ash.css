@@ -1,0 +1,25 @@
+/* weather kind: ash - default set
+   like snow but dead - grey, flatter, slower, drifting further
+   sideways as it gives up; a faint ember glow sits under everything */
+#adv-weather.adv-weather-ash .adv-wp {
+    background: rgba(168, 162, 160, 0.72);
+    border-radius: 45% 55% 50% 50%;
+    filter: blur(0.6px);
+    animation-name: adv-fall-ash;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+#adv-weather.adv-weather-ash::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(120, 60, 40, 0.12));
+}
+@keyframes adv-fall-ash {
+    0%   { transform: translate(0, -2vh); opacity: 0; }
+    8%   { opacity: 0.8; }
+    30%  { transform: translate(4vw, 28vh); }
+    60%  { transform: translate(-2vw, 58vh); }
+    85%  { transform: translate(5vw, 86vh); }
+    100% { transform: translate(3vw, 104vh); opacity: 0.15; }
+}

@@ -1,0 +1,1 @@
+'Yu Gothic', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, 'Segoe UI', 'Helvetica Neue', sans-serif

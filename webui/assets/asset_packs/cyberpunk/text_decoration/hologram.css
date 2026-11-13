@@ -1,0 +1,26 @@
+/* text decoration: hologram - scifi set
+   projected words: translucent cyan with a hard RGB split and thin scan
+   bands across the glyphs, stuttering on an unstable projector - the
+   voice of AI cores and recordings */
+.adv-macro-hologram {
+    color: rgba(120, 235, 255, 0.88);
+    text-shadow: 0 0 8px rgba(60, 200, 255, 0.55),
+        1px 0 0 rgba(255, 70, 130, 0.35),
+        -1px 0 0 rgba(90, 255, 200, 0.30);
+    letter-spacing: 0.05em;
+    background: repeating-linear-gradient(0deg, rgba(2, 20, 30, 0.25) 0 1px, transparent 1px 3px);
+    animation: adv-scifi-holo-flick 2.6s steps(1) infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-scifi-holo-flick {
+    0%, 100% { opacity: 0.95; }
+    6%  { opacity: 0.55; }
+    8%  { opacity: 0.95; }
+    47% { opacity: 0.9; }
+    49% { opacity: 0.45; }
+    51% { opacity: 0.95; }
+    72% { opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-hologram { animation: none; }
+}

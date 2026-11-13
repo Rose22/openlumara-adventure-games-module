@@ -1,0 +1,1 @@
+{ "count": 0, "shader_only": true, "refract": { "scale": 4, "freq": [0.012, 0.02], "speed": 3, "blur": 0.7, "sat": 1.06 } }

@@ -1,0 +1,35 @@
+/* sky kind: nebula - scifi set
+   deep-space cloud: a slow-breathing violet-teal gas wash with two lit
+   cores over a fine cold starfield */
+#adv-sky.adv-sky-nebula::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(60% 45% at 22% 30%, rgba(124, 58, 237, 0.30), transparent 70%),
+        radial-gradient(55% 50% at 78% 62%, rgba(34, 211, 238, 0.18), transparent 72%),
+        radial-gradient(90% 70% at 50% 110%, rgba(88, 28, 135, 0.25), transparent 75%),
+        #05030d;
+    animation: adv-scifi-neb-drift 26s ease-in-out infinite alternate;
+}
+@keyframes adv-scifi-neb-drift {
+    from { transform: scale(1); }
+    to   { transform: scale(1.06) translate(-1.5%, 1%); }
+}
+.adv-sky-nebula .adv-wp {
+    background: #e6f6ff;
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(210, 240, 255, 0.9);
+    animation-name: adv-scifi-neb-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-scifi-neb-twinkle {
+    0%, 100% { opacity: 0.12; transform: scale(0.85); }
+    50%      { opacity: 0.95; transform: scale(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-sky.adv-sky-nebula::before,
+    .adv-sky-nebula .adv-wp { animation: none; }
+    .adv-sky-nebula .adv-wp { opacity: 0.7; }
+}

@@ -1,0 +1,162 @@
+/* thinking_text.css - fantasy set. The wait line under the rune reads
+   like an inscription: small-caps, wide-tracked, glowing, breathing
+   like a candle - and its fire is the campaign's own: every color rides
+   the palette vars applyTheme paints (--adv-accent is the word's glow,
+   --adv-link-hover the conjuring), with the set's authored ember-gold
+   and violet kept as fallback for when no palette is active.
+   The tool phase burns steadier and brighter - spellbook aside,
+   something is actually being conjured. */
+.adv-think-word {
+    font-variant: small-caps;
+    font-size: calc(var(--adv-font-size, 17.5px) * 0.86);   /* tracks the adventure's story size */
+    letter-spacing: 0.26em;
+    text-indent: 0.26em;         /* re-centers the trailing letter-space */
+    font-style: normal;
+    color: var(--adv-accent, #d9b36c);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--adv-accent, #d9b36c) 45%, transparent);
+    animation: adv-fantasy-think-glow 3.2s ease-in-out infinite;
+}
+/* the prompt beat: the incantation lands CLEAR from the very first word -
+   what charges is its power. plus.js feeds --adv-think-charge (0..1) from
+   the real prompt-eval progress, so the line starts as a cool moonlight
+   whisper and heats into a white-hot filament: the FILL itself scorching
+   toward white like metal on the forge, five halos deepening together, and
+   a drop-shadow stack blooming the whole composite - glow bleeding over
+   glow, film-bloom hot. .adv-think-spark motes (shed by plus.js at charge
+   rate, lit further below) burn off the letters faster and thicker the
+   closer the prompt gets to done. No progress bar anywhere; the spell
+   simply gathers itself - until it nearly sears the page. */
+.adv-think-word.adv-think-prompt {
+    /* the fill heats: at full charge the glyph cores clip toward pure
+       white under their accent, the way heated metal whitens at the middle
+       while the edges stay ember-colored */
+    color: color-mix(in srgb, #fff
+                      calc(70% * var(--adv-think-charge, 0)),
+                      color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                                calc(45% + 55% * var(--adv-think-charge, 0)), #cfd8ff));
+    opacity: calc(0.72 + 0.28 * var(--adv-think-charge, 0));
+    /* five halos, the outer ones ONLY exist when charged: a searing 1px
+       white pinpoint, a hard accent ring, a growing bloom, a wide aura and
+       a distant 450px corona - at 100% the line doesn't just glow, it
+       drowns in its own light */
+    text-shadow:
+        0 0 calc(1px + 6px * var(--adv-think-charge, 0))
+            color-mix(in srgb, #fff calc(55% + 45% * var(--adv-think-charge, 0)),
+                      var(--adv-accent, #cfd8ff)),
+        0 0 calc(3px + 20px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(45% + 55% * var(--adv-think-charge, 0)), transparent),
+        0 0 calc(14px + 95px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(16% + 72% * var(--adv-think-charge, 0)), transparent),
+        0 0 calc(45px + 230px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(11% + 62% * var(--adv-think-charge, 0)), transparent),
+        0 0 calc(110px + 340px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(5% + 45% * var(--adv-think-charge, 0)), transparent);
+    /* the true bloom: text-shadow only halos the glyph edges, but
+       drop-shadow blurs the ENTIRE already-glowing composite, so the glow
+       itself glows - stacked here at two scales. brightness pushes the hot
+       whites past the edge into clipping, the filament look. all three
+       layers ride --adv-think-charge, so at rest it still whispers. */
+    filter:
+        brightness(calc(1 + 0.9 * var(--adv-think-charge, 0)))
+        drop-shadow(0 0 calc(2px + 18px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(6% + 66% * var(--adv-think-charge, 0)), transparent))
+        drop-shadow(0 0 calc(12px + 100px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(4% + 48% * var(--adv-think-charge, 0)), transparent));
+    /* the charge arrives in steps off the 250 ms watch tick; this glide is
+       longer than a tick, so the swell reads as one continuous breath even
+       when a progress chunk lands all at once - the filter glides with it */
+    transition: transform 0.45s ease-out, filter 0.45s ease-out,
+                text-shadow 0.45s ease-out, color 0.45s ease-out;
+    animation: none;
+}
+@keyframes adv-fantasy-think-glow {
+    0%, 100% { opacity: 0.55; text-shadow: 0 0 8px color-mix(in srgb, var(--adv-accent, #d9b36c) 25%, transparent); }
+    50%      { opacity: 0.95; text-shadow: 0 0 20px color-mix(in srgb, var(--adv-accent, #d9b36c) 60%, transparent); }
+}
+.adv-think-word.adv-think-tool {
+    color: var(--adv-link-hover, #b892e8);
+    text-shadow: 0 0 18px color-mix(in srgb, var(--adv-link-hover, #b892e8) 65%, transparent);
+    animation: adv-fantasy-think-conjure 1.1s ease-in-out infinite;
+}
+@keyframes adv-fantasy-think-conjure {
+    0%, 100% { opacity: 0.7; letter-spacing: 0.26em; }
+    50%      { opacity: 1;   letter-spacing: 0.3em; }
+}
+/* the magic motes: plus.js sheds these off the charging prompt line at a
+   rate that rides the charge; this sheet is what makes them motes at all.
+   they lift off near the baseline with a random lateral drift
+   (--adv-sp-dx), a random size (--adv-sp-s) and a random duration, each
+   self-removing as it fades out above the letters. */
+.adv-think-spark {
+    position: absolute;
+    width: calc(var(--adv-sp-s, 1) * 3px);
+    height: calc(var(--adv-sp-s, 1) * 3px);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--adv-accent, #d9b36c) 55%, #fff);
+    box-shadow: 0 0 calc(var(--adv-sp-s, 1) * 6px)
+                color-mix(in srgb, var(--adv-accent, #d9b36c) 75%, transparent);
+    pointer-events: none;
+    animation: adv-fantasy-spark-rise 1.6s ease-out forwards;
+}
+@keyframes adv-fantasy-spark-rise {
+    from { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    18%  { opacity: 1; }
+    to   { opacity: 0; transform: translate(var(--adv-sp-dx, 3px), -30px) scale(1.1); }
+}
+/* phone gear-down (html.adv-phone / .adv-lowpower ride on the root from
+   adventure_mobile.js, flipping live with the viewport). The forge stage
+   above is the priciest wait a phone GPU can be handed: five text-shadow
+   halos (the outer one burning out to 450px) plus two drop-shadows that
+   blur the ENTIRE already-glowing composite - giant offscreen blur
+   surfaces - and every 250 ms charge step re-rasterizes the whole stack
+   through 0.45 s of transitioned filter and text-shadow, all of it for
+   the full length of the prompt wait. The heat itself survives untouched,
+   because the cheap properties carry it: the fill still scorching toward
+   white and the opacity swell ride the untouched base rule (color and
+   opacity cost a mobile GPU next to nothing), and brightness() - a flat
+   color matrix, the same leg the module's own phone css keeps for the
+   daydream bloom - still pushes the filament past the edge. What steps
+   down is the light spilled AROUND the glyphs: five halos become two
+   modest ones capped near 30px, the two composite drop-shadows collapse
+   into one 10px whisper of bloom, and the glow stops TRANSITIONING -
+   it now pulses in with each arriving progress chunk, which reads as the
+   spell drinking power, not as lag. (The motes need no gear-down here:
+   plus.js already caps them through AdvPerf.thinkSparkCap.) Low-power
+   phones lose the animated glow outright - whitening and opacity alone
+   still tell the whole charge story. */
+html.adv-phone .adv-think-word.adv-think-prompt {
+    filter: brightness(calc(1 + 0.55 * var(--adv-think-charge, 0)))
+        drop-shadow(0 0 calc(2px + 8px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(25% + 45% * var(--adv-think-charge, 0)), transparent));
+    text-shadow:
+        0 0 calc(1px + 5px * var(--adv-think-charge, 0))
+            color-mix(in srgb, #fff calc(55% + 45% * var(--adv-think-charge, 0)),
+                      var(--adv-accent, #cfd8ff)),
+        0 0 calc(4px + 26px * var(--adv-think-charge, 0))
+            color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                       calc(30% + 55% * var(--adv-think-charge, 0)), transparent);
+    /* only the cheap legs glide now - blur surfaces never animate */
+    transition: color 0.45s ease-out, opacity 0.45s ease-out;
+}
+html.adv-lowpower .adv-think-word.adv-think-prompt {
+    filter: none;
+    text-shadow: 0 0 calc(2px + 12px * var(--adv-think-charge, 0))
+        color-mix(in srgb, var(--adv-accent, #cfd8ff)
+                   calc(35% + 45% * var(--adv-think-charge, 0)), transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-think-word,
+    .adv-think-word.adv-think-tool { animation: none; opacity: 0.9; }
+    /* the charge gauge survives reduced motion - an opacity warming and a
+       glow swelling are calm - but the swell is motion, so it goes (plus.js
+       stops shedding motes here too; this is the belt to that braces) */
+    .adv-think-word.adv-think-prompt { animation: none; transform: none; }
+    .adv-think-spark { display: none; }
+}

@@ -1,0 +1,39 @@
+/* overlay mood: butterflies - default set
+   calm, charm, transformation: soft-winged shapes tumbling lazily
+   across the window (the dot flicks its aspect mid-flight - from a
+   distance it reads as a wingbeat) */
+.adv-fx-butterflies {
+    animation: adv-fx-in 1.2s ease forwards, adv-butter-drift 34s linear infinite;
+}
+.adv-fx-butterflies::before,
+.adv-fx-butterflies::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-repeat: repeat;
+}
+.adv-fx-butterflies::before {
+    background-image:
+        radial-gradient(circle, rgba(255, 170, 220, 0.65) 0 3px, transparent 3.6px),
+        radial-gradient(circle, rgba(200, 160, 255, 0.55) 0 2.5px, transparent 3.1px);
+    background-size: 240px 200px, 300px 260px;
+    background-position: 12% 24%, 64% 70%;
+    transform: scaleX(1);
+    animation: adv-wing 0.9s ease-in-out infinite alternate;
+}
+.adv-fx-butterflies::after {
+    background-image:
+        radial-gradient(circle, rgba(255, 210, 160, 0.55) 0 2.8px, transparent 3.4px),
+        radial-gradient(circle, rgba(170, 200, 255, 0.5) 0 2.2px, transparent 2.8px);
+    background-size: 340px 300px, 210px 240px;
+    background-position: 40% 12%, 82% 48%;
+    animation: adv-wing 1.2s ease-in-out -0.5s infinite alternate;
+}
+@keyframes adv-wing {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0.45); }
+}
+@keyframes adv-butter-drift {
+    from { translate: 0 0; }
+    to   { translate: -140px -90px; }
+}

@@ -1,0 +1,9 @@
+/* text decoration: runes - default set
+   carved inscription: wide-tracked small-caps, glowing like rune-cut
+   stone. static look, no loop */
+.adv-macro-runes {
+    font-variant: small-caps;
+    letter-spacing: 0.28em;
+    color: var(--adv-accent);
+    text-shadow: 0 0 8px var(--adv-accent);
+}

@@ -1,0 +1,25 @@
+/* weather kind: runes - anime set
+   spell-glyphs rising out of the circle: runic and kanji characters
+   drifting upward like the language the world is written in, each
+   glowing in the campaign's accent and turning slowly as it climbs.
+   TEXT particles - glyphs, sizes from the spec; rises, so the css
+   parks the spawn below the window. */
+.adv-weather-runes .adv-wp {
+    background: none;
+    color: color-mix(in srgb, var(--adv-accent, #f5b942) 80%, white);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--adv-accent, #f5b942) 90%, transparent),
+                 0 0 20px color-mix(in srgb, var(--adv-accent, #f5b942) 45%, transparent);
+    font-family: Georgia, serif;
+    top: auto;
+    bottom: -18px;
+    animation-name: adv-rise-runes;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-runes {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    15%  { opacity: 0.9; }
+    50%  { transform: translate(2vw, -52vh) rotate(14deg); opacity: 1; }
+    85%  { opacity: 0.5; }
+    100% { transform: translate(-1.2vw, -104vh) rotate(-8deg); opacity: 0; }
+}

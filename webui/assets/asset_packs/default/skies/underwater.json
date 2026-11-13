@@ -1,0 +1,1 @@
+{ "count": 36, "dur": [9, 18], "size": [3, 11], "refract": { "scale": 5, "freq": [0.004, 0.007], "speed": 11, "blur": 0.8, "sat": 1.15, "glow": { "size": 5, "color": "#7fd8ff" } } }

@@ -1,0 +1,18 @@
+/* text decoration: shadow - default set
+   hidden whisper: half-seen, guttering candle-light dim */
+.adv-macro-shadow {
+    color: var(--adv-ink-soft);
+    filter: blur(0.3px);
+    animation: adv-shadow-flicker 3.4s steps(3, jump-none) infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-shadow-flicker {
+    0%, 100% { opacity: 0.62; }
+    42% { opacity: 0.36; }
+    47% { opacity: 0.55; }
+    53% { opacity: 0.30; }
+    60% { opacity: 0.52; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-shadow { animation: none; }
+}

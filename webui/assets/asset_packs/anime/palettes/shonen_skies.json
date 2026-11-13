@@ -1,0 +1,36 @@
+{
+  "label": "Shonen Skies (indigo horizon, crimson resolve)",
+  "prefers": "dark",
+  "light": {
+    "dark": false,
+    "accent": "#c2342b", "link": "#b03028", "link_hover": "#8f221c",
+    "page": "#f6f7fa", "ink": "#1c2130", "ink_soft": "#5f6678", "line": "#dfe2ea",
+    "ui_bg1": "#eef0f5", "ui_bg2": "#e6e9f0", "ui_bg3": "#dce0ea",
+    "ui_text": "#1c2130", "ui_text_soft": "#4a5162", "ui_text_muted": "#7d8494",
+    "ui_border": "#d5d9e3",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,196,164,0.20), rgba(216,220,232,0.08))",
+      "morning": "linear-gradient(180deg, rgba(240,244,250,0.10), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(234,240,248,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(244,132,90,0.20), rgba(110,110,170,0.14))",
+      "night": "linear-gradient(180deg, rgba(38,44,84,0.34), rgba(20,24,50,0.24))",
+      "deepnight": "linear-gradient(180deg, rgba(16,20,48,0.46), rgba(8,10,26,0.32))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#ff5a4e", "link": "#ff8a7a", "link_hover": "#ffb3a8",
+    "page": "#10141f", "ink": "#dfe3ee", "ink_soft": "#98a0b4", "line": "#232a3c",
+    "ui_bg1": "#141927", "ui_bg2": "#1a2030", "ui_bg3": "#212840",
+    "ui_text": "#e2e6f0", "ui_text_soft": "#a4abc0", "ui_text_muted": "#6c7488",
+    "ui_border": "#2a3145",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,190,160,0.10), rgba(150,155,185,0.04))",
+      "morning": "linear-gradient(180deg, rgba(212,218,232,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(208,214,228,0.05), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,120,80,0.10), rgba(120,110,190,0.07))",
+      "night": "linear-gradient(180deg, rgba(140,160,255,0.09), rgba(60,70,130,0.07))",
+      "deepnight": "linear-gradient(180deg, rgba(110,120,220,0.13), rgba(24,28,55,0.12))"
+    }
+  }
+}

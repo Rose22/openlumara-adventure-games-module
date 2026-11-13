@@ -1,0 +1,19 @@
+/* text decoration: telepath - anime set
+   spoken without moving the mouth: soft italic words with a double
+   accent echo drifting to the right, letter-spacing breathing like
+   a signal crossing the yard. {{telepath|can you hear me}} */
+.adv-macro-telepath {
+    font-style: italic;
+    color: var(--adv-ink-soft, #8a6a7c);
+    text-shadow: 0.35em 0 0.4em color-mix(in srgb, var(--adv-accent, #e0559c) 35%, transparent),
+                 0.7em 0 0.8em color-mix(in srgb, var(--adv-accent, #e0559c) 18%, transparent);
+    animation: adv-telepath-wave 3.6s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-telepath-wave {
+    0%, 100% { letter-spacing: 0.06em; opacity: 0.85; }
+    50%      { letter-spacing: 0.14em; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-telepath { animation: none; }
+}

@@ -1,0 +1,24 @@
+/* weather kind: plasma-rain - scifi set
+   the reactor does not want to stay contained: glowing violet-green
+   droplets in a shimmering sheet, hot enough to bloom where they pass */
+.adv-weather-plasma-rain .adv-wp {
+    width: 2px !important;
+    height: 12px;
+    border-radius: 2px;
+    background: linear-gradient(180deg,
+        rgba(190, 255, 170, 0),
+        rgba(170, 255, 210, 0.5) 50%,
+        rgba(210, 160, 255, 0.95));
+    box-shadow: 0 0 8px rgba(170, 255, 200, 0.55);
+    animation-name: adv-scifi-pl-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-weather-plasma-rain .adv-wp:nth-child(3n) { height: 18px; opacity: 0.7; }
+@keyframes adv-scifi-pl-fall {
+    from { transform: translate(0, -4vh); }
+    to   { transform: translate(4vw, 104vh); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-weather-plasma-rain .adv-wp { animation: none; opacity: 0.4; }
+}

@@ -1,0 +1,18 @@
+/* text decoration: fire - default set
+   burning words: heat climbs the letters */
+.adv-macro-fire {
+    background: linear-gradient(0deg, #ea580c 10%, #f97316 40%, #fbbf24 75%, #fef3c7 100%);
+    background-size: 100% 260%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: adv-fire-flicker 0.85s ease-in-out infinite alternate;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-fire-flicker {
+    from { background-position: 0 100%; filter: brightness(0.9); }
+    to   { background-position: 0 0%;   filter: brightness(1.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-fire { animation: none; }
+}

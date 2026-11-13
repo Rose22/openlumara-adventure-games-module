@@ -1,0 +1,24 @@
+/* weather kind: smog - urban set
+   the ochre haze that moves in off the ring road: a low veil across
+   the window while huge blurred banks drift sideways through it.
+   Fits: rush hour, summer inversion, the city swallowing itself. */
+.adv-weather-smog .adv-wp {
+    border-radius: 50%;
+    background: rgba(168, 156, 122, 0.10);
+    filter: blur(16px);
+    animation-name: adv-drift-smog;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+#adv-weather.adv-weather-smog::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(150, 140, 112, 0.12), rgba(120, 112, 92, 0.16));
+}
+@keyframes adv-drift-smog {
+    0%   { transform: translateX(-18vw); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateX(22vw); opacity: 0; }
+}

@@ -1,0 +1,16 @@
+/* text decoration: frost - default set
+   icy text: pale, glacial halo (with a darker read for light mode) */
+.adv-macro-frost {
+    color: #8fd0ff;
+    letter-spacing: 0.05em;
+    animation: adv-frost-shimmer 3.2s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+html.adv-light .adv-macro-frost { color: #0e7490; }
+@keyframes adv-frost-shimmer {
+    0%, 100% { text-shadow: 0 0 5px rgba(140, 200, 255, 0.45); }
+    50%      { text-shadow: 0 0 12px rgba(190, 227, 255, 0.95), 0 0 24px rgba(120, 180, 255, 0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-frost { animation: none; }
+}

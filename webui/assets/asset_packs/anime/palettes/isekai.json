@@ -1,0 +1,36 @@
+{
+  "label": "Isekai (two-moon twilight, hero's gold)",
+  "prefers": "dark",
+  "light": {
+    "dark": false,
+    "accent": "#b07a10", "link": "#2a7f72", "link_hover": "#1c5f55",
+    "page": "#f6f3ea", "ink": "#2a2417", "ink_soft": "#6d6450", "line": "#e4ddcb",
+    "ui_bg1": "#efe9db", "ui_bg2": "#e8e0cf", "ui_bg3": "#dfd6c2",
+    "ui_text": "#2a2417", "ui_text_soft": "#564e3c", "ui_text_muted": "#8a8069",
+    "ui_border": "#d9d0ba",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,206,170,0.20), rgba(226,222,208,0.08))",
+      "morning": "linear-gradient(180deg, rgba(246,242,232,0.10), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(240,238,228,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(232,140,110,0.20), rgba(120,100,160,0.12))",
+      "night": "linear-gradient(180deg, rgba(44,44,90,0.32), rgba(24,24,56,0.22))",
+      "deepnight": "linear-gradient(180deg, rgba(20,20,48,0.44), rgba(10,10,26,0.30))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#f5b942", "link": "#9fd8cf", "link_hover": "#c7ece5",
+    "page": "#101822", "ink": "#e6e9df", "ink_soft": "#9aa498", "line": "#22303c",
+    "ui_bg1": "#141d28", "ui_bg2": "#1a2530", "ui_bg3": "#212e3a",
+    "ui_text": "#e8ebe1", "ui_text_soft": "#a8b1a4", "ui_text_muted": "#707a70",
+    "ui_border": "#283643",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,198,160,0.10), rgba(150,150,175,0.04))",
+      "morning": "linear-gradient(180deg, rgba(214,220,214,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(210,216,210,0.05), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,140,110,0.10), rgba(130,110,190,0.07))",
+      "night": "linear-gradient(180deg, rgba(150,190,255,0.09), rgba(60,80,130,0.07))",
+      "deepnight": "linear-gradient(180deg, rgba(185,150,255,0.12), rgba(26,30,55,0.12))"
+    }
+  }
+}

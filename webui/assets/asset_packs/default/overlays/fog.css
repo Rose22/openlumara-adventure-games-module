@@ -1,0 +1,55 @@
+/* overlay mood: fog - default set
+   drifting mist: cold blue banks rolling through the window, pooling low.
+   three layers: the base veil (main div, plus a backdrop-filter that softens
+   and desaturates the story behind the fog), a wide blurred bank drifting
+   against it for parallax (::before), and faint god-rays slanting down from
+   the upper left, breathing slowly (::after) */
+.adv-fx-fog {
+    background:
+        linear-gradient(180deg,
+            rgba(196, 212, 232, 0.10) 0%,
+            rgba(178, 197, 222, 0.13) 46%,
+            rgba(152, 176, 206, 0.24) 82%,
+            rgba(138, 163, 196, 0.30) 100%),
+        radial-gradient(65% 46% at 22% 74%, rgba(210, 224, 240, 0.16), transparent 72%),
+        radial-gradient(55% 40% at 76% 82%, rgba(196, 212, 234, 0.14), transparent 70%);
+    backdrop-filter: saturate(0.72) contrast(0.94) blur(0.3px);
+    -webkit-backdrop-filter: saturate(0.72) contrast(0.94) blur(0.3px);
+    animation: adv-fx-in 1.2s ease forwards, adv-fog-drift 56s ease-in-out infinite alternate;
+}
+.adv-fx-fog::before {
+    content: "";
+    position: absolute;
+    inset: -12% -30%;
+    background:
+        radial-gradient(42% 34% at 16% 58%, rgba(216, 228, 243, 0.20), transparent 74%),
+        radial-gradient(38% 30% at 48% 72%, rgba(202, 217, 236, 0.18), transparent 74%),
+        radial-gradient(44% 32% at 82% 62%, rgba(188, 206, 230, 0.17), transparent 74%),
+        radial-gradient(30% 22% at 63% 34%, rgba(224, 234, 246, 0.10), transparent 72%);
+    filter: blur(26px);
+    animation: adv-fog-bank 42s ease-in-out infinite alternate;
+}
+.adv-fx-fog::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(70deg,
+        rgba(232, 241, 251, 0.10) 0 26px,
+        rgba(232, 241, 251, 0) 26px 96px);
+    -webkit-mask-image: linear-gradient(155deg, rgba(0, 0, 0, 0.9) 0%, transparent 58%);
+    mask-image: linear-gradient(155deg, rgba(0, 0, 0, 0.9) 0%, transparent 58%);
+    filter: blur(10px);
+    animation: adv-fog-rays 13s ease-in-out infinite alternate;
+}
+@keyframes adv-fog-drift {
+    from { transform: translate3d(-2.5%, 0, 0) scale(1.05); }
+    to   { transform: translate3d(2.5%, -1.5%, 0) scale(1.12); }
+}
+@keyframes adv-fog-bank {
+    from { transform: translate3d(-7%, 1.5%, 0); }
+    to   { transform: translate3d(7%, -1%, 0); }
+}
+@keyframes adv-fog-rays {
+    from { opacity: 0.45; }
+    to   { opacity: 1; }
+}

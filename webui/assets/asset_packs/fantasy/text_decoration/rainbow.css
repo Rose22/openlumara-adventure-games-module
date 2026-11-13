@@ -1,0 +1,19 @@
+/* text decoration: rainbow - default set
+   the full spectrum scrolls through the letters */
+.adv-macro-rainbow {
+    background: linear-gradient(90deg, #f472b6, #c084fc, #60a5fa, #34d399, #fbbf24, #f472b6);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: adv-rainbow-shine 4s linear infinite;
+    animation-delay: var(--adv-phase, 0s);
+    filter: saturate(1.2);
+}
+@keyframes adv-rainbow-shine {
+    from { background-position: 220% 0; }
+    to   { background-position: -20% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-rainbow { animation: none; }
+}

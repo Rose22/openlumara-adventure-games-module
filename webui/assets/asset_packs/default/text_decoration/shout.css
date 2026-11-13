@@ -1,0 +1,8 @@
+/* text decoration: shout - default set
+   the loud voice: heavy, uppercase, accent-colored. static look, no loop */
+.adv-macro-shout {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--adv-accent);
+}

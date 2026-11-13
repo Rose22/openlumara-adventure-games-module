@@ -1,0 +1,37 @@
+/* overlay mood: aura - anime set
+   the power is waking up: conic light wedges wheel slowly up from
+   beneath the page inside a warm accent bloom, the air itself
+   pressurizing. Fits: ki gathering, dormant power stirring, the calm
+   right before the aura explodes. */
+.adv-fx-aura {
+    background: radial-gradient(90% 70% at 50% 118%,
+                color-mix(in srgb, var(--adv-accent, #ff5a4e) 26%, transparent),
+                transparent 62%);
+    animation: adv-fx-in 1.2s ease forwards,
+               adv-aura-breathe 3.2s ease-in-out 1.2s infinite alternate;
+}
+.adv-fx-aura::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: repeating-conic-gradient(from 0deg at 50% 100%,
+                color-mix(in srgb, var(--adv-accent, #ff5a4e) 14%, transparent) 0deg 2.4deg,
+                transparent 2.4deg 11deg);
+    -webkit-mask-image: radial-gradient(70% 65% at 50% 100%, black 10%, transparent 70%);
+    mask-image: radial-gradient(70% 65% at 50% 100%, black 10%, transparent 70%);
+    transform-origin: 50% 100%;
+    animation: adv-aura-wheel 26s linear infinite;
+}
+.adv-fx-aura::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 62%, rgba(10, 6, 14, 0.34) 100%);
+}
+@keyframes adv-aura-wheel {
+    to { transform: rotate(20deg); }
+}
+@keyframes adv-aura-breathe {
+    from { filter: brightness(0.9) saturate(1); }
+    to   { filter: brightness(1.18) saturate(1.25); }
+}

@@ -1,0 +1,48 @@
+/* weather kind: storm - default set
+   heavy rain driven hard on a crosswind (particles slant with a
+   shear on top of the fall) over a darkened layer; the real lightning
+   lives in the shader, the css ::after adds only muffled sheet
+   lightning from two valleys over */
+.adv-weather-storm .adv-wp {
+    width: 1.5px !important;
+    height: 16px;
+    background: linear-gradient(180deg, transparent, rgba(195, 215, 255, 0.6));
+    animation-name: adv-fall-storm;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-storm {
+    from { transform: translate(0, -4vh) skewX(-16deg); }
+    to   { transform: translate(-10vw, 104vh) skewX(-16deg); }
+}
+#adv-weather.adv-weather-storm::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 10, 22, 0.34);
+}
+/* distant SHEET lightning behind the horizon - deliberately muffled and
+   on a lopsided 23s rhythm: the shader draws the real bolts, this is
+   just the storm two valleys over (and it's what's left when shaders
+   are off) */
+#adv-weather.adv-weather-storm::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 58% -12%, rgba(235, 240, 255, 0.40), rgba(205, 215, 250, 0.16) 45%, transparent 75%);
+    opacity: 0;
+    animation: adv-lightning 23s linear infinite;
+}
+@keyframes adv-lightning {
+    0%, 34%   { opacity: 0; }
+    35%       { opacity: 0.35; }
+    36%       { opacity: 0.05; }
+    38%       { opacity: 0.25; }
+    39%       { opacity: 0; }
+    81%       { opacity: 0; }
+    82%       { opacity: 0.4; }
+    83%       { opacity: 0.08; }
+    84%       { opacity: 0.2; }
+    86%       { opacity: 0; }
+    100%      { opacity: 0; }
+}

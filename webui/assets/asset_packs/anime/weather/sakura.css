@@ -1,0 +1,21 @@
+/* weather kind: sakura - anime set
+   the cherry blossom front: pink petals with pointed corners
+   (border-radius shapes the dot into a leaf), swaying side to side
+   while they fall and flipping over as they go. Spring is a
+   situation, not a season. */
+.adv-weather-sakura .adv-wp {
+    background: linear-gradient(160deg, #ffc9de, #ff9ec4);
+    border-radius: 100% 0 100% 0;
+    box-shadow: 0 0 4px rgba(255, 158, 196, 0.5);
+    animation-name: adv-fall-sakura;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-sakura {
+    0%   { transform: translate(0, -2vh) rotate(0deg) scale(1, 1); opacity: 0; }
+    8%   { opacity: 1; }
+    28%  { transform: translate(3.5vw, 28vh) rotate(120deg) scale(1, 0.55); }
+    52%  { transform: translate(-2.5vw, 52vh) rotate(240deg) scale(1, 1); }
+    76%  { transform: translate(3vw, 76vh) rotate(340deg) scale(0.6, 1); }
+    100% { transform: translate(-1.5vw, 105vh) rotate(430deg) scale(1, 1); opacity: 0.85; }
+}

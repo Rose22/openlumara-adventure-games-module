@@ -1,0 +1,13 @@
+/* sky kind: stars - default set */
+.adv-sky-stars .adv-wp {
+    background: #fffbe6;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255, 250, 210, 0.9);
+    animation-name: adv-twinkle;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.8); }
+    50%      { opacity: 0.9; transform: scale(1.15); }
+}

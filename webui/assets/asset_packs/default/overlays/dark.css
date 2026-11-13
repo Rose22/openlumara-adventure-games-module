@@ -1,0 +1,6 @@
+/* overlay mood: dark - default set
+   closing shadows: the room gets small */
+.adv-fx-dark {
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(3, 1, 6, 0.55) 72%, rgba(2, 0, 5, 0.93) 100%);
+    animation: adv-fx-in 0.9s ease forwards;
+}

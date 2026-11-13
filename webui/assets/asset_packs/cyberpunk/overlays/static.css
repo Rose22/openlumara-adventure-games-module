@@ -1,0 +1,14 @@
+/* overlay mood: static - default set
+   arcane interference: scanlines + hard flicker */
+.adv-fx-static {
+    background:
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 3px),
+        rgba(146, 146, 164, 0.07);
+    mix-blend-mode: overlay;
+    animation: adv-fx-in 0.25s ease forwards, adv-static-flick 0.18s steps(2) 0.25s infinite both;
+}
+@keyframes adv-static-flick {
+    0%   { opacity: 0.95; background-position: 0 0, 0 0; }
+    50%  { opacity: 0.55; background-position: 0 1px, 0 -2px; }
+    100% { opacity: 0.95; background-position: 0 -1px, 0 1px; }
+}

@@ -1,0 +1,18 @@
+/* one-shot pulse: gasp - anime set
+   the air leaves the room: a dark punch snaps in around a shocked
+   bright center and recoils. Fired as {{gasp}} on revelations and
+   the name said wrong. */
+.adv-fx-gasp {
+    background: radial-gradient(circle at center, transparent 18%, rgba(6, 4, 12, 0.72) 62%, rgba(2, 1, 6, 0.85) 100%);
+    animation: adv-fx-gasp 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+@keyframes adv-fx-gasp {
+    0%   { opacity: 0; transform: scale(1.06); }
+    14%  { opacity: 1; }
+    55%  { opacity: 1; transform: scale(0.98); }
+    100% { opacity: 0; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-gasp,
+    #adv-pulses .adv-fx-gasp { opacity: 0; }
+}

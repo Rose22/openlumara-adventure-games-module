@@ -1,0 +1,42 @@
+/* one-shot pulse: truck - anime set
+   TRUCK-KUN. The headlights cross the page left to right in a
+   horizontal streak, the world goes white for a beat, and the story
+   picks up in another world entirely. Fired as {{truck}} at the exact
+   moment the protagonist's old life ends - which is, of course, the
+   funniest and most sacred beat of the entire genre. */
+.adv-fx-truck {
+    background: #ffffff;
+    animation: adv-fx-truck 0.95s linear forwards;
+}
+.adv-fx-truck::before {
+    content: "";
+    position: absolute;
+    top: 42%;
+    left: -42%;
+    width: 42%;
+    height: 12%;
+    background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 200, 120, 0.35) 40%,
+                rgba(255, 240, 205, 0.95) 88%,
+                #ffffff 100%);
+    border-radius: 999px;
+    filter: blur(3px);
+    animation: adv-truck-streak 0.55s linear forwards;
+}
+@keyframes adv-truck-streak {
+    0%   { transform: translateX(0); opacity: 0; }
+    12%  { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { transform: translateX(340%); opacity: 0; }
+}
+@keyframes adv-fx-truck {
+    0%   { opacity: 0; }
+    42%  { opacity: 0; }
+    54%  { opacity: 0.92; }
+    100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-truck,
+    #adv-pulses .adv-fx-truck { opacity: 0; }
+}

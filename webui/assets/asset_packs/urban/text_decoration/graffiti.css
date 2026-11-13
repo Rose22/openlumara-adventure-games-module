@@ -1,0 +1,14 @@
+/* text decoration: graffiti - urban set
+   fresh marker on concrete: bold italic leaning into the wind, filled
+   with a four-color gradient clipped to the letters. Mid-tone colors
+   so the fill reads on both light and dark pages.
+   {{graffiti|the walls remember}} */
+.adv-macro-graffiti {
+    font-weight: 800;
+    font-style: italic;
+    background: linear-gradient(100deg, #0891b2, #65a30d, #ca8a04, #db2777);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.01em;
+}

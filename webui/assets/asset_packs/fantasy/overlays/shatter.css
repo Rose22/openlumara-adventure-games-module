@@ -1,0 +1,21 @@
+/* overlay mood: shatter - default set
+   a ward breaking, a blow to the head: fine glass cracks spider
+   across the window, then creep a half-step further with every pass */
+.adv-fx-shatter {
+    background:
+        repeating-linear-gradient(76deg, transparent 0 34%, rgba(255, 255, 255, 0.11) 34.1%, transparent 34.4%),
+        repeating-linear-gradient(167deg, transparent 0 55%, rgba(255, 255, 255, 0.09) 55.1%, transparent 55.35%),
+        repeating-linear-gradient(112deg, transparent 0 71%, rgba(255, 255, 255, 0.10) 71.1%, transparent 71.3%);
+    filter: drop-shadow(0 0 1.5px rgba(210, 230, 255, 0.5));
+    animation: adv-shatter-in 0.45s ease-out forwards, adv-shatter-creep 11s ease-in-out 0.45s infinite;
+}
+@keyframes adv-shatter-in {
+    0%   { opacity: 0; transform: scale(1.06); }
+    40%  { opacity: 1; transform: scale(1.0); }
+    60%  { transform: scale(1.005); }
+    100% { opacity: 0.9; transform: scale(1.0); }
+}
+@keyframes adv-shatter-creep {
+    0%, 100% { transform: scale(1.0); }
+    50%      { transform: scale(1.013); }
+}

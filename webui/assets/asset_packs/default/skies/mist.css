@@ -1,0 +1,17 @@
+/* sky kind: rainhaze - default set
+   css fallback for the rain haze: a low grey wash breathing slowly -
+   the air, never a veil; the curtain itself is weather/rain */
+#adv-sky.adv-sky-rainhaze::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(122, 133, 152, 0.10),
+        rgba(153, 163, 181, 0.20) 70%,
+        rgba(140, 150, 168, 0.24));
+    animation: adv-rain-haze 14s ease-in-out infinite alternate;
+}
+@keyframes adv-rain-haze {
+    from { opacity: 0.7; }
+    to   { opacity: 1; }
+}

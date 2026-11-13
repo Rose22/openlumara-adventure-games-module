@@ -1,0 +1,22 @@
+/* weather kind: nanodust - scifi set
+   a disassembled room hanging back together: weightless silver dust
+   that barely drifts, each mote winking at its own phase of the tumble */
+.adv-weather-nanodust .adv-wp {
+    background: radial-gradient(circle at 35% 35%, #fff,
+        rgba(200, 215, 235, 0.55) 55%, transparent 75%);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(220, 230, 250, 0.5);
+    animation-name: adv-scifi-nano-drift;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-scifi-nano-drift {
+    0%   { transform: translate(0, -4vh); opacity: 0; }
+    6%   { opacity: 0.8; }
+    50%  { transform: translate(1.2vw, 50vh); opacity: 0.35; }
+    94%  { opacity: 0.8; }
+    100% { transform: translate(-0.8vw, 104vh); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-weather-nanodust .adv-wp { animation: none; opacity: 0.5; }
+}

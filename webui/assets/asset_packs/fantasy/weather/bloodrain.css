@@ -1,0 +1,20 @@
+/* weather kind: bloodrain - default set
+   an omen falling - red rain behind a crimson gloom */
+#adv-weather.adv-weather-bloodrain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(88, 8, 16, 0.16), rgba(58, 4, 10, 0.05));
+}
+.adv-weather-bloodrain .adv-wp {
+    width: 1px !important;
+    height: 14px;
+    background: linear-gradient(180deg, transparent, rgba(192, 36, 46, 0.6));
+    animation-name: adv-fall-blood;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-blood {
+    from { transform: translate(0, -3vh); }
+    to   { transform: translate(-1.5vw, 104vh); }
+}

@@ -1,0 +1,45 @@
+/* sky kind: hearthroom - fantasy set
+   the interior of a cozy wooden home. Two jobs:
+
+   1. the wash - the no-WebGL fallback and the warm base the shader
+      paints its planks over: dark beam-shadow at the ceiling, honey
+      oak mid-wall, and an ember glow welling up from the hearth in
+      the bottom-left corner. Under the live canvas this just deepens
+      the firelight; without WebGL it reads on its own.
+
+   2. the dust - golden motes sinking through the room in slow lazy
+      drifts, the fine house-dust every lit cabin shows. Small, slow,
+      faint; they catch the firelight warm. */
+#adv-sky.adv-sky-hearthroom::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(80% 65% at 12% 100%, rgba(255, 148, 58, 0.30), transparent 62%),
+        radial-gradient(60% 40% at 12% 100%, rgba(255, 200, 120, 0.16), transparent 60%),
+        linear-gradient(180deg,
+            rgba(40, 23, 12, 0.46),
+            rgba(94, 56, 27, 0.34) 42%,
+            rgba(72, 42, 20, 0.38) 78%,
+            rgba(46, 27, 14, 0.44));
+}
+#adv-sky.adv-sky-hearthroom .adv-wp {
+    background: radial-gradient(circle,
+        rgba(255, 224, 168, 0.85),
+        rgba(255, 176, 96, 0.38) 55%,
+        transparent 72%);
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255, 190, 110, 0.35);
+    animation-name: adv-dust-hearthroom;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+/* fine dust doesn't fall, it surrenders - slow, with a lazy sway */
+@keyframes adv-dust-hearthroom {
+    0%   { transform: translate(0, 0);            opacity: 0; }
+    9%   { opacity: 0.75; }
+    30%  { transform: translate(1.2vw, 32vh);     opacity: 0.6; }
+    55%  { transform: translate(-0.9vw, 56vh);    opacity: 0.75; }
+    80%  { transform: translate(1.0vw, 80vh);     opacity: 0.4; }
+    100% { transform: translate(-0.5vw, 102vh);   opacity: 0; }
+}

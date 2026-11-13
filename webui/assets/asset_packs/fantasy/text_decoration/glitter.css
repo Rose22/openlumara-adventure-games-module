@@ -1,0 +1,21 @@
+/* text decoration: glitter - default set
+   shimmering text: a white flash sweeps across an accent gradient.
+   the shine keyframe is this sheet's OWN (adv-glitter-shine): the pack
+   convention gives every decoration its own copy so re-skinning one
+   sheet never disturbs another */
+.adv-macro-glitter {
+    background: linear-gradient(110deg, var(--adv-accent) 20%, #ffffff 40%, var(--adv-link-hover) 60%, var(--adv-accent) 80%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: adv-glitter-shine 2.8s linear infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-glitter-shine {
+    from { background-position: 220% 0; }
+    to   { background-position: -20% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-glitter { animation: none; }
+}

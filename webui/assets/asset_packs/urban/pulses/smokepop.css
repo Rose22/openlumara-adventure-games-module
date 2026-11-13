@@ -1,0 +1,19 @@
+/* one-shot pulse: smokepop - urban set
+   the can hits the wall: a grey billow swelling from low center and
+   dissolving. Fired as {{smokepop}}. */
+.adv-fx-smokepop {
+    background: radial-gradient(circle at 50% 62%,
+                rgba(168, 166, 158, 0.55) 26%,
+                rgba(120, 118, 112, 0.35) 48%,
+                transparent 72%);
+    animation: adv-fx-smokepop 1.5s ease-out forwards;
+}
+@keyframes adv-fx-smokepop {
+    0%   { opacity: 0; transform: scale(0.35); }
+    18%  { opacity: 0.95; }
+    100% { opacity: 0; transform: scale(2.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-smokepop,
+    #adv-pulses .adv-fx-smokepop { opacity: 0; }
+}

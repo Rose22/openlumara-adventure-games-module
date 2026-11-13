@@ -1,0 +1,16 @@
+/* weather kind: petals - default set */
+.adv-weather-petals .adv-wp {
+    background: radial-gradient(circle at 30% 30%, #ffd7e8, #f9a8d4);
+    border-radius: 60% 40% 55% 45%;
+    opacity: 0.85;
+    animation-name: adv-fall-petals;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-petals {
+    0%   { transform: translate(0, -2vh) rotate(0deg); }
+    25%  { transform: translate(3vw, 26vh) rotate(120deg); }
+    50%  { transform: translate(-2vw, 52vh) rotate(240deg); }
+    75%  { transform: translate(3.5vw, 78vh) rotate(330deg); }
+    100% { transform: translate(0, 104vh) rotate(420deg); opacity: 0.3; }
+}

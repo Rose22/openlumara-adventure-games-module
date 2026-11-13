@@ -1,0 +1,14 @@
+/* overlay mood: bloom - default set
+   warm dreamy light leaks breathing gently */
+.adv-fx-bloom {
+    background:
+        radial-gradient(50% 40% at 25% 20%, rgba(255, 170, 212, 0.21), transparent 70%),
+        radial-gradient(45% 38% at 76% 30%, rgba(255, 214, 150, 0.17), transparent 70%),
+        radial-gradient(60% 55% at 50% 100%, rgba(255, 152, 202, 0.13), transparent 75%);
+    mix-blend-mode: screen;
+    animation: adv-fx-in 1.2s ease forwards, adv-bloom-breathe 6s ease-in-out 1.2s infinite alternate both;
+}
+@keyframes adv-bloom-breathe {
+    from { opacity: 1;    transform: scale(1); }
+    to   { opacity: 0.72; transform: scale(1.045); }
+}

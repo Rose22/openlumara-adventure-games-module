@@ -1,0 +1,34 @@
+/* weather kind: whirlwind - default set
+   dust and debris climbing a twisted column that wanders
+   across the window, faster near the heart of the vortex */
+#adv-weather.adv-weather-whirlwind::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(16% 92% at 50% 50%, rgba(202, 182, 150, 0.12), transparent 72%);
+    filter: blur(4px);
+    animation: adv-whirl-column 9s ease-in-out infinite alternate;
+}
+@keyframes adv-whirl-column {
+    from { transform: translateX(-2.5vw) scaleX(0.9); }
+    to   { transform: translateX(2.5vw) scaleX(1.15); }
+}
+#adv-weather.adv-weather-whirlwind .adv-wp {
+    top: auto;
+    bottom: -12px;
+    background: rgba(206, 186, 152, 0.8);
+    border-radius: 40% 60% 50% 50%;
+    filter: blur(0.4px);
+    animation-name: adv-whirl;
+    animation-timing-function: ease-in;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-whirl {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.9; }
+    25%  { transform: translate(5vw, -24vh) rotate(200deg); }
+    45%  { transform: translate(-3.5vw, -46vh) rotate(420deg); }
+    65%  { transform: translate(4vw, -66vh) rotate(620deg); }
+    85%  { transform: translate(-2.5vw, -86vh) rotate(820deg); }
+    100% { transform: translate(1vw, -108vh) rotate(980deg); opacity: 0; }
+}

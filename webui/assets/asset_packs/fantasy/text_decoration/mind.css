@@ -1,0 +1,15 @@
+/* text decoration: mind - default set
+   telepathy: pulsing inner voice */
+.adv-macro-mind {
+    font-style: italic;
+    color: var(--adv-link);
+    animation: adv-mind-pulse 2.6s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-mind-pulse {
+    0%, 100% { opacity: 0.85; text-shadow: 0 0 3px var(--adv-link); }
+    50%      { opacity: 1;    text-shadow: 0 0 10px var(--adv-link-hover), 0 0 20px var(--adv-link); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-mind { animation: none; }
+}

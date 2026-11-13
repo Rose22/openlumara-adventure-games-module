@@ -1,0 +1,31 @@
+/* overlay mood: grunge - urban set
+   the city's unwashed layer: grimy brown-green stains creeping in
+   from the edges, one drifting slowly like a fresh spill. Fits:
+   back alleys, squat interiors, days that smell like rain and
+   cigarettes. */
+.adv-fx-grunge {
+    background: radial-gradient(70% 50% at 8% 12%, rgba(56, 52, 34, 0.30), transparent 60%),
+                radial-gradient(60% 55% at 95% 85%, rgba(42, 50, 40, 0.32), transparent 62%),
+                radial-gradient(ellipse at center, transparent 50%, rgba(26, 24, 18, 0.40) 100%);
+    animation: adv-fx-in 1.4s ease forwards;
+}
+.adv-fx-grunge::before {
+    content: "";
+    position: absolute;
+    inset: -15%;
+    background: radial-gradient(45% 40% at 70% 25%, rgba(60, 66, 44, 0.20), transparent 65%);
+    filter: blur(6px);
+    animation: adv-grunge-drift 38s ease-in-out infinite alternate;
+}
+.adv-fx-grunge::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(112deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 9px),
+        repeating-linear-gradient(68deg, rgba(200, 200, 180, 0.03) 0 1px, transparent 1px 13px);
+}
+@keyframes adv-grunge-drift {
+    from { transform: translate(-3%, -2%); }
+    to   { transform: translate(4%, 3%); }
+}

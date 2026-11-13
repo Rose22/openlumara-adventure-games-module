@@ -1,0 +1,38 @@
+/* sky kind: cloudy - default set
+   soft grey masses sailing past on a high current across the UPPER
+   half of the window only, thinning to nothing at the halfway point -
+   overcast days, travel montages, pensive hours */
+#adv-sky.adv-sky-cloudy::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(150, 158, 172, 0.18) 0%,
+                                  rgba(168, 174, 186, 0.09) 26%,
+                                  rgba(140, 147, 160, 0.03) 42%,
+                                  transparent 52%),
+        radial-gradient(120% 50% at 30% 0%, rgba(202, 208, 218, 0.12), transparent 72%);
+    animation: adv-cloudy-breathe 26s ease-in-out infinite alternate;
+}
+@keyframes adv-cloudy-breathe {
+    from { opacity: 0.72; }
+    to   { opacity: 1; }
+}
+.adv-sky-cloudy .adv-wp {
+    background: radial-gradient(closest-side,
+        rgba(222, 226, 233, 0.30),
+        rgba(203, 208, 218, 0.14) 55%,
+        rgba(180, 186, 198, 0.05) 78%, transparent);
+    border-radius: 50%;
+    filter: blur(18px);
+    animation-name: adv-cloud-cross;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+/* flattened blobs (y-scale ~0.75) that lift a whisper mid-crossing:
+   stratus on a high current, not party balloons */
+@keyframes adv-cloud-cross {
+    from { transform: translate(-45vw, 0)     scale(1, 0.72); }
+    50%  { transform: translate(44vw, -1.2vh) scale(1.06, 0.78); }
+    to   { transform: translate(135vw, 0)     scale(1, 0.72); }
+}

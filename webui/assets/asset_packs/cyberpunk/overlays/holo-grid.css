@@ -1,0 +1,18 @@
+/* overlay mood: holo-grid - scifi set
+   standing inside the projector field: a faint cyan grid shivering to
+   its own pulse, brighter toward the emitter below */
+.adv-fx-holo-grid {
+    background:
+        repeating-linear-gradient(0deg, rgba(90, 220, 255, 0.07) 0 1px, transparent 1px 44px),
+        repeating-linear-gradient(90deg, rgba(90, 220, 255, 0.05) 0 1px, transparent 1px 44px),
+        radial-gradient(ellipse at 50% 120%, rgba(60, 190, 255, 0.10), transparent 60%);
+    animation: adv-fx-in 0.4s ease forwards,
+        adv-scifi-grid-shiver 5s ease-in-out 0.4s infinite both;
+}
+@keyframes adv-scifi-grid-shiver {
+    0%, 100% { opacity: 0.8; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-fx-holo-grid { animation: none; }
+}

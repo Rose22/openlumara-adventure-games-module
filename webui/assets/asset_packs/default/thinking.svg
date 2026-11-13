@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thinking sigil - default set (chrome slot: thinking.svg)
+     the breathing ward shown while the GM ponders behind the hidden
+     process chain. A campaign set REPLACES this file whole by shipping
+     its own thinking.svg (safe markup only: no scripts, no handlers, no
+     external refs - it is injected straight into the page). Its look
+     comes from thinking.css, whose generic "#adv-thinking > svg" rule
+     sizes and lights ANY sigil, so a custom svg may skip class names
+     entirely or even carry its own inline <style>. Keep
+     viewBox="0 0 100 100" unless you know what you are doing; the
+     frontend centers the container, you own what is inside it. -->
+<svg class="adv-rune" viewBox="0 0 100 100" aria-hidden="true">
+    <g class="adv-rune-ring">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.5"/>
+        <path id="adv-rune-path" d="M50,50 m-34,0 a34,34 0 1,1 68,0 a34,34 0 1,1 -68,0" fill="none" stroke="none"/>
+        <text class="adv-rune-glyphs"><textPath href="#adv-rune-path" startOffset="0">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ </textPath></text>
+    </g>
+    <g class="adv-rune-erring">
+        <circle cx="50" cy="50" r="21" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 6" opacity="0.8"/>
+    </g>
+    <g class="adv-rune-core">
+        <path d="M50 36 L62 57 L38 57 Z" fill="currentColor" opacity="0.9"/>
+    </g>
+</svg>

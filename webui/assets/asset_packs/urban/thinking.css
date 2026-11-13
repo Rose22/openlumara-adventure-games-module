@@ -1,0 +1,150 @@
+/* thinking sigil skin - urban set (chrome slot: thinking.css)
+   REPLACES the default sheet whole. The tag writes itself on a 5 s
+   loop: overspray blooms, the blurred nozzle roams the crown outline
+   while the stroke chases it, the band and swoosh follow, gem dots pop
+   along the peaks, paint starts dripping - then the wall takes the tag
+   back and it gets sprayed again. The stroke animations are pure
+   stroke-dashoffset on pathLength-normalized paths (immune to rescale);
+   the nozzle follows the crown via offset-path, same geometry as the
+   SVG's crown d, so tip and line never drift apart. The base states
+   below are the FINISHED tag: the reduced-motion guard just stops the
+   clock there - nothing to hide. */
+#adv-thinking > svg {
+    width: clamp(84px, 10vw, 120px);
+    height: auto;
+    filter: drop-shadow(0 2px 12px color-mix(in srgb, var(--adv-accent) 30%, transparent));
+}
+/* the wall hands the tag back right before the loop restarts */
+#adv-thinking .adv-tag-scene {
+    animation: adv-tag-fade 5s linear infinite;
+}
+@keyframes adv-tag-fade {
+    0%   { opacity: 0; }
+    4%   { opacity: 1; }
+    88%  { opacity: 1; }
+    96%, 100% { opacity: 0; }
+}
+/* the wind lean every throwie gets */
+#adv-thinking .adv-tag-lean {
+    transform-box: view-box;
+    transform-origin: 50px 70px;
+    transform: skewX(-7deg);
+}
+/* strokes start drawn; the keyframes do the spraying */
+#adv-thinking .adv-tag-stroke {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 0;
+}
+#adv-thinking .adv-tag-stroke.crown {
+    animation: adv-tag-draw-crown 5s ease-in-out infinite;
+}
+#adv-thinking .adv-tag-stroke.band {
+    animation: adv-tag-draw-band 5s ease-in-out infinite;
+}
+#adv-thinking .adv-tag-stroke.swoosh {
+    animation: adv-tag-draw-swoosh 5s ease-in-out infinite;
+}
+#adv-thinking .adv-tag-stroke.star {
+    animation: adv-tag-draw-star 5s ease-in-out infinite;
+}
+@keyframes adv-tag-draw-crown {
+    0%, 3%  { stroke-dashoffset: 100; }
+    40%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes adv-tag-draw-band {
+    0%, 13% { stroke-dashoffset: 100; }
+    46%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes adv-tag-draw-swoosh {
+    0%, 42% { stroke-dashoffset: 100; }
+    62%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes adv-tag-draw-star {
+    0%, 56% { stroke-dashoffset: 100; }
+    70%, 100% { stroke-dashoffset: 0; }
+}
+/* the nozzle: a blurred paint cloud riding the crown's own path, in
+   lockstep with the stroke (3%-40% is the crown's drawing window);
+   the base opacity of 0 keeps it hidden outside the spray and in the
+   reduced-motion still */
+#adv-thinking .adv-tag-nozzle {
+    opacity: 0;
+    offset-path: path("M22,66 L26,34 L38,50 L50,26 L62,50 L74,34 L78,66 Z");
+    offset-rotate: 0deg;
+    animation: adv-tag-spray 5s ease-in-out infinite;
+}
+@keyframes adv-tag-spray {
+    0%   { opacity: 0;    offset-distance: 0%; }
+    3%   { opacity: 0.65; offset-distance: 0%; }
+    37%  { opacity: 0.65; }
+    43%  { opacity: 0;    offset-distance: 100%; }
+    100% { opacity: 0;    offset-distance: 100%; }
+}
+/* overspray haze: blooms while the can works, settles after */
+#adv-thinking .adv-tag-haze {
+    opacity: 0;
+    animation: adv-tag-haze 5s ease-in-out infinite;
+}
+@keyframes adv-tag-haze {
+    0%   { opacity: 0; }
+    22%  { opacity: 0.5; }
+    55%  { opacity: 0.28; }
+    90%, 100% { opacity: 0; }
+}
+/* gem dots pop once the outline is up, one after the other */
+#adv-thinking .adv-tag-gem {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: adv-tag-pop 5s cubic-bezier(0.2, 1.6, 0.35, 1) infinite;
+}
+#adv-thinking .adv-tag-gem.g1 { animation-delay: 0s; }
+#adv-thinking .adv-tag-gem.g2 { animation-delay: 0.22s; }
+#adv-thinking .adv-tag-gem.g3 { animation-delay: 0.44s; }
+@keyframes adv-tag-pop {
+    0%, 44% { transform: scale(0); }
+    50%     { transform: scale(1.3); }
+    54%, 100% { transform: scale(1); }
+}
+/* fresh paint runs: drips extend from the band, staggered; each drip
+   keeps a constant phase inside the same 5 s cycle */
+#adv-thinking .adv-tag-drip {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+    animation: adv-tag-drip 5s ease-in infinite;
+}
+#adv-thinking .adv-tag-drip.d1 { animation-delay: 0s; }
+#adv-thinking .adv-tag-drip.d2 { animation-delay: 0.35s; }
+#adv-thinking .adv-tag-drip.d3 { animation-delay: 0.7s; }
+@keyframes adv-tag-drip {
+    0%, 50% { transform: scaleY(0); }
+    74%, 100% { transform: scaleY(1); }
+}
+/* one drop lets go of the longest drip and falls off the tag */
+#adv-thinking .adv-tag-drop {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: adv-tag-drop 5s ease-in infinite;
+    animation-delay: 0.35s;
+}
+@keyframes adv-tag-drop {
+    0%, 76%  { opacity: 0; transform: translateY(0); }
+    79%      { opacity: 1; transform: translateY(0); }
+    94%, 100% { opacity: 0; transform: translateY(9px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-thinking .adv-tag-scene,
+    #adv-thinking .adv-tag-stroke,
+    #adv-thinking .adv-tag-gem,
+    #adv-thinking .adv-tag-drip,
+    #adv-thinking .adv-tag-nozzle,
+    #adv-thinking .adv-tag-haze,
+    #adv-thinking .adv-tag-drop {
+        animation: none;
+    }
+    /* the finished tag, quietly on the wall */
+    #adv-thinking .adv-tag-scene { opacity: 1; }
+    #adv-thinking .adv-tag-stroke { stroke-dashoffset: 0; }
+    #adv-thinking .adv-tag-gem { transform: scale(1); }
+    #adv-thinking .adv-tag-drip { transform: scaleY(1); }
+}

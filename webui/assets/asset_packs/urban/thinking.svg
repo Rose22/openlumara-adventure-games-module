@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- thinking sigil - urban set (chrome slot: thinking.svg)
+     the throwie: a crown tag sprayed onto the wall in a five-second
+     loop - a blurred nozzle roams the outline as it draws itself, the
+     crown leans into the wind in the four-color marker gradient, gem
+     dots pop along its peaks, and fresh paint drips. Skinned and
+     animated by urban/thinking.css. -->
+<svg class="adv-tag" viewBox="0 0 100 100" aria-hidden="true">
+    <defs>
+        <!-- the marker's four colors, same mix as the graffiti text
+             decoration: cyan, green, amber, pink -->
+        <linearGradient id="adv-tag-grad" gradientUnits="userSpaceOnUse" x1="12" y1="22" x2="90" y2="86">
+            <stop offset="0" stop-color="#0891b2"/>
+            <stop offset="0.36" stop-color="#65a30d"/>
+            <stop offset="0.68" stop-color="#ca8a04"/>
+            <stop offset="1" stop-color="#db2777"/>
+        </linearGradient>
+        <!-- overspray haze blooming behind the tag -->
+        <radialGradient id="adv-tag-haze" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#db2777" stop-opacity="0.5"/>
+            <stop offset="0.55" stop-color="#0891b2" stop-opacity="0.18"/>
+            <stop offset="1" stop-color="#0891b2" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="adv-tag-blur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="2.2"/>
+        </filter>
+    </defs>
+    <g class="adv-tag-scene">
+        <circle class="adv-tag-haze" cx="50" cy="54" r="46" fill="url(#adv-tag-haze)"/>
+        <!-- everything under here wears the wind lean; the nozzle rides
+             inside too, so it traces the crown the eye actually sees -->
+        <g class="adv-tag-lean">
+            <path class="adv-tag-stroke crown" pathLength="100"
+                  d="M22,66 L26,34 L38,50 L50,26 L62,50 L74,34 L78,66 Z"
+                  fill="none" stroke="url(#adv-tag-grad)" stroke-width="3.2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="adv-tag-stroke band" pathLength="100"
+                  d="M25,72 L75,72"
+                  fill="none" stroke="url(#adv-tag-grad)" stroke-width="2.4"
+                  stroke-linecap="round"/>
+            <path class="adv-tag-stroke swoosh" pathLength="100"
+                  d="M10,88 C38,80 64,80 92,85"
+                  fill="none" stroke="url(#adv-tag-grad)" stroke-width="4"
+                  stroke-linecap="round"/>
+            <path class="adv-tag-stroke star" pathLength="100"
+                  d="M86,16 l2.2,5.4 5.4,2.2 -5.4,2.2 -2.2,5.4 -2.2,-5.4 -5.4,-2.2 5.4,-2.2 z"
+                  fill="none" stroke="url(#adv-tag-grad)" stroke-width="1.8"
+                  stroke-linejoin="round"/>
+            <circle class="adv-tag-gem g1" cx="26" cy="34" r="3" fill="#db2777"/>
+            <circle class="adv-tag-gem g2" cx="50" cy="26" r="3.4" fill="#0891b2"/>
+            <circle class="adv-tag-gem g3" cx="74" cy="34" r="3" fill="#ca8a04"/>
+            <line class="adv-tag-drip d1" x1="31" y1="66" x2="31" y2="80" stroke="#65a30d" stroke-width="1.6" stroke-linecap="round"/>
+            <line class="adv-tag-drip d2" x1="53" y1="66" x2="53" y2="83" stroke="#0891b2" stroke-width="1.6" stroke-linecap="round"/>
+            <line class="adv-tag-drip d3" x1="66" y1="66" x2="66" y2="77" stroke="#db2777" stroke-width="1.6" stroke-linecap="round"/>
+            <circle class="adv-tag-drop" cx="53" cy="84.5" r="1.5" fill="#0891b2"/>
+            <!-- the can itself: a soft cloud of fresh paint roaming the
+                 crown's own path (the CSS offset-path mirrors it) -->
+            <circle class="adv-tag-nozzle" cx="0" cy="0" r="4.5" fill="#db2777" filter="url(#adv-tag-blur)"/>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,338 @@
+/* dice flourish skin - urban set (chrome slot: dice.css)
+   the roll on wet asphalt: two neon tubes fall out of the light
+   pollution, ignite mid-air, and hit the puddle-slick street in a
+   shrinking bounce - each landing mirrored by its own reflection
+   (-webkit-box-reflect does the wet ground for free). Die A burns hot
+   pink, die B neon cyan, like two signs arguing across the street.
+   The coin is the corner traffic light: a dark glass signal disc that
+   lands GO (green) or NO (red). The total strikes like a sign tube
+   warming up, then holds lit.
+
+   Contract honored (same as the default sheet): the wrapper classes
+   ((none) | rolling | show-total | out), every .adv-dr-* element name,
+   every rolling animation <= 1.5 s, and the coin's total rotation
+   landing on a multiple of 360deg (adv-dr-is-heads) or that plus 180
+   (adv-dr-is-tails). The gravity timeline keeps the default's tuned
+   translate/rotate values (including the corner-sink lifts); only the
+   tube treatment rides on top. Reduced-motion guard travels at the
+   bottom, as always. */
+
+/* state machine on the wrapper class: (none) | rolling | show-total | out */
+#adv-diceroll {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9994;
+    pointer-events: none;
+    font-family: Impact, Haettenschweiler, 'Arial Black', 'Franklin Gothic Heavy', sans-serif;
+    background:
+        linear-gradient(0deg, rgba(255, 45, 149, 0.06) 0%, transparent 26%),
+        radial-gradient(ellipse at center, rgba(6, 6, 14, 0.62) 0%, rgba(6, 6, 14, 0.24) 55%, transparent 75%);
+}
+#adv-diceroll.rolling,
+#adv-diceroll.show-total,
+#adv-diceroll.out {
+    display: block;
+}
+#adv-diceroll.out {
+    animation: adv-dr-out 0.55s ease both;
+}
+@keyframes adv-dr-out {
+    to { opacity: 0; }
+}
+.adv-dr-dice {
+    /* absolute centering: the dice land on the TRUE page center, and the
+       swap to the total can never shift the layout vertically */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    gap: 44px;
+}
+/* the fade-out phase must keep the number on screen and the dice away */
+#adv-diceroll.show-total .adv-dr-dice,
+#adv-diceroll.out .adv-dr-dice {
+    display: none;
+}
+/* the wet street itself: a hot pink hairline with a cyan spill under it,
+   the way a puddle-streaked curb reads at night; lit only while rolling */
+.adv-dr-floor {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + clamp(30px, 4.6vw, 46px));
+    transform: translateX(-50%);
+    width: clamp(240px, 46vw, 460px);
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55) 18%, #ff2d95 50%, rgba(34, 211, 238, 0.55) 82%, transparent);
+    box-shadow:
+        0 0 12px rgba(255, 45, 149, 0.85),
+        0 8px 22px rgba(34, 211, 238, 0.28);
+    display: none;
+}
+#adv-diceroll.rolling .adv-dr-floor {
+    display: block;
+}
+.adv-dr-die {
+    display: inline-block;
+    /* fixed square cell: keep the face flips from reflowing the glyph */
+    width: 1em;
+    text-align: center;
+    font-size: clamp(56px, 9vw, 88px);
+    line-height: 1;
+    /* hot pink tube by default; die B burns cyan (see below) */
+    color: #ff2d95;
+    text-shadow:
+        0 0 8px rgba(255, 45, 149, 0.95),
+        0 0 26px rgba(255, 45, 149, 0.55),
+        0 0 60px rgba(255, 45, 149, 0.3);
+    /* the wet asphalt mirror: a faded copy of the tube below the die */
+    -webkit-box-reflect: below 3px linear-gradient(transparent 52%, rgba(255, 255, 255, 0.26));
+    transform-origin: center;
+}
+.adv-dr-die.adv-die-b {
+    color: #22d3ee;
+    text-shadow:
+        0 0 8px rgba(34, 211, 238, 0.95),
+        0 0 26px rgba(34, 211, 238, 0.55),
+        0 0 60px rgba(34, 211, 238, 0.3);
+}
+/* gravity timeline, 1.5s, default tuned trajectory (fall, hit, shrinking
+   bounces, corner-sink lifts intact). Added on top: the tube strikes -
+   a hard ignition flick early in the fall, and every floor contact
+   flares the glow hotter before it coasts down */
+#adv-diceroll.rolling .adv-dr-die {
+    will-change: transform;
+    animation: adv-die-drop-a 1.5s both;
+}
+#adv-diceroll.rolling .adv-dr-die.adv-die-b {
+    animation-name: adv-die-drop-b;
+}
+@keyframes adv-die-drop-a {
+    0%   { opacity: 0; transform: translate(-34px, -34vh) rotate(0deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    4%   { opacity: 0.55; transform: translate(-31px, calc(-31vh - 0.141em)) rotate(20deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    6%   { opacity: 1; }
+    7%   { opacity: 0.35; }
+    9%   { opacity: 1; }
+    34%  { transform: translate(-14px, -0.141em) rotate(200deg);
+           text-shadow: 0 0 10px rgba(255, 45, 149, 1), 0 0 34px rgba(255, 45, 149, 0.8), 0 0 80px rgba(255, 45, 149, 0.45);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    46%  { transform: translate(-9px, -11vh) rotate(270deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    58%  { transform: translate(-4px, 0) rotate(360deg);
+           text-shadow: 0 0 10px rgba(255, 45, 149, 1), 0 0 30px rgba(255, 45, 149, 0.7), 0 0 70px rgba(255, 45, 149, 0.4);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    68%  { transform: translate(0px, calc(-4.5vh - 0.183em)) rotate(420deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    78%  { transform: translate(4px, -0.204em) rotate(490deg);
+           text-shadow: 0 0 10px rgba(255, 45, 149, 1), 0 0 26px rgba(255, 45, 149, 0.65), 0 0 64px rgba(255, 45, 149, 0.35);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    85%  { transform: translate(6.5px, calc(-1.6vh - 0.079em)) rotate(530deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    92%  { transform: translate(8.5px, -0.183em) rotate(600deg);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    97%  { transform: translate(9.5px, calc(-0.4vh - 0.141em)) rotate(650deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    100% { opacity: 1; transform: translate(10px, 0) rotate(720deg); }
+}
+@keyframes adv-die-drop-b {
+    0%   { opacity: 0; transform: translate(38px, -40vh) rotate(0deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    4%   { opacity: 0.5; transform: translate(35px, calc(-37vh - 0.141em)) rotate(-20deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    7%   { opacity: 1; }
+    8%   { opacity: 0.4; }
+    10%  { opacity: 1; }
+    30%  { transform: translate(20px, 0) rotate(-180deg);
+           text-shadow: 0 0 10px rgba(34, 211, 238, 1), 0 0 34px rgba(34, 211, 238, 0.8), 0 0 80px rgba(34, 211, 238, 0.45);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    44%  { transform: translate(14px, calc(-14vh - 0.079em)) rotate(-260deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    60%  { transform: translate(7px, -0.079em) rotate(-370deg);
+           text-shadow: 0 0 10px rgba(34, 211, 238, 1), 0 0 30px rgba(34, 211, 238, 0.7), 0 0 70px rgba(34, 211, 238, 0.4);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    71%  { transform: translate(2px, calc(-6vh - 0.079em)) rotate(-440deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    81%  { transform: translate(-3px, -0.141em) rotate(-520deg);
+           text-shadow: 0 0 10px rgba(34, 211, 238, 1), 0 0 26px rgba(34, 211, 238, 0.65), 0 0 64px rgba(34, 211, 238, 0.35);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    88%  { transform: translate(-6px, calc(-2vh - 0.165em)) rotate(-565deg);
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    94%  { transform: translate(-8px, 0) rotate(-630deg);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    100% { opacity: 1; transform: translate(-9px, 0) rotate(-720deg); }
+}
+/* =================coin flip variant=================== */
+/* the corner traffic light: a dark glass signal disc dropped from the
+   same height as the dice, spinning on its horizontal axis and landing
+   GO (green, heads) or NO (red, tails). Rotation values are the
+   default's verbatim, so the landing faces stay exact: 2160deg heads,
+   2340deg tails */
+.adv-dr-coinwrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(64px, 10vw, 88px);
+    height: clamp(64px, 10vw, 88px);
+    perspective: 800px;
+    transform: translate(-50%, -50%);
+}
+#adv-diceroll.show-total .adv-dr-coinwrap,
+#adv-diceroll.out .adv-dr-coinwrap {
+    display: none;
+}
+#adv-diceroll.rolling .adv-dr-coinwrap {
+    animation: adv-coin-drop 1.5s both;
+    will-change: transform;
+}
+@keyframes adv-coin-drop {
+    0%   { opacity: 0; transform: translate(-50%, calc(-50% - 34vh));
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    4%   { opacity: 1; transform: translate(-50%, calc(-50% - 31vh));
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    36%  { transform: translate(-50%, -50%);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    48%  { transform: translate(-50%, calc(-50% - 12vh));
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    62%  { transform: translate(-50%, -50%);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    73%  { transform: translate(-50%, calc(-50% - 4.5vh));
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    83%  { transform: translate(-50%, -50%);
+           animation-timing-function: cubic-bezier(0, 0, 0.45, 1); }
+    91%  { transform: translate(-50%, calc(-50% - 1.4vh));
+           animation-timing-function: cubic-bezier(0.55, 0, 1, 1); }
+    100% { opacity: 1; transform: translate(-50%, -50%); }
+}
+.adv-dr-coin {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+}
+#adv-diceroll.rolling .adv-dr-coin {
+    animation: adv-coin-spin-heads 1.5s linear both;
+}
+#adv-diceroll.rolling.adv-dr-is-tails .adv-dr-coin {
+    animation-name: adv-coin-spin-tails;
+}
+@keyframes adv-coin-spin-heads {
+    0%   { transform: rotateX(0deg); }
+    30%  { transform: rotateX(1080deg); }
+    55%  { transform: rotateX(1620deg); }
+    75%  { transform: rotateX(1980deg); }
+    88%  { transform: rotateX(2124deg); }
+    96%  { transform: rotateX(2154deg); }
+    100% { transform: rotateX(2160deg); }
+}
+@keyframes adv-coin-spin-tails {
+    0%   { transform: rotateX(0deg); }
+    30%  { transform: rotateX(1260deg); }
+    55%  { transform: rotateX(1800deg); }
+    75%  { transform: rotateX(2160deg); }
+    88%  { transform: rotateX(2304deg); }
+    96%  { transform: rotateX(2334deg); }
+    100% { transform: rotateX(2340deg); }
+}
+/* green GO face: dark glass lens, lit signal ring */
+.adv-dr-coin-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Impact, Haettenschweiler, 'Arial Black', 'Franklin Gothic Heavy', sans-serif;
+    letter-spacing: 0.04em;
+    font-size: clamp(24px, 3.8vw, 34px);
+    color: #4ade80;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.95), 0 0 22px rgba(74, 222, 128, 0.55);
+    background: radial-gradient(circle at 36% 30%, #23303a 0%, #10161d 60%, #07090c 100%);
+    border: 2px solid rgba(74, 222, 128, 0.7);
+    box-shadow:
+        inset 0 0 14px rgba(74, 222, 128, 0.28),
+        inset 0 -6px 12px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(74, 222, 128, 0.35),
+        0 4px 14px rgba(0, 0, 0, 0.5);
+}
+/* red NO face: same housing, signal flipped */
+.adv-dr-coin-tails {
+    transform: rotateX(180deg);
+    color: #f87171;
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.95), 0 0 22px rgba(248, 113, 113, 0.55);
+    border-color: rgba(248, 113, 113, 0.7);
+    box-shadow:
+        inset 0 0 14px rgba(248, 113, 113, 0.28),
+        inset 0 -6px 12px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(248, 113, 113, 0.35),
+        0 4px 14px rgba(0, 0, 0, 0.5);
+}
+/* the resolved total: the sign strikes like a warming tube - two hard
+   stutters before it settles into a steady buzz with its cyan ghost
+   across the street */
+.adv-dr-total {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(64px, 11vw, 132px);
+    line-height: 1.1;
+    letter-spacing: 0.03em;
+    color: #ff2d95;
+    text-shadow:
+        -3px 1px rgba(34, 211, 238, 0.5),
+        0 0 10px rgba(255, 45, 149, 0.95),
+        0 0 36px rgba(255, 45, 149, 0.6),
+        0 0 80px rgba(255, 45, 149, 0.35);
+    -webkit-box-reflect: below 4px linear-gradient(transparent 58%, rgba(255, 255, 255, 0.2));
+}
+#adv-diceroll.show-total .adv-dr-total {
+    display: block;
+    animation: adv-total-in 0.7s cubic-bezier(0.2, 1.55, 0.35, 1) both;
+}
+#adv-diceroll.out .adv-dr-total {
+    display: block;
+}
+/* the centering translate rides inside every keyframe, or the pop would
+   snap the number to its anchor corner while it strikes */
+@keyframes adv-total-in {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+    14%  { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+    18%  { opacity: 0.15; }
+    24%  { opacity: 1; }
+    30%  { opacity: 0.4; }
+    38%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.adv-dr-reason {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + clamp(48px, 7.5vw, 90px));
+    transform: translateX(-50%);
+    max-width: 80vw;
+    text-align: center;
+    font-family: 'Arial Narrow', 'Helvetica Neue', 'Roboto Condensed', 'Liberation Sans Narrow', sans-serif;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    color: var(--adv-ink-soft);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-diceroll.rolling .adv-dr-die,
+    #adv-diceroll.rolling .adv-dr-coinwrap,
+    #adv-diceroll.rolling .adv-dr-coin,
+    #adv-diceroll.show-total .adv-dr-total,
+    #adv-diceroll.out {
+        animation: none;
+    }
+    .adv-dr-die,
+    .adv-dr-total {
+        -webkit-box-reflect: none;
+    }
+}

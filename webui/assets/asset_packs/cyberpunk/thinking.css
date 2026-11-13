@@ -1,0 +1,97 @@
+/* thinking sigil skin - scifi set (chrome slot: thinking.css)
+   REPLACES the default sheet whole. The sigil (scifi/thinking.svg) is a
+   memory panel of 64 cells; each cell carries a flash program class
+   (p1..p5) and a start offset class (d0..d7). The programs are irregular
+   on/off patterns run with steps() at mutually-prime durations, so the
+   panel never visibly ticks in lockstep - it reads as raw polling noise. */
+#adv-thinking > svg {
+    width: clamp(84px, 10vw, 120px);
+    height: auto;
+    color: var(--adv-accent);
+    filter: drop-shadow(0 0 12px var(--adv-accent));
+}
+/* dormant cells: a faint charge left on the plate */
+#adv-thinking .adv-mp-grid .m {
+    fill: currentColor;
+    opacity: 0.05;
+    animation-iteration-count: infinite;
+    animation-timing-function: steps(1, end);
+}
+/* flash programs: three noise patterns over five coprime loop lengths */
+#adv-thinking .adv-mp-grid .p1 { animation-name: adv-mp-f1; animation-duration: 1.7s; }
+#adv-thinking .adv-mp-grid .p2 { animation-name: adv-mp-f2; animation-duration: 2.3s; }
+#adv-thinking .adv-mp-grid .p3 { animation-name: adv-mp-f3; animation-duration: 1.3s; }
+#adv-thinking .adv-mp-grid .p4 { animation-name: adv-mp-f1; animation-duration: 2.9s; }
+#adv-thinking .adv-mp-grid .p5 { animation-name: adv-mp-f2; animation-duration: 2.1s; }
+/* staggered boots so identical programs never share a phase */
+#adv-thinking .adv-mp-grid .d0 { animation-delay: 0s; }
+#adv-thinking .adv-mp-grid .d1 { animation-delay: -0.17s; }
+#adv-thinking .adv-mp-grid .d2 { animation-delay: -0.43s; }
+#adv-thinking .adv-mp-grid .d3 { animation-delay: -0.69s; }
+#adv-thinking .adv-mp-grid .d4 { animation-delay: -0.97s; }
+#adv-thinking .adv-mp-grid .d5 { animation-delay: -1.23s; }
+#adv-thinking .adv-mp-grid .d6 { animation-delay: -1.51s; }
+#adv-thinking .adv-mp-grid .d7 { animation-delay: -1.79s; }
+@keyframes adv-mp-f1 {
+    0%   { opacity: 0.05; }
+    6%   { opacity: 1; }
+    9%   { opacity: 0.05; }
+    44%  { opacity: 0.05; }
+    49%  { opacity: 1; }
+    53%  { opacity: 0.12; }
+    57%  { opacity: 0.05; }
+    81%  { opacity: 1; }
+    85%  { opacity: 0.05; }
+}
+@keyframes adv-mp-f2 {
+    0%   { opacity: 0.08; }
+    12%  { opacity: 1; }
+    15%  { opacity: 0.05; }
+    27%  { opacity: 0.05; }
+    33%  { opacity: 1; }
+    36%  { opacity: 0.08; }
+    66%  { opacity: 0.08; }
+    72%  { opacity: 1; }
+    78%  { opacity: 0.05; }
+    91%  { opacity: 1; }
+    94%  { opacity: 0.05; }
+}
+@keyframes adv-mp-f3 {
+    0%   { opacity: 1; }
+    7%   { opacity: 0.05; }
+    22%  { opacity: 0.05; }
+    29%  { opacity: 1; }
+    34%  { opacity: 0.1; }
+    52%  { opacity: 0.1; }
+    60%  { opacity: 1; }
+    63%  { opacity: 0.05; }
+    88%  { opacity: 0.05; }
+    93%  { opacity: 1; }
+    97%  { opacity: 0.05; }
+}
+/* the read-bar sweeping the panel top to bottom */
+#adv-thinking .adv-mp-scan {
+    animation: adv-mp-scan 3.2s linear infinite;
+}
+@keyframes adv-mp-scan {
+    0%   { transform: translateY(-12px); opacity: 0; }
+    8%   { opacity: 0.6; }
+    92%  { opacity: 0.6; }
+    100% { transform: translateY(100px); opacity: 0; }
+}
+/* the frame and its corner brackets breathe slowly */
+#adv-thinking .adv-mp-frame {
+    animation: adv-mp-frame 4s ease-in-out infinite;
+}
+@keyframes adv-mp-frame {
+    0%, 100% { opacity: 0.55; }
+    50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-thinking .adv-mp-grid .m,
+    #adv-thinking .adv-mp-scan,
+    #adv-thinking .adv-mp-frame { animation: none; }
+    /* the grid stays readable as a still panel instead of fading out */
+    #adv-thinking .adv-mp-grid .m { opacity: 0.4; }
+    #adv-thinking .adv-mp-scan { display: none; }
+}

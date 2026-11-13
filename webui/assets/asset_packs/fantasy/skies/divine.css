@@ -1,0 +1,30 @@
+/* weather kind: divine - default set
+   golden rings pulse outward from the heart of the story -
+   manifestations, vows sworn, the moment of breakthrough. no
+   particles, pure halo: two rings a half-cycle apart */
+.divine-hidden, .adv-weather-divine .adv-wp {
+    display: none;
+}
+#adv-weather.adv-weather-divine::before,
+#adv-weather.adv-weather-divine::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46vmin;
+    height: 46vmin;
+    margin: -23vmin 0 0 -23vmin;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 224, 150, 0.55);
+    box-shadow: 0 0 30px rgba(255, 210, 120, 0.28), inset 0 0 24px rgba(255, 210, 120, 0.20);
+    animation: adv-halo 7s ease-out infinite;
+}
+#adv-weather.adv-weather-divine::after {
+    border-color: rgba(255, 242, 205, 0.40);
+    animation-delay: 3.5s;
+}
+@keyframes adv-halo {
+    0%   { transform: scale(0.12); opacity: 0; }
+    12%  { opacity: 0.95; }
+    100% { transform: scale(1.6); opacity: 0; }
+}

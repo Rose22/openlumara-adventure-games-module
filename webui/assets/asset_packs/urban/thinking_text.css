@@ -1,0 +1,44 @@
+/* thinking_text.css - urban set (chrome slot: thinking_text.css)
+   REPLACES the default sheet whole. The line under the crown reads as
+   a hand-sprayed scrawl: bold condensed italic, a touch off-level like
+   it went on the wall at a hurry, with the sign-tube buzz riding
+   along - bare words, no marker in front. The wording lives in
+   thinking_text.json. The prompt phase fades --adv-think-charge
+   straight into the words. */
+.adv-think-word {
+    font-family: 'Arial Narrow', 'Helvetica Neue', 'Roboto Condensed', 'Liberation Sans Narrow', sans-serif;
+    font-size: calc(var(--adv-font-size, 17.5px) * 0.82);
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    color: var(--adv-ink-soft, var(--text-secondary));
+    opacity: 0.9;
+    display: inline-block;
+    /* the scrawl never goes on perfectly level */
+    transform: rotate(-1.2deg);
+    animation: adv-think-word-buzz 2.6s linear infinite;
+}
+/* no marker in front of the words - the scrawl stands on its own */
+@keyframes adv-think-word-buzz {
+    0%, 44%  { opacity: 0.9; }
+    46%      { opacity: 0.5; }
+    48%      { opacity: 0.9; }
+    80%      { opacity: 0.9; }
+    81%      { opacity: 0.65; }
+    82%      { opacity: 0.9; }
+    100%     { opacity: 0.9; }
+}
+.adv-think-word.adv-think-prompt {
+    opacity: calc(0.35 + 0.65 * var(--adv-think-charge, 0));
+    animation: none;
+}
+.adv-think-word.adv-think-tool {
+    color: #e0167f;
+    /* the storefront treatment: tool work glows like a lit sign tube,
+       the same fixed deep pink the neonsign decoration picked for
+       legibility on light pages too */
+    text-shadow: 0 0 10px rgba(255, 45, 149, 0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-think-word { animation: none; opacity: 0.9; }
+}

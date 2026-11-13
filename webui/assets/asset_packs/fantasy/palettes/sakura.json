@@ -1,0 +1,36 @@
+{
+  "label": "Sakura (cherry blossom)",
+  "prefers": "light",
+  "light": {
+    "dark": false,
+    "accent": "#db2777", "link": "#be185d", "link_hover": "#e11d48",
+    "page": "#fff7f7", "ink": "#402028", "ink_soft": "#855a67", "line": "#f3d4de",
+    "ui_bg1": "#fdf1f4", "ui_bg2": "#f9e4ea", "ui_bg3": "#f6dae2",
+    "ui_text": "#33191f", "ui_text_soft": "#775058", "ui_text_muted": "#ab8690",
+    "ui_border": "#eecdd7",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,160,120,0.22), rgba(255,190,170,0.10))",
+      "morning": "linear-gradient(180deg, rgba(255,248,240,0.12), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(255,230,225,0.14), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(250,90,130,0.24), rgba(150,50,100,0.14))",
+      "night": "linear-gradient(180deg, rgba(70,40,100,0.30), rgba(35,18,55,0.18))",
+      "deepnight": "linear-gradient(180deg, rgba(35,15,50,0.42), rgba(15,7,28,0.30))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#f472b6", "link": "#ec4899", "link_hover": "#fda4af",
+    "page": "#241118", "ink": "#fbe6ee", "ink_soft": "#c79aa8", "line": "#46222d",
+    "ui_bg1": "#190b11", "ui_bg2": "#200f17", "ui_bg3": "#27131c",
+    "ui_text": "#fce8ef", "ui_text_soft": "#d0a3b2", "ui_text_muted": "#a37786",
+    "ui_border": "#3e1d28",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,150,110,0.14), rgba(255,110,140,0.06))",
+      "morning": "linear-gradient(180deg, rgba(255,215,230,0.06), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(255,200,220,0.07), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,90,140,0.14), rgba(140,40,90,0.10))",
+      "night": "linear-gradient(180deg, rgba(190,100,200,0.15), rgba(90,40,110,0.12))",
+      "deepnight": "linear-gradient(180deg, rgba(110,50,130,0.22), rgba(40,15,45,0.18))"
+    }
+  }
+}

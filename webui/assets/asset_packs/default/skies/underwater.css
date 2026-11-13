@@ -1,0 +1,33 @@
+/* sky kind: underwater - default set
+   rising air bubbles in the sunlit-reef light: cool rim, bright glint
+   high on the bubble, a soft bloom around them as if lit from the
+   surface above.
+
+   WHY THIS ANIMATES DIFFERENTLY THAN BEFORE: the old sheet ran the
+   whole climb on ease-in. per-keyframe-segment, easing restarts - so
+   every bubble decelerated to nearly ZERO at each of the bend points
+   (30/55/80%) and the swarm visibly froze and pulsed instead of
+   swimming up. real bubbles rise at an even terminal speed, so the
+   climb is now LINEAR, and the wobble is a steady sine side-to-side
+   baked into evenly-spaced keyframes. bubbles also grow a touch on the
+   way up (pressure easing off) and fade as they near the surface. */
+#adv-sky.adv-sky-underwater .adv-wp {
+    top: auto;
+    bottom: -16px;
+    background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.70), rgba(190, 240, 255, 0.10) 46%, rgba(150, 215, 255, 0.16) 72%, rgba(120, 200, 255, 0.30) 88%, transparent 92%);
+    border: 1px solid rgba(210, 245, 255, 0.5);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(120, 210, 255, 0.25);
+    animation-name: adv-rise-underwater;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-underwater {
+    0%   { transform: translate(0, 0) scale(0.75);         opacity: 0; }
+    6%   { opacity: 0.9; }
+    25%  { transform: translate(1.4vw, -26vh) scale(0.9); }
+    50%  { transform: translate(-1.3vw, -52vh) scale(1.0); }
+    75%  { transform: translate(1.1vw, -78vh) scale(1.1);  opacity: 0.55; }
+    92%   { opacity: 0.18; }
+    100% { transform: translate(-0.6vw, -104vh) scale(1.2); opacity: 0; }
+}

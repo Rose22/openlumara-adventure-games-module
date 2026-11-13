@@ -1,0 +1,11 @@
+/* sky kind: snowglow - default set
+   css fallback for the snow-glow sky: bright low, slate above */
+#adv-sky.adv-sky-snowglow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(77, 87, 107, 0.32),
+        rgba(158, 168, 184, 0.22) 62%,
+        rgba(180, 188, 202, 0.26));
+}

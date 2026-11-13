@@ -1,0 +1,11 @@
+/* sky kind: coldfront - default set
+   css fallback for hail's hard cold sky: dark clouded ceiling, bright
+   below, one stinging glare high in the right corner */
+#adv-sky.adv-sky-coldfront::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(60% 45% at 80% 18%, rgba(235, 242, 252, 0.35), transparent 60%),
+        linear-gradient(180deg, rgba(64, 71, 84, 0.34), rgba(140, 153, 168, 0.24));
+}

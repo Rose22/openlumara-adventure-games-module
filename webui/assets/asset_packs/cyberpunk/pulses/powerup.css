@@ -1,0 +1,21 @@
+/* one-shot pulse: powerup - scifi set
+   reactors online: a bright scan sweeps down the world and systems
+   bloom back to life behind it */
+.adv-fx-powerup {
+    background: linear-gradient(180deg,
+        rgba(120, 255, 200, 0.5) 0%,
+        rgba(120, 255, 200, 0.16) 4%,
+        transparent 8% 100%);
+    background-size: 100% 300%;
+    animation: adv-fx-powerup 1.2s ease-in forwards;
+}
+@keyframes adv-fx-powerup {
+    0%   { opacity: 0; background-position: 0 -60%; }
+    10%  { opacity: 1; }
+    80%  { opacity: 0.7; }
+    100% { opacity: 0; background-position: 0 130%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-powerup,
+    #adv-pulses .adv-fx-powerup { opacity: 0; }
+}

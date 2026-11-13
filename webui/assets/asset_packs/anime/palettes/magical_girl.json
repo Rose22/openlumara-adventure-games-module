@@ -1,0 +1,36 @@
+{
+  "label": "Magical Girl (pastel sparkles)",
+  "prefers": "light",
+  "light": {
+    "dark": false,
+    "accent": "#e0559c", "link": "#d23d8c", "link_hover": "#b02774",
+    "page": "#fff8fb", "ink": "#3a2433", "ink_soft": "#8a6a7c", "line": "#f3dbe8",
+    "ui_bg1": "#fdeef5", "ui_bg2": "#fbe4ee", "ui_bg3": "#f7d8e7",
+    "ui_text": "#3a2433", "ui_text_soft": "#6d4f60", "ui_text_muted": "#a08494",
+    "ui_border": "#f0d2e2",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,205,225,0.22), rgba(250,225,240,0.08))",
+      "morning": "linear-gradient(180deg, rgba(255,242,248,0.12), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(250,238,246,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(240,150,200,0.20), rgba(170,130,210,0.12))",
+      "night": "linear-gradient(180deg, rgba(90,60,130,0.30), rgba(55,35,90,0.20))",
+      "deepnight": "linear-gradient(180deg, rgba(50,30,85,0.42), rgba(28,16,52,0.28))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#ff8fd0", "link": "#ffa8dc", "link_hover": "#ffd0ec",
+    "page": "#171019", "ink": "#f0dfea", "ink_soft": "#ad8fa1", "line": "#2d2030",
+    "ui_bg1": "#1c1420", "ui_bg2": "#231a28", "ui_bg3": "#2b2131",
+    "ui_text": "#f2e2ed", "ui_text_soft": "#b89aab", "ui_text_muted": "#7d6474",
+    "ui_border": "#342639",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,195,225,0.10), rgba(180,150,190,0.04))",
+      "morning": "linear-gradient(180deg, rgba(230,215,228,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(226,210,224,0.05), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,140,200,0.09), rgba(150,110,210,0.06))",
+      "night": "linear-gradient(180deg, rgba(230,150,255,0.09), rgba(90,60,140,0.07))",
+      "deepnight": "linear-gradient(180deg, rgba(180,120,230,0.13), rgba(40,24,70,0.12))"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+/* text decoration: echo - default set
+   a voice repeating itself down a corridor: trailing afterimages */
+.adv-macro-echo {
+    font-style: italic;
+    color: var(--adv-ink-soft);
+    animation: adv-echo-drift 2.8s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-echo-drift {
+    0%, 100% { text-shadow: 0.10em 0 0.08em var(--adv-ink-soft), 0.22em 0 0.20em var(--adv-ink-soft); }
+    50%      { text-shadow: 0.16em 0 0.12em var(--adv-ink-soft), 0.36em 0 0.32em var(--adv-ink-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-echo { animation: none; }
+}

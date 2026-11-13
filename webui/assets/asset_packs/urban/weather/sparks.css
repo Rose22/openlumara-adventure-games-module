@@ -1,0 +1,20 @@
+/* weather kind: sparks - urban set
+   the angle grinder on the night shift: hot sparks shooting up off
+   the tracks and winking out mid-climb. Rising, so the css parks the
+   spawn below the window. */
+.adv-weather-sparks .adv-wp {
+    background: #ffd27a;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(255, 170, 60, 0.9);
+    top: auto;
+    bottom: -6px;
+    animation-name: adv-rise-sparks;
+    animation-timing-function: cubic-bezier(0.1, 0.7, 0.4, 1);
+    animation-iteration-count: infinite;
+}
+@keyframes adv-rise-sparks {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    12%  { opacity: 1; }
+    55%  { transform: translate(1.6vw, -55vh); opacity: 0.9; }
+    100% { transform: translate(-1vw, -92vh); opacity: 0; }
+}

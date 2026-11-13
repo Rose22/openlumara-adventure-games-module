@@ -1,0 +1,21 @@
+/* one-shot pulse: flash - default set
+   white pulse: lightning, teleport, impact - decays to nothing;
+   fired by the {{flash}} text macro (adventure_beats.js inserts a fresh
+   element per firing, so the animation always plays from frame zero) */
+.adv-fx-flash {
+    background: radial-gradient(ellipse at center, #ffffff 0%, rgba(255, 242, 255, 0.92) 100%);
+    animation: adv-fx-flash 0.7s ease-out forwards;
+}
+@keyframes adv-fx-flash {
+    0%   { opacity: 0; }
+    9%   { opacity: 0.95; }
+    100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    /* the pure-motion one-shot would linger (a whiteout) without its
+       animation, so it stays invisible instead */
+    #adv-effects .adv-fx-flash,
+    #adv-pulses .adv-fx-flash {
+        opacity: 0;
+    }
+}

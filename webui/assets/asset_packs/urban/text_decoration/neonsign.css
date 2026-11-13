@@ -1,0 +1,22 @@
+/* text decoration: neonsign - urban set
+   the words ARE the storefront sign: hot pink neon with a buzz and
+   the occasional tube that almost dies. {{neonsign|OPEN ALL NIGHT}}
+   A deep fixed pink keeps the glow legible on light pages too. */
+.adv-macro-neonsign {
+    color: #e0167f;
+    text-shadow: 0 0 6px rgba(255, 45, 149, 0.9), 0 0 20px rgba(255, 45, 149, 0.5);
+    animation: adv-neonsign-flicker 4.6s linear infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-neonsign-flicker {
+    0%, 40%  { opacity: 1; }
+    42%      { opacity: 0.35; }
+    44%      { opacity: 1; }
+    70%      { opacity: 1; }
+    71%      { opacity: 0.55; }
+    72%      { opacity: 1; }
+    100%     { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-neonsign { animation: none; }
+}

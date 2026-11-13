@@ -1,0 +1,11 @@
+/* sky kind: desert - default set
+   css fallback for the blowing desert: sun smeared behind ochre haze,
+   pale up top, dirty gold low */
+#adv-sky.adv-sky-desert::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(45% 40% at 35% 28%, rgba(255, 217, 140, 0.30), transparent 65%),
+        linear-gradient(180deg, rgba(217, 189, 138, 0.32), rgba(158, 117, 71, 0.34));
+}

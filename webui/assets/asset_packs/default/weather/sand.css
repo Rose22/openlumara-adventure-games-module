@@ -1,0 +1,16 @@
+/* weather kind: sand - default set
+   fine grains hissing low and fast across the window on a hard
+   wind - particles spawn anywhere in the lower two thirds */
+.adv-weather-sand .adv-wp {
+    top: 25%;
+    background: rgba(222, 195, 150, 0.55);
+    border-radius: 50%;
+    filter: blur(0.4px);
+    animation-name: adv-blow-sand;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-blow-sand {
+    from { transform: translate(104vw, 0); opacity: 0.7; }
+    to   { transform: translate(-6vw, 6vh); opacity: 0.35; }
+}

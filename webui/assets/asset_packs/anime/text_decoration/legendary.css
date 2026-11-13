@@ -1,0 +1,24 @@
+/* text decoration: legendary - anime set
+   MYTHIC RARITY: words cut from polished gold with a shine that
+   sweeps across them every few seconds - the item description you
+   roll twice for. Mid-dark gold stops keep the clipped gradient
+   legible on light pages too. {{legendary|the Sword of Twice}} */
+.adv-macro-legendary {
+    font-weight: 800;
+    background: linear-gradient(110deg,
+                #8a5a00 0%, #ffd86e 32%, #fff6d8 48%,
+                #ffd86e 64%, #8a5a00 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: adv-legendary-shine 3.2s linear infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-legendary-shine {
+    from { background-position: 220% 0; }
+    to   { background-position: -20% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-legendary { animation: none; background-position: 60% 0; }
+}

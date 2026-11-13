@@ -1,0 +1,6 @@
+{
+  "desc": "the RNG readout: each die shows its value in 4-bit binary (0001-0110), and the coin flip is a raw random bit - 1 for heads, 0 for tails. The glyphs render in the set's own ZenDots dot-matrix font, so a roll reads as two bytes churning and resolving. Field-by-field merge over the default base.",
+  "faces": ["0001", "0010", "0011", "0100", "0101", "0110"],
+  "heads": "1",
+  "tails": "0"
+}

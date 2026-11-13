@@ -1,0 +1,22 @@
+/* weather kind: blizzard - default set
+   snow gone horizontal - dense, fast, sideways, behind a
+   whiteout veil that softens the whole window */
+.adv-weather-blizzard .adv-wp {
+    background: rgba(235, 242, 252, 0.9);
+    border-radius: 50%;
+    filter: blur(0.7px);
+    animation-name: adv-blow-blizzard;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+#adv-weather.adv-weather-blizzard::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(218, 230, 246, 0.16), rgba(232, 240, 251, 0.10));
+}
+@keyframes adv-blow-blizzard {
+    0%   { transform: translate(0, -2vh); opacity: 0; }
+    10%  { opacity: 0.9; }
+    100% { transform: translate(-24vw, 100vh); opacity: 0.4; }
+}

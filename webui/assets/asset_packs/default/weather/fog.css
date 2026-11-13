@@ -1,0 +1,18 @@
+/* weather kind: fogdrift - default set
+   enormous soft banks of cold blue mist rolling across the whole window -
+   giants, not strips: each particle is a half-viewport blob with a soft
+   two-stop falloff, crossing slowly and sagging gently as it goes, so the
+   banks pile over each other instead of tiling neat rows */
+.adv-weather-fogdrift .adv-wp {
+    top: 8%;
+    height: 140vh;
+    background: radial-gradient(52% 40% at 50% 50%, rgba(198, 216, 238, 0.16), rgba(198, 216, 238, 0.07) 60%, transparent 92%);
+    filter: blur(38px);
+    animation-name: adv-fog-cross;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fog-cross {
+    from { transform: translate3d(-35vw, 2vh, 0); }
+    to   { transform: translate3d(120vw, -2vh, 0); }
+}

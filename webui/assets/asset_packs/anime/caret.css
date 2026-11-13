@@ -1,0 +1,100 @@
+/* typewriter caret effect - anime set (chrome slot: caret.css)
+   the typewriter leaves stardust: a soft pink caret bar that glows,
+   shedding little 4-point clip-path stars as it moves (the engine's
+   .adv-caret-p spawns, scattered by the v0/v1/v2 variant classes)
+   and trailing a pale sakura after-image (.adv-caret-ghost). All
+   particle animations are FINITE - the engine recycles on
+   animationend + a 3s safety net. Visible while characters land
+   (.adv-caret-on). Self-contained sheet: replaces the base whole. */
+#adv-caret {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    position: fixed;
+    z-index: 9995;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+}
+#adv-caret.adv-caret-on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.12s ease, visibility 0s;
+}
+
+/* the sakura after-image: each ghost is a pale petal-pink bloom that
+   spreads and fades where the caret used to be. FINITE. */
+.adv-caret-ghost {
+    position: fixed;
+    z-index: 9993;
+    width: 18px;
+    height: 18px;
+    transform: translate(-50%, -50%);
+    border-radius: 100% 0 100% 0;
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--adv-accent, #ee6fb4) 35%, transparent) 0%, transparent 70%);
+    filter: blur(4px);
+    animation: adv-caret-ghost-petal 0.8s ease-out forwards;
+}
+@keyframes adv-caret-ghost-petal {
+    0%   { opacity: 0.5; transform: translate(-50%, -50%) scale(0.7) rotate(0deg); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) rotate(50deg); }
+}
+/* EMITTED PARTICLES: 4-point clip-path stars popping at the caret's
+   spot and twinkling upward, dying where they were shed. The v0/v1/v2
+   variants scatter position, size, spin direction and duration so the
+   trail never ticks like a metronome. FINITE animations throughout. */
+.adv-caret-p {
+    position: fixed;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.adv-caret-p::before {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    left: -3px;
+    top: -12px;
+    background: linear-gradient(135deg, #ffe29a, var(--adv-accent, #ee6fb4));
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    -webkit-clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--adv-accent, #ee6fb4) 70%, white));
+    opacity: 0;
+    animation: adv-caret-star 0.9s ease-out forwards;
+}
+.adv-caret-p::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    left: 5px;
+    top: -3px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--adv-accent, #ee6fb4) 55%, white);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--adv-accent, #ee6fb4) 70%, white);
+    opacity: 0;
+    animation: adv-caret-dot 0.7s ease-out 0.05s forwards;
+}
+.adv-caret-p.v1::before { left: -9px; top: -6px; width: 5px; height: 5px; animation-duration: 1.05s; }
+.adv-caret-p.v1::after  { left: -2px; top: 4px; animation-duration: 0.8s; }
+.adv-caret-p.v2::before { left: 1px; top: -15px; width: 9px; height: 9px; animation-duration: 0.78s; }
+.adv-caret-p.v2::after  { left: 8px; top: -8px; animation-duration: 0.62s; }
+@keyframes adv-caret-star {
+    0%   { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(-30deg); }
+    30%  { opacity: 1; }
+    100% { opacity: 0; transform: translate(-5px, -20px) scale(1.1) rotate(50deg); }
+}
+@keyframes adv-caret-dot {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    35%  { opacity: 0.9; }
+    100% { opacity: 0; transform: translate(4px, -14px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-caret::before { animation: none; }
+    .adv-caret-ghost { animation: none; opacity: 0; }
+    .adv-caret-p::before,
+    .adv-caret-p::after { animation-duration: 1.6s; }
+}

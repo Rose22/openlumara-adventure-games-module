@@ -1,0 +1,29 @@
+/* weather kind: sandstorm - default set
+   the wall of ochre - grains so dense and fast the story
+   itself dims behind them, gusting in waves */
+#adv-weather.adv-weather-sandstorm::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, rgba(186, 145, 88, 0.34), rgba(150, 112, 66, 0.22) 55%, rgba(120, 88, 50, 0.30));
+    animation: adv-storm-gust 6s ease-in-out infinite alternate;
+}
+@keyframes adv-storm-gust {
+    0%   { opacity: 0.55; }
+    45%  { opacity: 1; }
+    70%  { opacity: 0.7; }
+    100% { opacity: 0.95; }
+}
+.adv-weather-sandstorm .adv-wp {
+    top: 20%;
+    background: rgba(214, 184, 134, 0.75);
+    border-radius: 50%;
+    filter: blur(0.6px);
+    animation-name: adv-blow-sandstorm;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-blow-sandstorm {
+    from { transform: translate(106vw, 0); opacity: 0.9; }
+    to   { transform: translate(-8vw, 8vh); opacity: 0.4; }
+}

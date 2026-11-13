@@ -1,0 +1,12 @@
+/* sky kind: sandwall - default set
+   css fallback for the wall of ochre: sweeping in from the right with
+   a rolling edge, the left of the window still clear */
+#adv-sky.adv-sky-sandwall::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+        transparent 18%,
+        rgba(158, 117, 71, 0.36) 55%,
+        rgba(186, 145, 88, 0.42));
+}

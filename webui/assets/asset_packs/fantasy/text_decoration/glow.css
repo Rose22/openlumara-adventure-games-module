@@ -1,0 +1,14 @@
+/* text decoration: glow - default set
+   luminous words: a breathing halo of accent light */
+.adv-macro-glow {
+    color: var(--adv-link-hover);
+    animation: adv-glow-pulse 2.4s ease-in-out infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-glow-pulse {
+    0%, 100% { text-shadow: 0 0 4px var(--adv-accent); }
+    50%      { text-shadow: 0 0 14px var(--adv-accent), 0 0 26px var(--adv-link-hover); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-glow { animation: none; }
+}

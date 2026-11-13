@@ -1,0 +1,21 @@
+/* weather kind: datastorm - scifi set
+   raw data falling: cyan-green code glyphs, monospace, self-lit,
+   tumbling slightly as they drop */
+.adv-weather-datastorm .adv-wp {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: rgba(110, 255, 200, 0.85);
+    text-shadow: 0 0 6px rgba(70, 230, 180, 0.65);
+    animation-name: adv-scifi-ds-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-scifi-ds-fall {
+    from { transform: translate(0, -4vh) rotate(2deg); opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 0.9; }
+    to   { transform: translate(-3vw, 106vh) rotate(-2deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-weather-datastorm .adv-wp { animation: none; opacity: 0.5; }
+}

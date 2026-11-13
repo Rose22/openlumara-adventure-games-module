@@ -1,0 +1,27 @@
+/* weather kind: meteorshower - default set
+   heads streaking down-left on a steep slant, each one
+   dragging a brightening tail - the sky coming apart */
+.adv-weather-meteorshower .adv-wp {
+    background: radial-gradient(circle, #fffbe8, rgba(255, 214, 150, 0.9));
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px rgba(255, 230, 170, 0.85);
+    animation-name: adv-meteor;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-weather-meteorshower .adv-wp::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 72px;
+    height: 1.6px;
+    transform-origin: left center;
+    background: linear-gradient(90deg, rgba(255, 245, 220, 0.85), transparent);
+}
+@keyframes adv-meteor {
+    from { transform: translate(14vw, -8vh) rotate(-35deg); opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 0.9; }
+    to   { transform: translate(-26vw, 108vh) rotate(-35deg); opacity: 0; }
+}

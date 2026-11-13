@@ -1,0 +1,58 @@
+/* overlay mood: summoning - anime set
+   the magic circle ignites under the story: concentric accent rings,
+   one rune-tick band wheeling clockwise, its inner twin countering,
+   the circle breathing light from its heart. Fits: summoning rituals,
+   transfer spells, the seal someone should not have opened. */
+.adv-fx-summoning {
+    background: radial-gradient(circle at 50% 50%,
+                color-mix(in srgb, var(--adv-accent, #f5b942) 16%, transparent) 0%,
+                transparent 34%),
+                radial-gradient(ellipse at center, transparent 60%, rgba(6, 8, 18, 0.42) 100%);
+    animation: adv-fx-in 1.4s ease forwards,
+               adv-summoning-breathe 4s ease-in-out 1.4s infinite alternate;
+}
+/* outer circle: a dial of rune-ticks with a glowing rim */
+.adv-fx-summoning::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 74vmin;
+    height: 74vmin;
+    margin: -37vmin 0 0 -37vmin;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--adv-accent, #f5b942) 55%, transparent);
+    background: repeating-conic-gradient(from 0deg,
+                color-mix(in srgb, var(--adv-accent, #f5b942) 42%, transparent) 0deg 1.6deg,
+                transparent 1.6deg 11.25deg);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 62%, black 64%, black 78%, transparent 80%);
+    mask-image: radial-gradient(circle, transparent 0 62%, black 64%, black 78%, transparent 80%);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--adv-accent, #f5b942) 30%, transparent),
+                inset 0 0 30px color-mix(in srgb, var(--adv-accent, #f5b942) 18%, transparent);
+    animation: adv-summoning-turn 22s linear infinite;
+}
+/* inner circle: denser ticks, counter-wheeling, with a faint chord ring */
+.adv-fx-summoning::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 46vmin;
+    height: 46vmin;
+    margin: -23vmin 0 0 -23vmin;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--adv-accent, #f5b942) 45%, transparent);
+    background: repeating-conic-gradient(from 5deg,
+                color-mix(in srgb, var(--adv-accent, #f5b942) 55%, transparent) 0deg 1deg,
+                transparent 1deg 7.5deg);
+    -webkit-mask-image: radial-gradient(circle, transparent 0 70%, black 72%, black 88%, transparent 90%);
+    mask-image: radial-gradient(circle, transparent 0 70%, black 72%, black 88%, transparent 90%);
+    animation: adv-summoning-turn 14s linear infinite reverse;
+}
+@keyframes adv-summoning-turn {
+    to { transform: rotate(360deg); }
+}
+@keyframes adv-summoning-breathe {
+    from { filter: brightness(0.88); }
+    to   { filter: brightness(1.15); }
+}

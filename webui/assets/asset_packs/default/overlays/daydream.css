@@ -1,0 +1,21 @@
+/* overlay mood: daydream - default set
+   dreamy text bloom: the story itself seen through half-lidded eyes -
+   every assistant message softly blurred, gently brightened, wrapped in
+   a breathing halo in the campaign's accent colour. Applied straight to
+   the messages (no backdrop tricks): the words bloom like lit candles.
+   the html.adv-daydream class is toggled by the effects sync */
+html.adv-daydream .message.assistant {
+    filter: blur(0.7px) brightness(1.12) saturate(1.15);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--adv-accent, #e879f9) 55%, transparent);
+    animation: adv-daydream-breathe 6s ease-in-out infinite alternate;
+}
+@keyframes adv-daydream-breathe {
+    from { filter: blur(0.5px) brightness(1.06) saturate(1.08); }
+    to   { filter: blur(1.1px) brightness(1.17) saturate(1.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+    /* the bloom keeps its glow, just stops breathing */
+    html.adv-daydream .message.assistant {
+        animation: none;
+    }
+}

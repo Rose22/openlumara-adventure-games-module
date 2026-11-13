@@ -1,0 +1,11 @@
+/* sky kind: fog - default set
+   the backdrop mist for weather=fogdrift: a true steel-blue haze
+   everywhere, lit faintly from above */
+#adv-sky.adv-sky-fog::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(150, 175, 205, 0.32),
+        rgba(180, 200, 224, 0.36));
+}

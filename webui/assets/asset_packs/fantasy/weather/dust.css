@@ -1,0 +1,15 @@
+/* weather kind: dust - default set
+   motes hanging in light shafts - barely there, nearly weightless */
+.adv-weather-dust .adv-wp {
+    background: rgba(235, 222, 195, 0.5);
+    border-radius: 50%;
+    filter: blur(0.3px);
+    animation-name: adv-fall-dust;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-dust {
+    0%   { transform: translate(0, -2vh); opacity: 0.15; }
+    50%  { transform: translate(1.5vw, 52vh); opacity: 0.7; }
+    100% { transform: translate(-1vw, 104vh); opacity: 0.15; }
+}

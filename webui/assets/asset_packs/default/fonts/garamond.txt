@@ -1,0 +1,1 @@
+Garamond, 'EB Garamond', 'Palatino Linotype', Georgia, serif

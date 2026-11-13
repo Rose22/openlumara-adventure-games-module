@@ -1,0 +1,15 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08)
+   adventure_games: banner strip under the header - the AI paints it via
+   banner= on game_start / set_scene (raw HTML, sanitized client-side). #}
+
+{% macro below_header() %}
+<div id="adv-banner" aria-hidden="true"></div>
+{% endmacro %}
+
+{% macro below_chat_history() %}
+<!-- game-over ribbon: the below_chat_history slot renders INSIDE
+     #messages, right under the last turn, so the ending closes the
+     story where the story ends (not at the page bottom below the
+     input). paintGameOver fills it while campaign.ended is set. -->
+<div id="adv-gameover" aria-hidden="true"></div>
+{% endmacro %}

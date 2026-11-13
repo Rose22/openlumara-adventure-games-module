@@ -1,0 +1,6 @@
+{
+  "desc": "fat poster digits that strike like neon tubes when the dice hit the wet asphalt; the coin is the traffic light at the corner - GO (heads, green) or NO (tails, red). Merges field by field over the default base.",
+  "faces": ["1", "2", "3", "4", "5", "6"],
+  "heads": "GO",
+  "tails": "NO"
+}

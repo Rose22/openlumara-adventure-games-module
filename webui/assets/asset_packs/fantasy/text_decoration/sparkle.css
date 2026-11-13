@@ -1,0 +1,35 @@
+/* text decoration: sparkle - default set  (render mode: "sparkle")
+   scattered stardust: the engines' sparkle renderer pins little glowing
+   four-point stars (.adv-sparkle-w / .adv-sparkle-dot) at stable random
+   points over the text; each breathes in size and spins on its own lazy
+   clock - --adv-sdur is the cycle, --adv-sdelay the personal phase,
+   --adv-phase the streaming continuity. the dot markup is BUILT by the
+   renderer - keep those class names and custom properties. */
+.adv-macro-sparkle {
+    color: var(--adv-link-hover);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--adv-accent) 40%, transparent);
+}
+.adv-sparkle-w {
+    position: relative;
+    display: inline-block;
+}
+.adv-sparkle-dot {
+    position: absolute;
+    pointer-events: none;
+    background: var(--adv-accent);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    filter: drop-shadow(0 0 3px var(--adv-accent)) drop-shadow(0 0 7px var(--adv-link-hover));
+    animation: adv-sparkle-breathe var(--adv-sdur, 5s) ease-in-out infinite;
+    animation-delay: calc(var(--adv-phase, 0s) + var(--adv-sdelay, 0s));
+}
+html.adv-light .adv-macro-sparkle {
+    color: var(--adv-link-hover);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--adv-accent) 40%, transparent);
+}
+@keyframes adv-sparkle-breathe {
+    0%, 100% { transform: scale(0.5) rotate(0deg);    opacity: 0.45; }
+    50%      { transform: scale(1.15) rotate(180deg); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-sparkle-dot { animation: none; }
+}

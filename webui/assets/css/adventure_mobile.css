@@ -1,0 +1,143 @@
+/* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-11) harness:openlumara
+   adventure_games :: phone performance css (html.adv-phone / .adv-lowpower
+   are set by adventure_mobile.js from the core webui's own phone detection).
+
+   The visual identity stays: gradients, colours, typewriter, particle
+   motion and most shaders keep playing. What goes are the primitives that
+   cost a mobile GPU the most per frame - backdrop-filter (a full-region
+   readback), huge blur() filters (giant render surfaces), blend modes over
+   the whole viewport, the giant animated inset box-shadow, and the
+   per-message breathing filter. Selectors carry !important on purpose:
+   the asset-pack sheets load AFTER the module's own css, so specificity
+   alone would lose to them.
+
+   Keep this sheet in sync with the heavy hits as new asset packs appear:
+   anything here must also look right when the JS never sets the class
+   (desktop simply never sees any of it). */
+
+/* -------------------------
+ * page refraction: adventure_plus.js already refuses it on phones;
+ * this is the belt-and-braces guard for a mid-transition race
+ * ------------------------- */
+html.adv-phone.adv-refract #chat-window {
+    filter: none !important;
+}
+
+/* -------------------------
+ * backdrop-filter is the single most expensive primitive on mobile
+ * GPUs: every backdrop-filtered region reads back what is under it.
+ * overlays lose their story-softening veil, title cards lose the
+ * 3px backdrop blur - the gradients underneath stay untouched.
+ * ------------------------- */
+html.adv-phone #adv-effects .adv-fx,
+html.adv-phone #adv-beat .adv-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* -------------------------
+ * scene title card: opacity + letter-spacing carry the whole beat,
+ * so the blur legs of the fade keyframes are pure cost with no
+ * memory. re-timed without them (same 3.1s so the pacing handshake
+ * adventure_beats.js runs on stays identical).
+ * ------------------------- */
+html.adv-phone #adv-beat .adv-card {
+    animation: adv-phone-card 3.1s ease both !important;
+}
+html.adv-phone #adv-beat .adv-card-title {
+    text-shadow: 0 0 12px var(--adv-accent, #d9a7ff);
+}
+@keyframes adv-phone-card {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    78% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* death curtain: the inset 0 0 16vmax 60vmax box-shadow paints an
+   enormous blurred ring twice over the full screen - a plain colour
+   fade closes the story just as firmly on a phone */
+html.adv-phone #adv-beat.adv-beat-death {
+    animation: adv-phone-death 3.9s ease-in both !important;
+}
+@keyframes adv-phone-death {
+    0% { opacity: 0; background-color: rgba(3, 2, 6, 0); }
+    45% { opacity: 1; background-color: rgba(3, 2, 6, 0.985); }
+    74% { opacity: 1; background-color: rgba(3, 2, 6, 0.985); }
+    100% { opacity: 0; background-color: rgba(3, 2, 6, 0.985); }
+}
+
+/* -------------------------
+ * crit & fumble juice: screen-blending a full-window gradient forces
+ * a viewport-wide blend pass; at these opacities normal mode reads
+   nearly identical
+ * ------------------------- */
+html.adv-phone #adv-beat.adv-beat-crit,
+html.adv-phone #adv-beat.adv-beat-fumble {
+    mix-blend-mode: normal !important;
+}
+
+/* -------------------------
+ * daydream: the bloom lives on EVERY assistant message, and its
+ * breathe keyframe re-runs a filter on all of them forever - the
+ * priciest mood on a phone by far. keep the glow and the warmth,
+ * drop the blur and the breathing
+ * ------------------------- */
+html.adv-phone.adv-daydream .message.assistant {
+    filter: brightness(1.08) saturate(1.1) !important;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--adv-accent, #e879f9) 45%, transparent) !important;
+    animation: none !important;
+}
+
+/* -------------------------
+ * heavy blurred banks in the default overlay/weather/sky packs:
+ * keep the shapes (the gradients carry them), shrink the blur
+ * surfaces; low-power phones drop the blur entirely
+ * ------------------------- */
+html.adv-phone .adv-fx-fog::before { filter: blur(8px) !important; }
+html.adv-phone .adv-fx-fog::after { filter: blur(3px) !important; }
+html.adv-phone .adv-weather-fogdrift .adv-wp { filter: blur(10px) !important; }
+html.adv-phone .adv-sky-cloudy .adv-wp { filter: blur(8px) !important; }
+html.adv-lowpower .adv-fx-fog::before,
+html.adv-lowpower .adv-fx-fog::after,
+html.adv-lowpower .adv-weather-fogdrift .adv-wp,
+html.adv-lowpower .adv-sky-cloudy .adv-wp { filter: none !important; }
+
+/* aurora: screen blend + an infinite hue-rotate on top of a moving
+   gradient; keep the slide (transform is cheap), lose the blend and
+   the colour cycling */
+html.adv-phone .adv-fx-aurora {
+    mix-blend-mode: normal !important;
+    animation: adv-fx-in 1.4s ease forwards,
+               adv-phone-aurora 18s ease-in-out infinite alternate !important;
+}
+@keyframes adv-phone-aurora {
+    from { transform: translate3d(-2%, 0, 0) skewX(-4deg) scale(1.05); }
+    to { transform: translate3d(2%, 1%, 0) skewX(5deg) scale(1.12); }
+}
+
+/* -------------------------
+ * text glows: big blurred text-shadows re-rasterize on every
+ * re-layout; the typewriter re-renders the live passage constantly,
+ * so keep glows off the hottest text and let colour do the work
+ * ------------------------- */
+html.adv-phone #messages .turn.adv-current .message.assistant > p:first-child::first-letter {
+    text-shadow: none !important;
+}
+html.adv-phone #adv-stinger-caption {
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85) !important;
+}
+html.adv-phone .adv-dr-total {
+    text-shadow: none !important;
+}
+
+/* -------------------------
+ * particle layer promotion: each promoted .adv-wp is its own
+ * compositor layer - fine for a couple of dozen, heavy for the
+ * full desktop fields on a low-power phone (the count is already
+ * stepped down by adventure_mobile.js)
+ * ------------------------- */
+html.adv-lowpower #adv-weather .adv-wp,
+html.adv-lowpower #adv-sky .adv-wp {
+    will-change: auto;
+}

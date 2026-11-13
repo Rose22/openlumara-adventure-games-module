@@ -1,0 +1,30 @@
+/* text decoration: hud - anime set
+   the mecha readout speaks: monospaced uppercase in cool cyan with
+   bracket terminals that blink like a live display.
+   {{hud|power level rising}} */
+.adv-macro-hud {
+    font-family: ui-monospace, 'SF Mono', Consolas, 'Liberation Mono', monospace;
+    font-size: 0.88em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #6fe3ff;
+    text-shadow: 0 0 8px rgba(80, 200, 255, 0.5);
+}
+html.adv-light .adv-macro-hud { color: #0577a8; text-shadow: none; }
+.adv-macro-hud::before,
+.adv-macro-hud::after {
+    color: #6fe3ff;
+    animation: adv-hud-blink 1.6s steps(1, end) infinite;
+}
+html.adv-light .adv-macro-hud::before,
+html.adv-light .adv-macro-hud::after { color: #0577a8; }
+.adv-macro-hud::before { content: "[ "; }
+.adv-macro-hud::after  { content: " ]"; }
+@keyframes adv-hud-blink {
+    0%  { opacity: 1; }
+    60% { opacity: 0.25; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-hud::before,
+    .adv-macro-hud::after { animation: none; }
+}

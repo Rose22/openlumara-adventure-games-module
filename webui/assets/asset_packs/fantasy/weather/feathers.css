@@ -1,0 +1,19 @@
+/* weather kind: feathers - default set
+   white-down drift with a lazy tumble - cathedrals,
+   guardian brushes, the calm after the sky battle */
+.adv-weather-feathers .adv-wp {
+    background: linear-gradient(135deg, #ffffff, #e8e3f5);
+    border-radius: 72% 28% 60% 40% / 65% 35% 70% 30%;
+    box-shadow: 0 1px 3px rgba(30, 15, 45, 0.18);
+    opacity: 0.9;
+    animation-name: adv-fall-feather;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-fall-feather {
+    0%   { transform: translate(0, -2vh) rotate(0deg); }
+    25%  { transform: translate(4vw, 26vh) rotate(70deg); }
+    50%  { transform: translate(-1vw, 52vh) rotate(140deg); }
+    75%  { transform: translate(4.5vw, 78vh) rotate(225deg); }
+    100% { transform: translate(1vw, 104vh) rotate(300deg); opacity: 0.5; }
+}

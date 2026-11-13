@@ -1,0 +1,14 @@
+/* overlay mood: aurora - default set
+   northern lights: slow sliding curtains of coloured glow */
+.adv-fx-aurora {
+    background:
+        linear-gradient(160deg, rgba(72, 255, 205, 0.20) 0%, transparent 34%),
+        linear-gradient(200deg, rgba(130, 90, 255, 0.16) 0%, transparent 42%),
+        linear-gradient(180deg, transparent 55%, rgba(60, 220, 255, 0.14) 78%, transparent 96%);
+    mix-blend-mode: screen;
+    animation: adv-fx-in 1.4s ease forwards, adv-aurora-slide 18s ease-in-out infinite alternate;
+}
+@keyframes adv-aurora-slide {
+    from { transform: translate3d(-2%, 0, 0) skewX(-4deg) scale(1.05); filter: hue-rotate(0deg); }
+    to   { transform: translate3d(2%, 1%, 0) skewX(5deg) scale(1.12); filter: hue-rotate(40deg); }
+}

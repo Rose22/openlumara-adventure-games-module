@@ -1,0 +1,13 @@
+/* overlay mood: tears - default set
+   grief, rain-soaked farewells: the page seen through a wet window -
+   pale streaks of refraction wobbling sideways over the words */
+.adv-fx-tears {
+    background:
+        repeating-linear-gradient(93deg, transparent 0 44px, rgba(215, 230, 255, 0.05) 44px 47px, transparent 47px 96px),
+        repeating-linear-gradient(88deg, transparent 0 68px, rgba(215, 230, 255, 0.04) 68px 71px, transparent 71px 130px);
+    animation: adv-fx-in 1.2s ease forwards, adv-tears-wobble 7s ease-in-out 1.2s infinite alternate;
+}
+@keyframes adv-tears-wobble {
+    from { background-position: 0 0, 0 0; }
+    to   { background-position: 12px 0, -9px 0; }
+}

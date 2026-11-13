@@ -1,0 +1,25 @@
+/* weather kind: litter - urban set
+   paper and plastic tumbling down a side-street wind: grey scraps,
+   bright flyer corners, translucent bag film, all rotating as they
+   go. The 2 am avenue's only traffic. */
+.adv-weather-litter .adv-wp {
+    border-radius: 1px;
+    background: rgba(214, 210, 200, 0.75);
+    animation-name: adv-tumble-litter;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+.adv-weather-litter .adv-wp:nth-child(3n) {
+    background: rgba(158, 154, 148, 0.8);
+}
+.adv-weather-litter .adv-wp:nth-child(3n+1) {
+    background: rgba(238, 234, 226, 0.85);
+}
+.adv-weather-litter .adv-wp:nth-child(3n+2) {
+    background: rgba(180, 196, 206, 0.5);
+}
+@keyframes adv-tumble-litter {
+    0%   { transform: translate(0, -4vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.9; }
+    100% { transform: translate(-26vw, 102vh) rotate(720deg); opacity: 0.7; }
+}

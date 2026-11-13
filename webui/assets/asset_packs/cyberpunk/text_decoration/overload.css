@@ -1,0 +1,19 @@
+/* text decoration: overload - scifi set
+   power surge in the voice: hot amber glyphs shuddering on a hard
+   horizontal jitter, edges clipping like a blown amplifier */
+.adv-macro-overload {
+    display: inline-block;
+    color: #ffb36b;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(255, 120, 40, 0.7), 0 0 3px rgba(255, 240, 200, 0.9);
+    animation: adv-scifi-ov-shake 0.9s steps(2) infinite;
+    animation-delay: var(--adv-phase, 0s);
+}
+@keyframes adv-scifi-ov-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(1px); }
+    75% { transform: translateX(-1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .adv-macro-overload { animation: none; }
+}

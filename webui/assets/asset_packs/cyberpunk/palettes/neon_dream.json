@@ -1,0 +1,36 @@
+{
+  "label": "Neon Dream (cyberpunk hot pink)",
+  "prefers": "dark",
+  "light": {
+    "dark": false,
+    "accent": "#db2777", "link": "#be185d", "link_hover": "#0891b2",
+    "page": "#fdeef8", "ink": "#370f35", "ink_soft": "#83507d", "line": "#f2c9e5",
+    "ui_bg1": "#fbe4f4", "ui_bg2": "#f7d7ef", "ui_bg3": "#f3cae9",
+    "ui_text": "#330d31", "ui_text_soft": "#7a4874", "ui_text_muted": "#a979a2",
+    "ui_border": "#eebcde",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,140,140,0.20), rgba(160,220,255,0.10))",
+      "morning": "linear-gradient(180deg, rgba(255,242,252,0.10), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(230,245,255,0.12), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,60,160,0.22), rgba(60,40,160,0.14))",
+      "night": "linear-gradient(180deg, rgba(40,20,110,0.32), rgba(10,25,70,0.20))",
+      "deepnight": "linear-gradient(180deg, rgba(12,6,55,0.45), rgba(3,4,28,0.32))"
+    }
+  },
+  "dark": {
+    "dark": true,
+    "accent": "#f472b6", "link": "#f9a8d4", "link_hover": "#67e8f9",
+    "page": "#1c0b22", "ink": "#fbe3f3", "ink_soft": "#c393bf", "line": "#3d1a4d",
+    "ui_bg1": "#120718", "ui_bg2": "#190a21", "ui_bg3": "#200d2b",
+    "ui_text": "#fce7f5", "ui_text_soft": "#c79ac6", "ui_text_muted": "#845f87",
+    "ui_border": "#38164a",
+    "tint": {
+      "dawn": "linear-gradient(180deg, rgba(255,130,150,0.12), rgba(120,220,255,0.06))",
+      "morning": "linear-gradient(180deg, rgba(255,200,240,0.05), transparent)",
+      "afternoon": "linear-gradient(180deg, rgba(150,230,255,0.07), transparent 70%)",
+      "dusk": "linear-gradient(180deg, rgba(255,50,170,0.15), rgba(80,40,200,0.11))",
+      "night": "linear-gradient(180deg, rgba(90,60,255,0.16), rgba(120,40,190,0.11))",
+      "deepnight": "linear-gradient(180deg, rgba(50,20,150,0.23), rgba(6,10,50,0.19))"
+    }
+  }
+}

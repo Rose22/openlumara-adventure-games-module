@@ -1,0 +1,49 @@
+/* sky kind: pulsar - scifi set
+   a neutron star lancing the dark: two opposed beams sweeping past on a
+   slow turn, a hard blue-white core beating at its own strict tempo */
+#adv-sky.adv-sky-pulsar::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background: conic-gradient(from 0deg,
+        rgba(160, 210, 255, 0.20) 0deg 14deg, transparent 14deg 170deg,
+        rgba(160, 210, 255, 0.20) 180deg 194deg, transparent 194deg 360deg);
+    filter: blur(26px);
+    animation: adv-scifi-pulsar-spin 6s linear infinite;
+}
+#adv-sky.adv-sky-pulsar::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: 6px;
+    height: 6px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: #eaf4ff;
+    box-shadow: 0 0 18px 6px rgba(170, 215, 255, 0.9),
+        0 0 60px 24px rgba(120, 170, 255, 0.45);
+    animation: adv-scifi-pulsar-beat 3s ease-in-out infinite;
+}
+@keyframes adv-scifi-pulsar-spin { to { transform: rotate(360deg); } }
+@keyframes adv-scifi-pulsar-beat {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+.adv-sky-pulsar .adv-wp {
+    background: #cfe4ff;
+    border-radius: 50%;
+    animation-name: adv-scifi-pulsar-dim;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-scifi-pulsar-dim {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.6; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-sky.adv-sky-pulsar::before,
+    #adv-sky.adv-sky-pulsar::after,
+    .adv-sky-pulsar .adv-wp { animation: none; }
+    .adv-sky-pulsar .adv-wp { opacity: 0.35; }
+}

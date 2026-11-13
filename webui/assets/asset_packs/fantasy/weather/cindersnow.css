@@ -1,0 +1,24 @@
+/* weather kind: cindersnow - default set
+   grey ash falling through a volcanic heat haze - the glow
+   under everything never quite lets you forget what's making it */
+.adv-weather-cindersnow .adv-wp {
+    background: radial-gradient(circle at 40% 35%, rgba(214, 208, 206, 0.85), rgba(122, 112, 110, 0.55));
+    border-radius: 55% 45% 50% 50%;
+    filter: blur(0.5px);
+    animation-name: adv-fall-cinder;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+#adv-weather.adv-weather-cindersnow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(115, 40, 22, 0.10) 0%, transparent 45%, rgba(198, 84, 32, 0.17) 100%);
+}
+@keyframes adv-fall-cinder {
+    0%   { transform: translate(0, -2vh); opacity: 0; }
+    10%  { opacity: 0.85; }
+    40%  { transform: translate(2.5vw, 40vh); }
+    75%  { transform: translate(-1.5vw, 76vh); }
+    100% { transform: translate(1.5vw, 104vh); opacity: 0.25; }
+}

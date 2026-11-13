@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- crystal ball on a stand -->
+  <circle cx="12" cy="10" r="6.5"/>
+  <path d="M8.5 7.5c.8 1.6.8 3.4 0 5"/>
+  <path d="M7 18h10l-1.5-3h-7L7 18z"/>
+  <path d="M18.5 3.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/>
+</svg>

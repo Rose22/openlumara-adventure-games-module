@@ -1,0 +1,25 @@
+/* sky kind: heat - fantasy set
+   shimmer blobs rising off the ground, barely there - a hot
+   afternoon, a forge room, a dragon's back */
+#adv-sky.adv-sky-heat::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 62%, rgba(255, 140, 60, 0.07) 88%, rgba(255, 110, 40, 0.12));
+}
+#adv-sky.adv-sky-heat .adv-wp {
+    top: auto;
+    bottom: -34px;
+    background: radial-gradient(circle, rgba(255, 185, 110, 0.12), transparent 65%);
+    border-radius: 50%;
+    filter: blur(6px);
+    animation-name: adv-heat-rise;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-heat-rise {
+    0%   { transform: translate(0, 0) scale(0.8); opacity: 0; }
+    20%  { opacity: 0.85; }
+    55%  { transform: translate(2vw, -45vh) scale(1.15); }
+    100% { transform: translate(-1vw, -108vh) scale(1.45); opacity: 0; }
+}

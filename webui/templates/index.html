@@ -1,0 +1,49 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08)
+   adventure_games: pre-paint config + game-over ribbon + fx layer. #}
+
+{% macro head() %}
+<script>
+/* adventure_games: inline settings + passage-mode restore, before first paint */
+window.ADV_CONFIG = {
+    hide_process_chain: {{ 'true' if module_config.get('hide_process_chain', true) else 'false' }},
+    sound_enabled: {{ 'true' if module_config.get('sound_enabled', true) else 'false' }},
+    ambience_volume: {{ module_config.get('ambience_volume', 35) | int }},
+    music_volume: {{ module_config.get('music_volume', 40) | int }},
+    sfx_volume: {{ module_config.get('sfx_volume', 50) | int }},
+    daynight_tint: {{ 'true' if module_config.get('daynight_tint', true) else 'false' }},
+    weather_effects: {{ 'true' if module_config.get('weather_effects', true) else 'false' }},
+    torch_logic: {{ 'true' if module_config.get('torch_logic', true) else 'false' }},
+    phone_performance_mode: {{ 'true' if module_config.get('phone_performance_mode', True) else 'false' }},
+    typewriter: {{ 'true' if module_config.get('typewriter', True) else 'false' }},
+    typewriter_speed: {{ module_config.get('typewriter_speed', 150) | int }},
+    typewriter_pause: {{ 'true' if module_config.get('typewriter_pause', True) else 'false' }},
+    typewriter_caret: {{ 'true' if module_config.get('typewriter_caret', True) else 'false' }},
+    typing_volume: {{ module_config.get('typing_volume', 55) | int }},
+    font_size: {{ module_config.get('font_size', 17.5) | float }},
+    shaders_enabled: {{ 'true' if module_config.get('shaders_enabled', True) else 'false' }},
+    shader_max: {{ module_config.get('shader_max', 3) | int }},
+    shader_resolution: {{ module_config.get('shader_resolution', 0) | int }}
+};
+(function () {
+    var root = document.documentElement;
+    var fs = parseFloat(window.ADV_CONFIG.font_size);
+    if (isFinite(fs) && fs >= 8 && fs <= 48) root.style.setProperty("--adv-font-size", fs + "px");
+    if (window.ADV_CONFIG.hide_process_chain) root.classList.add("adv-hide-chain");
+
+    function ls(key) {
+        try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }
+    }
+    var known = ls("adv_campaigns") || [];
+    var last = ls("adv_last_chat");
+    var overrides = ls("adv_mode") || {};
+    var on = known.indexOf(last) !== -1;
+    if (overrides[last] === true || overrides[last] === false) on = overrides[last];
+    if (on) root.classList.add("adv-on");
+})();
+</script>
+{% endmacro %}
+
+{% macro below_page() %}
+<!-- floating delta chips + dice popups -->
+<div id="adv-fx" aria-hidden="true"></div>
+{% endmacro %}

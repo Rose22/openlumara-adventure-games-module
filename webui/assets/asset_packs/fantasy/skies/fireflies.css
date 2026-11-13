@@ -1,0 +1,21 @@
+/* weather kind: fireflies - default set
+   warm glow-points that wander instead of falling, pulse on
+   their own long rhythm, and drift slowly upward while they blink */
+.adv-weather-fireflies .adv-wp {
+    top: 10%;
+    background: #ffe9a3;
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px rgba(255, 220, 130, 0.8);
+    animation-name: adv-firefly;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+@keyframes adv-firefly {
+    0%   { transform: translate(0, 0); opacity: 0.05; }
+    12%  { opacity: 0.9; }
+    28%  { transform: translate(2.5vw, -6vh); opacity: 0.2; }
+    45%  { transform: translate(-1.5vw, -14vh); opacity: 1; }
+    62%  { transform: translate(2vw, -22vh); opacity: 0.15; }
+    78%  { opacity: 0.8; }
+    100% { transform: translate(-0.5vw, -34vh); opacity: 0; }
+}

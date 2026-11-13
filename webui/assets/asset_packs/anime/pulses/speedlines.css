@@ -1,0 +1,22 @@
+/* one-shot pulse: speedlines - anime set
+   the dramatic zoom: white speedlines rush in from every edge toward
+   a clear reading center, snap tight, release. Fired as {{speedlines}}
+   on lunges, reveals and "what?!" double-takes. */
+.adv-fx-speedlines {
+    background: repeating-conic-gradient(from 0deg at 50% 50%,
+                rgba(245, 245, 252, 0.55) 0deg 1.1deg,
+                transparent 1.1deg 8deg);
+    -webkit-mask-image: radial-gradient(circle at center, transparent 24%, black 68%);
+    mask-image: radial-gradient(circle at center, transparent 24%, black 68%);
+    animation: adv-fx-speedlines 0.6s ease-out forwards;
+}
+@keyframes adv-fx-speedlines {
+    0%   { opacity: 0; transform: scale(1.5); }
+    18%  { opacity: 1; }
+    60%  { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.92); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #adv-effects .adv-fx-speedlines,
+    #adv-pulses .adv-fx-speedlines { opacity: 0; }
+}

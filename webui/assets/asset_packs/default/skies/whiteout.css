@@ -1,0 +1,12 @@
+/* sky kind: whiteout - default set
+   css fallback for the whiteout: dark polar band up top, driving
+   snow-bright mass everywhere below */
+#adv-sky.adv-sky-whiteout::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        rgba(89, 99, 115, 0.32),
+        rgba(214, 222, 230, 0.24) 45%,
+        rgba(204, 214, 226, 0.30));
+}

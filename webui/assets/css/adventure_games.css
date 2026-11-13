@@ -347,6 +347,12 @@ html.adv-on .prompt-processing-indicator-wrapper {
     color: var(--adv-accent);
     white-space: nowrap;
 }
+/* inside a choice, the item echo is part of the option's sentence - it
+   keeps its icon and bold but wears the choice's own ink (hover and the
+   disabled strike included) instead of pulling focus as a badge */
+.adv-choice .adv-macro-item {
+    color: inherit;
+}
 /* {{status|✨ Blessed}}: the condition signs itself in the sentence -
    italic, glowing in the campaign's hover-link hue */
 .adv-macro-status {

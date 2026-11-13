@@ -151,8 +151,10 @@
     function scanSeg(i, text) {
         scanFamily(SFX_REVEAL_RE, sfxIdx, i, text, function (n) {
             // cueUser, not cue: this is the {{sfx}} MACRO path - built-in
-            // stamp sounds are off-limits to the AI
-            if (window.AdvAudio) window.AdvAudio.cueUser(n);
+            // stamp sounds are off-limits to the AI. a ~tail is decoration
+            // the name grammar does not own: dropped, same as the backend
+            // and the chip renderer do, so a decorated cue still resolves.
+            if (window.AdvAudio) window.AdvAudio.cueUser(String(n).split("~")[0]);
         });
         scanFamily(PULSE_REVEAL_RE, pulseIdx, i, text, function (n) {
             if (window.AdvBeats) window.AdvBeats.oneShot(n, true);
@@ -160,7 +162,9 @@
         scanFamily(IMG_REVEAL_RE, imgIdx, i, text, function (n) {
             // the art arrival event: games.js claims the rendered node in
             // the live turn and runs its unroll ceremony for this stem
-            if (window.advImgArrive) window.advImgArrive(n);
+            // (the |placement tail rides on and is theirs to split; a
+            // ~tail is decoration and cut before the stem is announced)
+            if (window.advImgArrive) window.advImgArrive(String(n).split("~")[0]);
         });
         scanFamily(SD_REVEAL_RE, sdIdx, i, text, function (n) {
             // generated art arrives the exact same way - token as stem

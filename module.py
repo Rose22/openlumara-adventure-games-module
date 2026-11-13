@@ -2577,6 +2577,24 @@ class AdventureGamesModule(core.module.Module):
                 return key
         return None
 
+    @staticmethod
+    def _no_tilde(text, per_segment):
+        # kinds whose grammar has no "~description" field (item, quest and
+        # questfail own theirs) must not die on one: models decorate every
+        # macro alike, so a stray tail is read as decoration and ignored -
+        # each head kept exactly the way the item parse splits it. comma-
+        # chained kinds (stat, status...) strip per segment, since a tail
+        # can sit between names; single-value kinds (a track, a quest name,
+        # a "Quest :: beat" body) cut once, protecting commas inside names.
+        if not per_segment:
+            return text.split("~", 1)[0].strip()
+        parts = []
+        for seg in text.split(","):
+            head = seg.split("~", 1)[0].strip()
+            if head:
+                parts.append(head)
+        return ", ".join(parts)
+
     def _macro_stat(self, chat_id, c, text):
         parsed = self._macro_deltas(text)
         if parsed is None:
@@ -2835,6 +2853,15 @@ class AdventureGamesModule(core.module.Module):
         applied = c.get("macro_keys") or []
         if key and key in applied:
             return {"success": True, "data": "already applied"}
+        # a "~tail" on a kind with no description field is ignored, not
+        # fatal: stat/status/statusoff chain comma-separated names, so the
+        # strip runs per segment; the rest are single values (a track, a
+        # quest name, a "Quest :: beat" body) and cut once body-wide.
+        # item, quest and questfail keep the field - they parse it themselves.
+        if kind in ("stat", "status", "statusoff"):
+            text = self._no_tilde(text, True)
+        elif kind in ("music", "subgoal", "subdone", "questdone", "questoff"):
+            text = self._no_tilde(text, False)
         if not text:
             return {"success": False, "data": "empty macro"}
         if kind == "stat":

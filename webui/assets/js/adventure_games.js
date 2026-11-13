@@ -995,9 +995,10 @@
                 }
                 if (!text) return;
                 // wiki links become their plain display text in the journal
+                // (top-level split only: a {{item|...}} body inside the link
+                // carries its own pipe and must not cut the text in half)
                 text = text.replace(/\[\[([^\[\]]+)\]\]/g, function (m, inner) {
-                    var bits = inner.split("|");
-                    return bits[0].trim();
+                    return advChoiceSplit(inner)[0].trim();
                 });
                 // text macros become their plain text
                 text = text.replace(/\{\{sfx\|[^{}]+\}\}/g, "");
@@ -1042,10 +1043,117 @@
         return { base: base || text, ok: ok, label: "Requires " + statName + " " + need + "+" };
     }
 
+    function advChoiceSplit(inner) {
+        // split a wiki link into its send|display halves at the FIRST pipe
+        // that sits OUTSIDE any {{macro}} body. an item macro carries its
+        // own inner pipe ("{{item|Rusty Sword}}"), and a naive split("|")
+        // cut the choice right through it - the label ended up as
+        // "Rusty Sword}}" and the click sent "Pick up {{item".
+        var text = String(inner || "");
+        var depth = 0;
+        for (var i = 0; i < text.length; i++) {
+            var c = text.charAt(i);
+            if (c === "{" && text.charAt(i + 1) === "{") { depth++; i++; continue; }
+            if (c === "}" && text.charAt(i - 1) === "}" && depth > 0) { depth--; i++; continue; }
+            if (c === "|" && depth === 0) return [text.slice(0, i), text.slice(i + 1)];
+        }
+        return [text, ""];
+    }
+    function advStripTailMacro(text) {
+        // cut a trailing UNFINISHED {{kind|... (or a lone "{") off a
+        // mid-stream choice label, so the pending pill never flashes raw
+        // braces while a macro is still typing - the fragment is hidden
+        // for the beat it needs, then reappears whole as its echo.
+        // decoration partials are the exception and stay: the inline
+        // pipeline renders their words styled from the first character,
+        // so cutting them would kill that. only the tail is ever
+        // touched; a closed macro before it survives untouched.
+        text = String(text || "");
+        var last = text.lastIndexOf("{{");
+        if (last === -1) {
+            // a lone "{" at the very typing edge - a macro opening whose
+            // second brace has not landed yet. a stray brace mid-text is
+            // real prose and keeps its place.
+            var lone = text.lastIndexOf("{");
+            return lone === text.length - 1 ? text.slice(0, lone) : text;
+        }
+        if (text.indexOf("}}", last) !== -1) return text; // tail macro closed
+        var kind = /^{{([a-z][a-z0-9_-]*)\|/.exec(text.slice(last));
+        if (kind) {
+            var td = advTdAlt();
+            if (td && ("|" + td + "|").indexOf("|" + kind[1] + "|") !== -1)
+                return text; // decoration partial: styled by the pipeline
+        }
+        return text.slice(0, last);
+    }
+    function advChoiceLabelHTML(display) {
+        // the label is painted by the same inline renderers prose uses, so a
+        // macro inside a choice shows its echo (icon + name for an item)
+        // instead of raw braces. the re-parse runs the advMacro renderer
+        // again - advStateMacro's stream guard and per-turn dedup keep that
+        // fire-once, and a history re-render (stream idle) never re-applies
+        // old mutations. sanitized here because the advConvert catch-up path
+        // inserts the node straight into the DOM; on the marked path the
+        // core sanitizer runs over the whole passage again, idempotently.
+        if (window.marked && window.marked.parseInline) {
+            try {
+                var html = window.marked.parseInline(display);
+                if (window.DOMPurify) html = window.DOMPurify.sanitize(html);
+                return html;
+            } catch (e) {}
+        }
+        return esc(display);
+    }
+    function advChoiceSendText(text) {
+        // what a clicked choice sends is plain prose, never markup: every
+        // macro in the send half collapses to the words it names - an item
+        // to its bare name (icon, delta and ~description stripped), a stat/
+        // status likewise - while sound, picture and music cues vanish
+        // outright (their bodies are file names, not intent), pulses drop
+        // with their tolerated tail, and decorations keep the decorated
+        // words. mirrors the journal's plain-text pass, only word-keeper:
+        // clicking "Pick up the {{item|Rusty Sword +1}}" must hand the GM
+        // the sentence "Pick up the Rusty Sword".
+        var out = String(text || "");
+        out = out.replace(/\{\{(sfx|img|music)\|[^{}]+\}\}/g, " ");
+        out = out.replace(
+            /\{\{(stat|item|status|statusoff|quest|questdone|questfail|questoff|subgoal|subdone)\|([^{}]+)\}\}/g,
+            function (m0, kind, body) {
+                var names = [];
+                String(body).split(",").forEach(function (seg) {
+                    seg = seg.trim();
+                    if (!seg) return;
+                    if (kind === "item") {
+                        var s = advItemSegs(seg)[0];
+                        if (s && s.name) names.push(s.name);
+                    } else if (kind === "stat") {
+                        var d = advDeltaSegs(seg)[0];
+                        if (d && d.name) names.push(d.name);
+                    } else if (kind === "status" || kind === "statusoff") {
+                        seg = seg.split("~")[0].trim();
+                        seg = seg.replace(/^[^\w\s]+\s*/, "").replace(/\s+\d+t$/i, "").trim();
+                        if (seg) names.push(seg);
+                    } else {
+                        // quest kinds: the name in front of any ~description
+                        // tail, leading icon run stripped
+                        seg = seg.split("~")[0].replace(/^[^\w\s]+\s*/, "").trim();
+                        if (seg) names.push(seg);
+                    }
+                });
+                return names.join(", ");
+            });
+        PULSE_STRIP_RE.lastIndex = 0;
+        out = out.replace(PULSE_STRIP_RE, function (m0, k, t) { return t || ""; });
+        var tdAlt = (window.AdvFX && window.AdvFX.tdAlt) ? window.AdvFX.tdAlt() : "";
+        if (tdAlt)
+            out = out.replace(new RegExp("\\{\\{(?:" + tdAlt + ")\\|([^{}]+)\\}\\}", "g"), "$1");
+        return out.replace(/\s+/g, " ").trim();
+    }
+
     function makeChoiceAnchor(inner, campaign) {
-        var parts = inner.split("|");
-        var display = (parts.length > 1 ? parts[1] : parts[0]).trim();
-        var send = (parts.length > 1 ? parts[0] : parts[0]).trim();
+        var halves = advChoiceSplit(inner);
+        var display = (halves[1].trim() ? halves[1] : halves[0]).trim();
+        var send = halves[0].trim();
 
         var cond = evaluateCondition(display);
         display = cond.base;
@@ -1057,8 +1165,10 @@
         var a = document.createElement("a");
         a.href = "#";
         a.className = "adv-choice";
-        a.textContent = display;
-        a.dataset.send = send;
+        // a macro inside the label paints its echo just like prose does,
+        // and the message a click sends collapses to plain words
+        a.innerHTML = advChoiceLabelHTML(display);
+        a.dataset.send = advChoiceSendText(send);
         if (!cond.ok) {
             a.classList.add("adv-disabled");
             a.title = cond.label;
@@ -1548,6 +1658,12 @@
         String(text || "").split(",").forEach(function (seg) {
             seg = seg.trim();
             if (!seg) return;
+            // a stat macro has no ~description field, but the backend
+            // ignores a stray tail rather than dying on it - echo the same
+            // tolerance so the flavor words never leak into the prose
+            var mtd = /^(.*?)\s*~/.exec(seg);
+            if (mtd) seg = mtd[1].trim();
+            if (!seg) return;
             var m = /^(.+?)\s*([+-]?\d+)$/.exec(seg);
             out.push(m ? { name: m[1].trim(), delta: parseInt(m[2], 10) }
                        : { name: seg, delta: null });
@@ -1675,6 +1791,12 @@
             return String(text || "").split(",").map(function (seg) {
                 seg = seg.trim();
                 if (!seg) return "";
+                // mirror the backend's tolerance: a ~tail on a status is
+                // decoration, dropped before the name parses - it must
+                // never echo (nor POST) as a status literally named "~..."
+                var mtd = /^(.*?)\s*~/.exec(seg);
+                if (mtd) seg = mtd[1].trim();
+                if (!seg) return "";
                 var icon = "";
                 var m = /^([^\w\s]+)\s*/.exec(seg);
                 if (m) { icon = m[1]; seg = seg.slice(m[0].length); }
@@ -1745,14 +1867,24 @@
                         // from its very first character, but stays inert -
                         // a span, never a click target - until the real ]]
                         // lands and the complete token takes over. the
-                        // display side lives after the pipe; before the
-                        // pipe resolves there is nothing visible of it yet.
-                        var disp = String(token.inner || "");
-                        var p = disp.indexOf("|");
-                        if (p !== -1) disp = disp.slice(p + 1);
+                        // display side lives after the top-level pipe; before
+                        // the pipe resolves there is nothing visible of it
+                        // yet. a pipe inside a {{macro}} body belongs to the
+                        // macro, not to the send|display split.
+                        var halves = advChoiceSplit(String(token.inner || ""));
+                        var disp = halves[1].trim() ? halves[1] : halves[0];
+                        // the pill is painted by the inline pipeline too, so
+                        // it mixes with macros mid-wikilink: one that has
+                        // already closed (}} past) shows its echo before the
+                        // ]] even lands, and a decoration partial styles its
+                        // words as they type. a still-open macro tail is cut
+                        // back for the beat it needs - the typewriter paints
+                        // every revealed character, and neither prose nor a
+                        // pill should flash raw braces at its typing edge.
+                        disp = advStripTailMacro(disp);
                         if (!disp.trim()) return "";
                         return '<span class="adv-choice adv-choice-pending">' +
-                            esc(disp) + "</span>";
+                            advChoiceLabelHTML(disp) + "</span>";
                     }
                     return makeChoiceAnchor(token.inner).outerHTML;
                 }
@@ -1798,8 +1930,11 @@
                         // for the picture the instant the map lands (or the
                         // name shows as a caption if it is genuinely missing).
                         var bits = String(token.text || "").split("|");
-                        var name = bits[0].trim();
-                        var side = bits.length > 1 ? bits[1].trim().toLowerCase() : "";
+                        // a ~tail is not part of the name grammar: ignored
+                        // here, exactly as the reveal-scan drops it, so the
+                        // stem and the arrival ceremony keep matching
+                        var name = bits[0].split("~")[0].trim();
+                        var side = bits.length > 1 ? bits[1].split("~")[0].trim().toLowerCase() : "";
                         var cls = (side === "left" || side === "right")
                             ? " adv-img-" + side : "";
                         var src = window.advImgSrc ? window.advImgSrc(name) : "";
@@ -1812,7 +1947,9 @@
                             '<span class="adv-img-pending">\u{1F5BC} ' + label + "</span></span>";
                     }
                     if (token.kind === "sfx") {
-                        var sn = String(token.text || "").trim().toLowerCase();
+                        // sfx names have no ~field either: a decorated cue
+                        // must still resolve, not hide as "unknown sound"
+                        var sn = String(token.text || "").split("~")[0].trim().toLowerCase();
                         // a cue the campaign's set does not carry hides
                         // entirely - a speaker tag for a sound that can
                         // never play is just noise (advSfxKnown answers

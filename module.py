@@ -86,7 +86,7 @@ class AdventureGamesModule(core.module.Module):
         "typewriter_speed": {
             "type": "number",
             "description": "Typewriter speed in characters per second. The sentence-ending and comma beats scale with this speed.",
-            "default": 150,
+            "default": 30,
             "min": 20,
             "max": 2000,
             "step": 10,
@@ -105,7 +105,7 @@ class AdventureGamesModule(core.module.Module):
         "typing_volume": {
             "type": "number",
             "description": "Volume of the keystroke sounds: the typewriter's per-character typing, and (with the typewriter off) the token-stream keys. Rides on top of the SFX volume, so keys can sit softly under the other cues.",
-            "default": 55,
+            "default": 70,
             "min": 0,
             "max": 100,
             "step": 5,

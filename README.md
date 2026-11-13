@@ -1,7 +1,5 @@
 A module for OpenLumara that provides an immersive text adventure game, with support for asset packs (you can make your own!), including sound effects, music, weather, skies, shaders, and more. Once installed, just ask your AI to start an adventure!
 
-https://github.com/user-attachments/assets/1ff7edd7-b688-4fbf-a505-14a402da6d0b
-
 https://github.com/user-attachments/assets/6ed0d0ae-99a7-4722-9e54-877c2168219a
 
 https://github.com/user-attachments/assets/0ef4c698-2a7e-475d-8581-fe70ffb2ae2b

@@ -360,8 +360,15 @@
     // one is never dropped (the deferred retry below still delivers it).
     var paintAt = 0;
     var paintTimer = 0;
-    function syncToStore() {
-        if (coreBusy || skipped) return;
+    // one-shot force flag: flush() sets it so a skip that already raised
+    // the `skipped` guard can STILL paint the revealed remainder through
+    // this path (without it the page sat on the typed prefix until the
+    // core's reloadChat happened to repaint everything - which is how the
+    // finished choices/prompt went missing right after a skip).
+    var paintForce = false;
+    function syncToStore(force) {
+        if (force) paintForce = true;
+        if (coreBusy || (skipped && !paintForce)) return;
         if (pendingSync) return;
         var gap = window.AdvPerf ? AdvPerf.paintGapMs() : 0;
         if (gap > 0 && paintAt && performance.now() - paintAt < gap) {
@@ -377,7 +384,8 @@
         requestAnimationFrame(function () {
             pendingSync = false;
             paintAt = performance.now();
-            if (skipped) return;
+            if (skipped && !paintForce) return;
+            paintForce = false;
             // Never resurrect a turn the core has already closed: if the live
             // turn is gone (or no longer live), dropping a synthetic turn_final
             // would make the core handler push a phantom turn into history.
@@ -964,8 +972,12 @@
         for (var i = 0; i < segs.length; i++) {
             if (segs[i]) segs[i].shown = segs[i].full.length;
         }
-        scanRevealed();   // a skipped flush's syncToStore returns early -
-        syncToStore();    // this still cues the sounds it just revealed
+        scanRevealed();   // a skipped flush's normal syncToStore would
+        syncToStore(true); // drop the paint - this still reveals everything
+        // if a core delivery was still in flight, the force paint bailed;
+        // retry once on a short delay so the page never waits on the
+        // core's own reload for the skipped text to appear
+        setTimeout(function () { if (skipped) syncToStore(true); }, 120);
     }
     function abandonQueue() {
         queue = [];

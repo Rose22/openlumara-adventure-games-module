@@ -782,6 +782,10 @@
     var adv = {
         campaign: null,
         active: false,
+        // truthfully mirrored AdvType.isBusy() by the sync interval below,
+        // so Alpine bindings (the rewind button's dim state) can track the
+        // typewriter reactively - isBusy() itself is a plain function call.
+        revealBusy: false,
         _prev: null,
         _ready: false,
 
@@ -934,6 +938,35 @@
             try { simpleApiPost("/api/ext/adventure_games/set_paused", { chat: chatId, paused: true }); } catch (e) {}
         },
 
+        /* open the core settings modal already standing on this module's
+           page. the modal's navigation state (activeCategory/activeModule)
+           lives on its settingsModal() component, which its x-if only
+           creates a tick after openModal flips currentModal - so wait for
+           the root element to mount, then navigate through the component's
+           own switchCategory/selectItem (the same calls the sidebar makes;
+           selectItem also drives the group-expansion watcher). */
+        openModuleSettings: function () {
+            var ui = null;
+            try { ui = Alpine.store("ui"); } catch (e) { return; }
+            if (!ui) return;
+            ui.openModal("settings");
+            var tries = 0;
+            var jump = function () {
+                var root = document.querySelector(".settings-modal");
+                var d = root && window.Alpine && Alpine.$data ? Alpine.$data(root) : null;
+                // activeCategory starts null and init's first move sets it:
+                // non-null means the component's init already ran, so our
+                // navigation below can never be overwritten by it again
+                if (d && d.selectItem && d.activeCategory) {
+                    d.switchCategory("user_modules");
+                    d.selectItem("adventure_games", "user_modules");
+                    return;
+                }
+                if (++tries < 40) setTimeout(jump, 25);
+            };
+            setTimeout(jump, 0);
+        },
+
         reenterAdventure: function () {
             var chatId = currentChat();
             if (!chatId) return;
@@ -944,11 +977,38 @@
             this.applyMode();
             // resume the campaign backend-side
             try { simpleApiPost("/api/ext/adventure_games/set_paused", { chat: chatId, paused: false }); } catch (e) {}
+            /* the passages were rendered (and markdown-cached by the core)
+               while the game was stepped out - the adventure's marked
+               extensions are inactive then, so the cache holds the RAW
+               [[links]]/{{macros}} html. once the stream is settled, pull
+               a fresh chat from the backend: brand-new message objects
+               miss the cache and re-render through the full adventure
+               pipeline. mid-stream a reload would fight the live turn -
+               there the next live paint re-parses everything anyway. */
+            var busy = false;
+            try { busy = Alpine.store("stream").state !== "idle"; } catch (e) {}
+            if (!busy) {
+                try { Alpine.store("chat").reloadChat(); } catch (e) {}
+            }
         },
 
         
 
         rewindLast: function () {
+            // rewind while the world is still arriving would fight the
+            // stream: neither mid-generation nor mid-reveal is it allowed.
+            var busy = false;
+            try { busy = Alpine.store("stream").state !== "idle"; } catch (e) {}
+            var typing = false;
+            try { typing = !!(window.AdvType && window.AdvType.isBusy && window.AdvType.isBusy()); } catch (e) {}
+            if (busy || typing) {
+                try {
+                    Alpine.store("ui").notice = typing
+                        ? "Wait for the passage to finish typing before rewinding."
+                        : "Wait for the story to finish generating before rewinding.";
+                } catch (e) {}
+                return;
+            }
             var history = Alpine.store("chat").turnHistory || [];
             if (history.length === 0) return;
             var last = history[history.length - 1];
@@ -1210,6 +1270,11 @@
     // exposed for adventure_plus.js's one-off catch-up sweep (passages that
     // were rendered and cached before this chat's campaign was discovered)
     window.advConvert = advConvert;
+    // the state-macro echo builder too: the sweep paints the same visible
+    // echo the marked renderer does (icon + name for an item, signed pills
+    // for a stat, invisible for music/quest kinds). Pure styling - the POST
+    // that re-applies a change lives in advStateMacro, never called here.
+    window.advMacroEcho = advMacroInner;
 
     /* After a chat.reloadChat() the turn bubbles only its trailing content
        messages - any prose the GM streamed mid-turn (before dice rolls,
@@ -2510,7 +2575,16 @@
             var result = orig.apply(this, arguments);
             try {
                 var t = data && data.type;
-                if (t === "stream_complete") {
+                if (t === "stream_state" && data.state === "idle") {
+                    /* the stream is truly over: re-home the prompt bar.
+                       mid-reveal the backend's idle frame parks in the
+                       typewriter's queue and lands right AFTER the core
+                       finished its reloadChat - whose observer-driven
+                       dockInput still saw "busy" then (footer-prompt
+                       passages stayed without their input after a skip
+                       until this second pass) */
+                    if (A().active) dockInput();
+                } else if (t === "stream_complete") {
                     setTimeout(function () {
                         A().refresh(null, true).then(function () {
                             return A().consumeRoll(null);
@@ -2607,6 +2681,12 @@
         var st = null;
         try { st = Alpine.store("adv"); } catch (e) { return; }
         if (!st || !st._ready) return;
+        /* mirror the typewriter's busy flag onto the reactive store every
+           tick (the rewind button dims off it; rewindLast enforces the
+           same guard on the actual click) */
+        var twBusy2 = false;
+        try { twBusy2 = !!(window.AdvType && window.AdvType.isBusy && window.AdvType.isBusy()); } catch (e) {}
+        if (st.revealBusy !== twBusy2) st.revealBusy = twBusy2;
         /* safety sweep for reload paths without the stream_complete hook
            (chat switches, sync): re-append mid-turn prose that the backend
            history renders into hidden chain steps. no-op once a turn has

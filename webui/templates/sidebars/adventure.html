@@ -21,8 +21,8 @@
         <div>
             <h3 class="adv-head" x-text="campaign.title"></h3>
             <p class="adv-sub">You stepped out of the story. Everything is exactly as you left it.</p>
+            <p class="adv-sub">Use the <em>re-enter</em> button in the header to step back in.</p>
             <div class="adv-actions">
-                <button type="button" style="flex: 2;" @click="reenter()">✨ Re-enter adventure</button>
                 <button type="button" @click="journal()">⌘ Journal</button>
             </div>
         </div>
@@ -130,8 +130,28 @@
             </template>
 
             <div class="adv-actions">
-                <button type="button" @click="rewind()" title="Undo the last passage and its stat changes">↶ Rewind</button>
+                {# rewind is refused mid-generation and mid-typing (rewindLast
+                   guards it); the button dims with those moments so the
+                   refusal never comes as a surprise #}
+                <button type="button" @click="rewind()" title="Undo the last passage and its stat changes"
+                        :class="{ 'adv-off': $store.stream.state !== 'idle' || $store.adv.revealBusy }">↶ Rewind</button>
                 <button type="button" @click="journal()" title="Read all passages so far">⌘ Journal</button>
+                {# the immersive header is gone while a game runs, so the
+                   settings dialog needs a door inside the panel: opens the
+                   core modal already standing on THIS module's settings
+                   page (openModuleSettings navigates once the modal mounts;
+                   Ctrl+S still opens the plain settings view).
+                   same admin guard as the core header: with settings turned
+                   off the modal markup is never shipped at all #}
+                {% if config.get("enable_admin_settings") %}
+                <button type="button" class="adv-icon-btn" title="Adventure games settings" aria-label="Adventure games settings"
+                        @click="$store.adv.openModuleSettings()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                {% endif %}
             </div>
             <div class="adv-actions" style="margin-top: 7px;">
                 <button type="button" @click="exit()" title="Leave the immersive view (the campaign is kept)">🚪 Exit adventure</button>

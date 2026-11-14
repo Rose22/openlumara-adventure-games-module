@@ -637,6 +637,31 @@ html.adv-on .prompt-processing-indicator-wrapper {
     border-color: var(--adv-accent, #c084fc);
     box-shadow: 0 0 10px var(--accent-glow, rgba(192, 132, 252, 0.25));
 }
+/* rewind stands down while the passage is still generating or typing
+   (rewindLast refuses those clicks - the dim says so before you try) */
+.adv-actions button.adv-off,
+.adv-actions button.adv-off:hover {
+    opacity: 0.45;
+    cursor: not-allowed;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    box-shadow: none;
+    transform: none;
+}
+/* the settings gear: an icon-only sibling of Rewind/Journal - it keeps
+   its own small square instead of flexing to the row's full width */
+.adv-actions button.adv-icon-btn {
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.adv-actions button.adv-icon-btn svg {
+    pointer-events: none;
+}
 .adv-panel button {
     background: transparent;
 }
@@ -707,6 +732,28 @@ html.adv-on #chat-window > header {
     margin-bottom: 6px;
 }
 .adv-journal .adv-jp p:empty { display: none; }
+
+/* =================modals above the atmosphere=================== */
+/* the story's fixed layers (sky, weather, tint, overlays, beats, dice,
+   chips, skip pill) live at z 9990+ for immersion, but the core modals
+   sit at 1000 - so rain would drift across an open settings dialog.
+   while any modal is mounted, every atmosphere layer steps down below
+   it; they climb back the instant it closes. */
+html.adv-on:has(.modal-overlay) #adv-tint,
+html.adv-on:has(.modal-overlay) #adv-sky,
+html.adv-on:has(.modal-overlay) #adv-weather,
+html.adv-on:has(.modal-overlay) #adv-effects,
+html.adv-on:has(.modal-overlay) #adv-pulses,
+html.adv-on:has(.modal-overlay) #adv-torch,
+html.adv-on:has(.modal-overlay) #adv-beat,
+html.adv-on:has(.modal-overlay) #adv-diceroll,
+html.adv-on:has(.modal-overlay) #adv-tw-skip,
+html.adv-on:has(.modal-overlay) .adv-chip,
+html.adv-on:has(.modal-overlay) .adv-chip-at,
+html.adv-on:has(.modal-overlay) #adv-panel-toggle,
+html.adv-on:has(.modal-overlay) #adv-stinger-caption {
+    z-index: 999;
+}
 
 /* reduced motion */
 @media (prefers-reduced-motion: reduce) {

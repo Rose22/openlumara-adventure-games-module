@@ -1237,7 +1237,14 @@
         var unknownBranch = "(?!stat\\||item\\||statusoff\\||status\\||music\\||sd\\||quest\\||" +
             "questdone\\||questfail\\||questoff\\||subgoal\\||subdone\\|)" +
             "([a-z][a-z0-9_-]*)\\|([^{}]*)";
-        return new RegExp("\\{\\{(?:" + kindBranch + "|" + pulseBranch + "|" + unknownBranch + ")\\}\\}", "g");
+        // state macros get their own branch (7=kind, 8=body): a cached
+        // passage re-entered from a step-out holds them RAW (markdown
+        // parsed while adv mode slept), and this sweep is what restyles
+        // it - so they echo exactly like the marked renderer does,
+        // through games.js's advMacroEcho. re-applying the change stays
+        // tied to the live stream, never to this pass.
+        var stateBranch = "(stat|item|status|statusoff|music|quest(?:done|fail|off)?|subgoal|subdone)\\|([^{}]*)";
+        return new RegExp("\\{\\{(?:" + kindBranch + "|" + pulseBranch + "|" + unknownBranch + "|" + stateBranch + ")\\}\\}", "g");
     }
     var MACRO_RE = buildMacroRe();
     window.addEventListener("adv:fx", function () {
@@ -1363,6 +1370,31 @@
                     // a macro the AI made up: its body is prose - drop the
                     // words in plain and let the braces vanish with the token
                     if (m[6]) frag.appendChild(document.createTextNode(m[6]));
+                    last = m.index + m[0].length;
+                    continue;
+                }
+                if (m[7]) {
+                    // a state macro left raw by a cached parse (re-entering
+                    // the adventure after a step-out): paint exactly the
+                    // echo the marked renderer would - icon + name for an
+                    // item, signed pills for a stat, invisible for the
+                    // music/quest kinds (they announce themselves elsewhere).
+                    // Styling only: the change was already applied when the
+                    // passage first streamed live.
+                    var echo = "";
+                    try { echo = window.advMacroEcho ? window.advMacroEcho(m[7], m[8]) : ""; } catch (e) {}
+                    // the sweep writes straight into the DOM (no core
+                    // sanitizer downstream): run the echo through DOMPurify,
+                    // same as advChoiceLabelHTML does for choice labels
+                    if (echo && window.DOMPurify) {
+                        try { echo = window.DOMPurify.sanitize(echo); } catch (e) { echo = ""; }
+                    }
+                    var mk = document.createElement("span");
+                    mk.className = "adv-macromark" + (echo ? " adv-shown" : "");
+                    mk.setAttribute("data-kind", m[7]);
+                    mk.setAttribute("data-text", m[8] || "");
+                    if (echo) mk.innerHTML = echo;
+                    frag.appendChild(mk);
                     last = m.index + m[0].length;
                     continue;
                 }
@@ -1572,41 +1604,60 @@
         });
     }
 
+    /* choice-rail consolidation: every maximal run of consecutive child
+     * blocks that are PURE choice containers (every link an .adv-choice,
+     * no loose prose) folds into a .adv-choices pill column at the run's
+     * own position. Runs need not sit at the end of the passage anymore -
+     * the GM often appends a closing flavor line after the list, and the
+     * old tail-only scan then left the whole list un-rail'd (raw links).
+     * A block counts as pure only when it holds choices and nothing but:
+     * prose wrapped around an inline [[link]] stays untouched prose. */
+    function pureChoiceBlock(k) {
+        if (k.tagName === "NAV" || k.id === "adv-prompt") return false;
+        var links = k.querySelectorAll ? Array.prototype.slice.call(k.querySelectorAll(".adv-choice:not(#adv-prompt)")) : [];
+        if (!links.length) return false;
+        var anchors = k.getElementsByTagName("a").length;
+        if (links.length !== anchors) return false;
+        // loose text (other than the whitespace between links) means the
+        // block still talks prose - its links stay inline
+        var textBits = Array.prototype.slice.call(k.childNodes).some(function (n) {
+            return n.nodeType === 3 && n.nodeValue.trim().length > 0;
+        });
+        return !textBits;
+    }
     function railPass(root) {
         root.querySelectorAll(".turn.adv-current .message.assistant").forEach(function (card) {
             var kids = Array.prototype.slice.call(card.children);
-            var trails = [];
-            for (var i = kids.length - 1; i >= 0; i--) {
-                var k = kids[i];
-                if (k.tagName === "NAV") { break; }
-                // the prompt form wears .adv-choice for its pill look but is
-                // no link - exclude it from the trail counting
-                var links = k.querySelectorAll ? Array.prototype.slice.call(k.querySelectorAll(".adv-choice:not(#adv-prompt)")) : [];
-                if (!links.length) break;
-                var anchors = k.getElementsByTagName("a").length;
-                var textBits = Array.prototype.slice.call(k.childNodes).some(function (n) {
-                    return n.nodeType === 3 && n.nodeValue.trim().length > 0;
+            var run = [];
+            function closeRun() {
+                // a lone choice paragraph keeps its inline look (same
+                // threshold as the old tail-only scan)
+                if (run.length < 2) { run = []; return; }
+                var nav = document.createElement("nav");
+                nav.className = "adv-choices";
+                card.insertBefore(nav, run[0]);
+                run.forEach(function (t) {
+                    Array.prototype.slice.call(t.querySelectorAll(".adv-choice")).forEach(function (a) {
+                        nav.appendChild(a);
+                        nav.appendChild(document.createTextNode(" "));
+                    });
+                    // the custom prompt bar may have docked inside one of these
+                    // paragraphs before the rail formed - rescue it rather than
+                    // destroying it with the trail; games.js then re-homes it as
+                    // the rail's last entry on the next observer pass
+                    var pb = t.querySelector("#adv-prompt");
+                    if (pb) card.appendChild(pb);
+                    if (t.parentNode) t.parentNode.removeChild(t);
                 });
-                if (links.length === anchors && !textBits) trails.unshift(k);
-                else break;
+                run = [];
             }
-            if (trails.length < 2) return;
-            var nav = document.createElement("nav");
-            nav.className = "adv-choices";
-            card.insertBefore(nav, trails[0]);
-            trails.forEach(function (t) {
-                Array.prototype.slice.call(t.querySelectorAll(".adv-choice")).forEach(function (a) {
-                    nav.appendChild(a);
-                    nav.appendChild(document.createTextNode(" "));
-                });
-                // the custom prompt bar may have docked inside one of these
-                // paragraphs before the rail formed - rescue it rather than
-                // destroying it with the trail; games.js then re-homes it as
-                // the rail's last entry on the next observer pass
-                var pb = t.querySelector("#adv-prompt");
-                if (pb) card.appendChild(pb);
-                if (t.parentNode) t.parentNode.removeChild(t);
-            });
+            for (var i = 0; i < kids.length; i++) {
+                var k = kids[i];
+                if (pureChoiceBlock(k)) { run.push(k); continue; }
+                // an already-built rail ends its run but stays a rail
+                closeRun();
+            }
+            closeRun();
         });
     }
 

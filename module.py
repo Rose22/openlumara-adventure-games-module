@@ -439,6 +439,12 @@ class AdventureGamesModule(core.module.Module):
         c = self._get_campaign(chat_id)
         if not c:
             return None
+        # one advance_time per passage: the per-turn clock tick is the
+        # passage's own time, and the tool is for a single extra beat on
+        # top of it - the flag re-arms right here, every player message
+        # (also while paused, so a stray call during a step-out can never
+        # leave the flag stuck against the next real passage).
+        c.pop("adv_time_used", None)
         if c.get("paused"):
             # the player stepped out of the immersive view: the campaign is
             # frozen (no clock tick, no status countdown, no world snapshot)
@@ -1415,7 +1421,7 @@ class AdventureGamesModule(core.module.Module):
     #   AI TOOLS
     # -------------------------
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def get_assets(self, asset_pack: str = ""):
         """Inspect the asset packs BEFORE dressing a campaign in one. With no argument: one line per installed pack with per-kind counts of what the pack carries itself (the chooser view). With asset_pack: that pack's full EFFECTIVE inventory - its world sketch (world.txt, when it ships one), every ambience loop, music track, {{sfx}} sound, {{img}} picture, stinger, overlay mood, weather kind, sky kind, one-shot pulse, inline text decoration, palette and font a campaign of it may name, plus the pack's chrome (thinking sigil + skin, dice skin + glyphs, typewriter caret - single root files, applied automatically), the default pack's base merged in as one continuous list per kind. Check here before game_start so the chosen pack and its opening ambience/music use real names; mid-game, the live campaign's own inventory rides on get_campaign.
 
@@ -1456,7 +1462,7 @@ class AdventureGamesModule(core.module.Module):
         lines.append("note: full inventories merge the default pack as the global base (a pack overrides same-named files, everything it lacks stays the default's); the counts above show only what each pack carries itself")
         return self.result(held + "\n".join(lines), success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def game_start(self, title: str, stats: dict, palette: str = "rose_quartz", font: str = "georgia", start_day: int = 1, start_hour: int = 8, inventory: dict = None, quests: dict = None, ambience: str = "", music: str = "", weather: str = "", sky: str = "", effects: list = None, banner: str = "", scene: str = "Prologue", location: str = "", turn_minutes: int = 15, asset_pack: str = ""):
         """Starts or restarts a campaign. Call when the player asks to play an adventure. Set the opening scene, gear, quests, ambience, music, sky, weather, effects and banner here in ONE call so the world is alive from the very first passage. An unknown ambience loop / music track / weather kind / sky kind / overlay name is skipped with a note instead of failing the start. Call get_assets first to pick the asset_pack that fits the game's world (the installed packs are named in the system prompt): the result then lists that pack's full inventory of every kind - loops, tracks, sounds, pictures, stingers, overlay moods, weather kinds, sky kinds, pulses and inline text decorations, the pack's assets merged over the default base as one continuous list per kind - and the campaign may only ever name assets from it or that base. When the pack ships a world.txt, its deliberately vague world sketch rides along in the result too: lean into it, fill its blanks yourself.
 
@@ -1610,7 +1616,7 @@ class AdventureGamesModule(core.module.Module):
             success=True,
         )
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def stat_add(self, stats: dict):
         """Adds new stats to the sidebar (batch).
 
@@ -1648,7 +1654,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"added stats: {', '.join(added)}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def stat_remove(self, names: list):
         """Removes stats from the campaign sidebar.
 
@@ -1673,7 +1679,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"removed stats: {', '.join(removed)}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def inventory_add(self, items: dict):
         """Adds items to the inventory (batch) - the fallback for off-prose setup; to hand items out inside a passage, write the inline {{item|Name +N}} macro instead. Existing items gain quantity.
 
@@ -1712,7 +1718,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"inventory updated: {', '.join(done)}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def roll_dice(self, rolls: list, reason: str):
         """Rolls real dice (shown to the player). Never invent results - roll here.
 
@@ -1756,7 +1762,7 @@ class AdventureGamesModule(core.module.Module):
         await self._await_beat(chat_id, "dice", 4.5)
         return self.result("\U0001f3b2 " + str(reason) + " \u2014 " + "; ".join(lines) + f" | TOTAL: {total}" + held, success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def coinflip(self, reason: str = ""):
         """Flips a coin (spins in front of the player). Binary fate only - never invent the side.
 
@@ -1777,7 +1783,7 @@ class AdventureGamesModule(core.module.Module):
         await self._await_beat(chat_id, "dice", 4.5)
         return self.result("\U0001fa99 " + str(reason or "a coin spins") + f" \u2014 the coin lands: {side.upper()}!" + held, success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def set_scene(self, title: str, location: str, ambience: str = "", music: str = "", weather: str = "", sky: str = "", effects: list = None, banner: str = None):
         """Sets the current scene - and restages the ENTIRE environment in the same call, so every scene transition automatically shifts ambience, music, sky, weather, overlays and banner together. Pass the args that fit the new scene; omit an arg to keep it exactly as it plays now; "off" clears it. Unknown loops/tracks/skies/weathers/overlays are skipped with a note instead of failing the call. Mid-passage music shifts stay inline instead ({{music|track}}); a lone overlay change mid-passage goes to the screen_effect tool.
 
@@ -1823,7 +1829,7 @@ class AdventureGamesModule(core.module.Module):
         note_str = ("\n" + "\n".join(notes)) if notes else ""
         return self.result(f"scene set: {title} ({location}){note_str}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def end_game(self, ending: str, epitaph: str):
         """Ends the campaign. Write one final closing passage after calling this - the interface shows a game-over banner automatically, so do not offer choices after it.
 
@@ -1847,7 +1853,7 @@ class AdventureGamesModule(core.module.Module):
         await self._await_beat(chat_id, "death", 5.5)
         return self.result(f"game over: {ending} \u2014 {epitaph}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def get_campaign(self):
         """Returns the current campaign state (scene, stats, inventory), in case you need to check it mid-turn."""
         chat_id = self._chat_id()
@@ -1857,9 +1863,12 @@ class AdventureGamesModule(core.module.Module):
         held = await self._await_typing(chat_id)
         return self.result(self._state_block(c) + held, success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def advance_time(self, days: int = 0, hours: int = 0, minutes: int = 0):
         """Extra one-off clock jump BEYOND the automatic per-turn tick (set_turn_minutes). Do NOT use it for the passage itself - only for big single beats: days of travel, recuperation, a ritual till dawn.
+
+        Only ONE call per passage is allowed (the per-turn tick already carries
+        the passage's own time; more jumps would double-count it).
 
         Args:
             days: Days to add
@@ -1870,9 +1879,14 @@ class AdventureGamesModule(core.module.Module):
         c = self._get_campaign(chat_id)
         if not c:
             return self.result("no active campaign in this chat - call game_start first", success=False)
+        if c.get("adv_time_used"):
+            return self.result("advance_time already used this passage - the clock "
+                               "already ticked for it, and one extra beat was jumped "
+                               "on top; narrate along the current time instead", success=False)
 
         held = await self._await_typing(chat_id)
         self._snapshot(chat_id)
+        c["adv_time_used"] = True
 
         day_before = int((c.get("clock") or {}).get("day", 1))
         self._advance_clock(c, int(days) * 1440 + int(hours) * 60 + int(minutes))
@@ -1884,7 +1898,7 @@ class AdventureGamesModule(core.module.Module):
             await self._await_beat(chat_id, "sleep", 6.5)
         return self.result(f"clock advanced -> {self._clock_str(c)}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def set_turn_minutes(self, minutes: int):
         """Sets how many in-game minutes the clock auto-advances EVERY turn, right before you reply - the heartbeat of the world, so you never have to remember the clock again. Match it to pacing: 10-20 for conversation scenes, 60-240 while travelling or in the thick of action, 0 to freeze the clock and do it all by hand with advance_time.
 
@@ -1904,7 +1918,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result((f"clock now ticks {m} min per turn" if m else "clock frozen - advance_time is your only clock again") + held, success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def quest_add(self, name: str, description: str, subgoals: list = None, icon: str = ""):
         """Adds a quest to the sidebar log. Sub-goals are unordered beats that make the quest up - close them in any order with subgoal_done, and the quest itself completes when the last one closes.
 
@@ -1965,7 +1979,7 @@ class AdventureGamesModule(core.module.Module):
         done_n = sum(1 for g in goals if g.get("done"))
         return True, f"sub-goal done ({done_n}/{len(goals)}): {match.get('text')}", False
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def subgoal_done(self, name: str, subgoal: str):
         """Marks one sub-goal of a quest as completed. Sub-goals close in ANY order; when the last open one closes, the quest itself completes automatically (chime and all).
 
@@ -1989,7 +2003,7 @@ class AdventureGamesModule(core.module.Module):
             self._save_campaign(chat_id, c)
         return self.result(msg + held, success=ok)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def quest_done(self, name: str):
         """Marks a quest as completed.
 
@@ -2013,7 +2027,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"quest complete: {name}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def quest_fail(self, name: str, reason: str = ""):
         """Marks a quest as failed.
 
@@ -2038,7 +2052,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"quest failed: {name}" + (f" ({reason})" if reason else "") + held, success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def quest_remove(self, names: list):
         """Removes quests entirely from the log.
 
@@ -2062,7 +2076,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"quests removed: {', '.join(removed)}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def screen_effect(self, effect: str, on: bool = True):
         """Puts one mood overlay on the story window (names and meanings ride with your campaign's "Overlays available" inventory) - or takes it off. The overlay holds until changed; for big beats keep it to 1-2 at once, cleared with effect="off" once past. Complements set_scene's effects=, which replaces the whole set when restaging a scene.
 
@@ -2099,7 +2113,7 @@ class AdventureGamesModule(core.module.Module):
         self._save_campaign(chat_id, c)
         return self.result(f"overlays now: {', '.join(sorted(fx)) or 'none'}{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def status_visual(self, status: str, effect: str):
         """Links a status condition to a story-window overlay - YOU decide which mood belongs to which condition (Cursed -> static, Love-sick -> bloom, Poisoned -> venom...). The overlay follows the status by itself: it fades in while the condition holds and out when it is cured or ticks out. Re-linking replaces the old effect; the link waits patiently for a status that is not applied yet.
 
@@ -2130,7 +2144,7 @@ class AdventureGamesModule(core.module.Module):
             return self.result(f"status link: {status} now drags the {effect} overlay along{held}", success=True)
         return self.result(f"status link for '{status}' cleared{held}", success=True)
 
-    @core.module.tool
+    @core.module.tool(bypass_timeout=True)
     async def play_stinger(self, name: str, description: str = ""):
         """Fires a stinger: a longer, MUSICAL one-shot that depicts a cue moment in the story - a revelation, a level-up, a quest's bitter end, a time-skip. While one plays, the soundtrack smoothly fades out and pauses, then resumes right where it left off and fades back in when the stinger finishes. Stingers are TOOL-ONLY - there is no {{stinger}} macro and the {{sfx}} macro does not reach them; they are the instrument of the story's cue moments. Pick from the stinger list the game_start result returned for your campaign's asset pack; like every sound, the moment it scores must be narrated. This call HOLDS until the stinger has fully played out in the player's browser (the same pacing handshake as the dice flourish), so whatever you write next lands after the music.
 

@@ -18,10 +18,8 @@ class AdventureGamesModule(core.module.Module):
     category = "Games"
 
     settings = {
-        "hide_process_chain": {
-            "description": "Hide the AI's process chain (thinking / tool calls) inside passages, for maximum immersion. While the AI works, the story's own rune overlay shows instead.",
-            "default": True
-        },
+        # (hide_process_chain moved out of settings: the in-game sidebar
+        # carries a live toggle button for it now, session-scoped by design)
         "sound_enabled": {
             "description": "Enable sounds: the music soundtrack, scene ambience loops and soft synthesized effects (choice chimes, stat sparkles, dice tumble, page turns).",
             "default": True
@@ -183,6 +181,53 @@ class AdventureGamesModule(core.module.Module):
         campaigns[str(chat_id)] = campaign
         self.data["campaigns"] = campaigns
         self.data.save()
+
+    def _chat_exists(self, chat_id):
+        """is this chat id still in the webui channel's chat index? The one
+        backend-truthful signal for 'the history is gone' - a chat is either
+        listed there or it isn't. When the store can't answer, we treat the
+        chat as present: a campaign is precious and must never be dropped on
+        a lookup hiccup."""
+        if not chat_id:
+            return False
+        try:
+            return self.channel.context.chat._find_index(str(chat_id)) is not None
+        except Exception:
+            return True
+
+    async def _drop_campaign(self, chat_id):
+        """sever a chat's campaign AND its undo stack. Only ever called when
+        the chat's history is genuinely gone - clear() (via on_chat_clear) or
+        a deleted chat caught by the /state existence check - never on a
+        frontend guess about the DOM."""
+        if not chat_id:
+            return False
+        key = str(chat_id)
+        campaigns = self._campaigns()
+        had = key in campaigns
+        if had:
+            del campaigns[key]
+            self.data["campaigns"] = campaigns
+        # wipe the undo stack too: a fresh chat restarts its message indices
+        # at 0, so stale snapshots of the dead campaign would match every
+        # future turn's rewind count and could resurrect it
+        undo = self.data.get("undo", {})
+        stale = undo.get(key)
+        if stale:
+            undo[key] = []
+            self.data["undo"] = undo
+        if had or stale:
+            self.data.save()
+        if had:
+            await self._ui_push(chat_id, False)
+        return had
+
+    async def on_chat_clear(self):
+        # the core wiped this chat's history (the /clear command, or the
+        # header's trash button): a cleared chat means a cleared campaign.
+        # the hook fires with the cleared chat still current - clear() never
+        # changes the chat id - so the context's current id IS the target.
+        await self._drop_campaign(self._chat_id())
 
     async def _ui_push(self, chat_id, active):
         """Push an adv:campaign websocket frame so watching browsers learn
@@ -2243,6 +2288,17 @@ class AdventureGamesModule(core.module.Module):
             # fresh and 1, and runs them the moment the reveal catches up
             self._typing[str(chat_id)] = (str(query.get("typing") or "0") == "1",
                                           time.time())
+        # orphan guard (throttled): chats deleted from the sidebar fire no
+        # module hook, and their frontend is gone with them, so a campaign
+        # of a dead chat would otherwise sit in storage forever. the chat
+        # index is the one truth about whether a history still exists -
+        # this poll is a cheap, regular moment to reconcile against it.
+        now = time.time()
+        if now - getattr(self, "_orphan_sweep_at", 0.0) > 60:
+            self._orphan_sweep_at = now
+            for key in list(self._campaigns()):
+                if not self._chat_exists(key):
+                    await self._drop_campaign(key)
         return {"campaign": self._campaign_view(self._get_campaign(chat_id))}
 
     @webui.route("anim_done", method="POST")
@@ -2495,34 +2551,10 @@ class AdventureGamesModule(core.module.Module):
             })
         return {"campaigns": out}
 
-    @webui.route("chat_cleared", method="POST")
-    async def _route_chat_cleared(self, body=None, query=None):
-        # the frontend notices that this chat's history was wiped (the core
-        # /clear command leaves an empty passage page) and reports it here:
-        # a cleared chat means a cleared campaign. idempotent by design -
-        # if there is no campaign, there is nothing to do.
-        chat_id = self._chat_id((body or {}).get("chat"))
-        if not chat_id:
-            return {"success": False, "data": "no chat id"}
-        campaigns = self._campaigns()
-        had = chat_id in campaigns
-        if had:
-            del campaigns[chat_id]
-            self.data["campaigns"] = campaigns
-        # wipe the chat's undo stack with it: a cleared chat restarts its
-        # message indices at 0, so stale snapshots of the dead campaign
-        # would match every future turn's rewind count and could resurrect
-        # it - a snapshot taken here would only add one more stale entry
-        undo = self.data.get("undo", {})
-        stale = undo.get(str(chat_id))
-        if stale:
-            undo[str(chat_id)] = []
-            self.data["undo"] = undo
-        if had or stale:
-            self.data.save()
-        if had:
-            await self._ui_push(chat_id, False)
-        return {"success": True, "data": True}
+    # (the old chat_cleared route is gone: a frontend POST must never be
+    # able to sever a campaign. the only delete paths are on_chat_clear -
+    # the core's own clear hook - and the /state sweep reconciling against
+    # the chat index, both in this file.)
 
     @webui.route("set_paused", method="POST")
     async def _route_set_paused(self, body=None, query=None):
@@ -2926,6 +2958,25 @@ class AdventureGamesModule(core.module.Module):
             first_index = int(first_index)
         except (TypeError, ValueError):
             return {"success": False, "data": "invalid first_index"}
+
+        # busy guard: the frontend refuses rewind mid-turn, but that guard
+        # lives in one browser. a rewind landing WHILE the passage is still
+        # arriving (stale tab, direct caller) would roll the campaign back
+        # and then the same turn's still-in-flight state_macro POSTs would
+        # re-apply onto the restored snapshot (its macro_keys dedup list is
+        # older), and deleting messages shifts indices under the core's own
+        # stream handler. two truthful signals, both fail-open:
+        # - the core is mid-generation right now (API.is_streaming)
+        # - a watching browser just reported the typewriter revealing
+        #   prose (the same fresh-3s contract _await_typing holds on)
+        try:
+            if self.channel.manager.API.is_streaming:
+                return {"success": False, "data": "the story is still generating - try again in a moment"}
+        except Exception:
+            pass  # no manager/API reachable: never block on introspection
+        tstate = self._typing.get(str(chat_id))
+        if tstate and tstate[0] and time.time() - tstate[1] <= 3:
+            return {"success": False, "data": "the passage is still typing - try again in a moment"}
 
         undo = self.data.get("undo", {})
         stack = undo.get(str(chat_id), [])

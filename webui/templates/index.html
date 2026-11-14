@@ -5,7 +5,6 @@
 <script>
 /* adventure_games: inline settings + passage-mode restore, before first paint */
 window.ADV_CONFIG = {
-    hide_process_chain: {{ 'true' if module_config.get('hide_process_chain', true) else 'false' }},
     sound_enabled: {{ 'true' if module_config.get('sound_enabled', true) else 'false' }},
     ambience_volume: {{ module_config.get('ambience_volume', 35) | int }},
     music_volume: {{ module_config.get('music_volume', 40) | int }},
@@ -28,7 +27,10 @@ window.ADV_CONFIG = {
     var root = document.documentElement;
     var fs = parseFloat(window.ADV_CONFIG.font_size);
     if (isFinite(fs) && fs >= 8 && fs <= 48) root.style.setProperty("--adv-font-size", fs + "px");
-    if (window.ADV_CONFIG.hide_process_chain) root.classList.add("adv-hide-chain");
+    /* the process chain hides by default for immersion; the sidebar's
+       live toggle (adv store: hideChain) flips it for this session -
+       deliberately not persisted, so every fresh load starts immersed */
+    root.classList.add("adv-hide-chain");
 
     function ls(key) {
         try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; }

@@ -609,6 +609,33 @@
         return holdStarted ? cur : HOLD;
     }
 
+    /* badge pre-arm: the chip macros (stat / moving item / status) hold
+     * the reveal FROM THE LEAP. the module's own badge hold in
+     * advStateMacro fires at RENDER time - a frame or more after the
+     * macro leaped - and at high cps the prose ran past the chip inside
+     * that window. Same key, same 1800 ms cap and max-chain semantics as
+     * the module hold, which re-arms at render and again when the chip
+     * blooms; a pure item mention (no explicit delta) moves nothing and
+     * pauses nothing, mirroring advItemMoves in games.js. */
+    function chipPreArm(full, shown) {
+        if (!pauseOn()) return;
+        var b = full.lastIndexOf("{{", shown - 3);
+        if (b < 0) return;
+        var m = /^\{\{(stat|item|status|statusoff)\|([^{}]*)\}\}$/.exec(full.slice(b, shown));
+        if (!m) return;
+        if (m[1] === "item") {
+            var moves = false;
+            m[2].split(",").forEach(function (seg) {
+                // strip the "~description" tail first (it belongs to the
+                // entry, not the delta) - mirrors advItemSegs in games.js
+                seg = seg.split("~")[0].trim();
+                if (/[+-]?\d+$/.test(seg)) moves = true;
+            });
+            if (!moves) return;
+        }
+        blockers["badge"] = Math.max(blockers["badge"] || 0, Date.now() + 1800);
+    }
+
     function advance(n) {
         var typed = 0;
         for (var i = 0; i < segs.length && n > 0; i++) {
@@ -652,13 +679,25 @@
                 s.shown++;
                 walked++;
                 var end = skipOpenEnd(s.full, s.shown);
-                if (end > s.shown) s.shown = end > s.full.length ? s.full.length : end;
+                if (end > s.shown) {
+                    s.shown = end > s.full.length ? s.full.length : end;
+                    // the leap swallowed a whole world event: cue it NOW,
+                    // at the exact spot, instead of waiting for the paint
+                    // pass to scan it a frame later (at high cps that frame
+                    // is several characters of prose typed past the token)
+                    scanSeg(i, s.full.slice(0, s.shown));
+                    chipPreArm(s.full, s.shown);
+                    if (anyBlocker()) break;   // and hold the beat here
+                }
                 restAt(s);
                 if (Date.now() < restUntil) break;   // the beat lands WHERE the punctuation is
             }
             n -= walked;
             typed += walked;
-            if (Date.now() < restUntil) break;
+            // a blocker armed by THIS segment's leap (sfx cue, badge
+            // pre-arm) must also stop the frame from spilling into the
+            // next segment
+            if (Date.now() < restUntil || paused()) break;
         }
         return typed;
     }

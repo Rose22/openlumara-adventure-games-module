@@ -262,9 +262,30 @@ html.adv-on.adv-ended #adv-prompt {
 html.adv-on #input {
     display: none !important;
 }
-/* the prompt-eval progress card spoils the thinking mystery */
-html.adv-on .prompt-processing-indicator-wrapper {
+/* the prompt-eval progress card spoils the thinking mystery - but only
+   while the chain is hidden; with the chain visible the player opted into
+   the machinery, so the gauge may show too (same adv-hide-chain gate as
+   the agent-chain rule - follows the sidebar toggle live) */
+html.adv-on.adv-hide-chain .prompt-processing-indicator-wrapper {
     display: none !important;
+}
+/* ...and with the chain visible, the STANDALONE card (pp-prompt variant -
+   the chain's inline pp-tool gauge is a different thing and stays where
+   the chain put it) is forced to the TOP of the story scroll instead of
+   sitting below the passages where it goes unnoticed: #messages is a flex
+   column, so order:-1 hoists the wrapper above every turn, and sticky
+   keeps it pinned to the top edge while the story scrolls beneath it */
+html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-processing-indicator-wrapper.pp-prompt) {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    /* opaque so passages scrolling underneath don't bleed through the gauge,
+       matched to the story page, with a hair of bottom padding + shadow so
+       it reads as a floating header bar rather than glued text */
+    background: var(--bg-primary);
+    padding: 8px 0 10px;
+    box-shadow: 0 6px 12px -10px rgba(0, 0, 0, 0.6);
 }
 
 /* =================delta chips + dice popups=================== */
@@ -514,17 +535,6 @@ html.adv-on .prompt-processing-indicator-wrapper {
     font-size: 13.5px;
     color: var(--text-primary);
 }
-.adv-panel .adv-empty {
-    color: var(--text-secondary);
-    font-size: 12.5px;
-    line-height: 1.6;
-    padding: 8px 2px;
-}
-.adv-panel .adv-empty code {
-    background: var(--tool-bg, rgba(255,255,255,0.06));
-    padding: 1px 5px;
-    border-radius: 4px;
-}
 .adv-panel h3.adv-head {
     margin: 0 0 4px 0;
     font-size: 15px;
@@ -575,11 +585,6 @@ html.adv-on .prompt-processing-indicator-wrapper {
 }
 .adv-bar {
     margin-top: 4px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--tool-bg, rgba(255, 255, 255, 0.07));
-    border: 1px solid var(--border-color);
-    overflow: hidden;
 }
 .adv-bar .adv-bar-fill {
     height: 100%;
@@ -648,19 +653,46 @@ html.adv-on .prompt-processing-indicator-wrapper {
     box-shadow: none;
     transform: none;
 }
-/* the settings gear: an icon-only sibling of Rewind/Journal - it keeps
-   its own small square instead of flexing to the row's full width */
-.adv-actions button.adv-icon-btn {
+/* the icon bar: one line, fixed squares, never wraps - the tooltip
+   carries the words, the svg carries the look. the gear rides the far
+   right edge (margin-left:auto eats the slack the text buttons used to
+   share by flexing). NO state glow anywhere: the chain toggle's slashed
+   eye is its own state. */
+.adv-actions.adv-bar {
+    flex-wrap: nowrap;
+}
+.adv-actions.adv-bar button {
     flex: 0 0 auto;
     min-width: 0;
-    width: 34px;
+    width: 32px;
+    height: 30px;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
-.adv-actions button.adv-icon-btn svg {
+.adv-actions.adv-bar button svg {
     pointer-events: none;
+}
+/* borderless icon buttons: kill the inherited outline and the boxed
+   hover glow; a soft color shift carries the hover instead */
+.adv-actions.adv-bar button,
+.adv-actions.adv-bar button:hover,
+.adv-actions.adv-bar button.adv-off,
+.adv-actions.adv-bar button.adv-off:hover {
+    border: none;
+    box-shadow: none;
+}
+/* two flex sections: left rides the panel edge, right is pushed by a
+   single auto margin - no slack ever splits between two buttons again */
+.adv-actions.adv-bar .adv-bar-left,
+.adv-actions.adv-bar .adv-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.adv-actions.adv-bar .adv-bar-right {
+    margin-left: auto;
 }
 .adv-panel button {
     background: transparent;
@@ -819,4 +851,20 @@ html.adv-on:has(.modal-overlay) #adv-stinger-caption {
 }
 @media (prefers-reduced-motion: reduce) {
     #adv-tw-skip { transition: none; }
+}
+
+/* =================out-of-game sidebar=================== */
+/* the campaign panel (and its tab) are core-rendered for every enabled
+   module, so they'd otherwise stand in the sidebar even with no game
+   running. "is ingame" is exactly html.adv-on (the pre-paint restore
+   script sets it before first paint, applyMode keeps it in lockstep), so
+   the tab and its panel step aside whenever the player is NOT inside the
+   story - and the tab returns the instant a game starts, no reload. the
+   tab button and its x-show panel share the auto-discovered data-tab, so
+   both are hidden together; the rest of the sidebar (chats, other
+   modules' tabs) is untouched, and the tabbar only ever collapses fully
+   when no module tab is present at all. */
+html:not(.adv-on) .sidebar-tab[data-tab="adventure_games/adventure"],
+html:not(.adv-on) .sidebar-panel:has(.adv-panel) {
+    display: none !important;
 }

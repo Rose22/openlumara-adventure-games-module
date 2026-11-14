@@ -786,8 +786,19 @@
         // so Alpine bindings (the rewind button's dim state) can track the
         // typewriter reactively - isBusy() itself is a plain function call.
         revealBusy: false,
+        // process-chain visibility, live-toggled from the sidebar. seeded
+        // from the class the pre-paint script sets (head always runs before
+        // body scripts, so the read is truthful); session-scoped on purpose -
+        // never persisted, so each load starts immersed again.
+        hideChain: typeof document !== "undefined"
+            && document.documentElement.classList.contains("adv-hide-chain"),
         _prev: null,
         _ready: false,
+
+        toggleChain: function () {
+            this.hideChain = !this.hideChain;
+            document.documentElement.classList.toggle("adv-hide-chain", this.hideChain);
+        },
 
         computeActive: function (chatId) {
             var overrides = lsGet(LS_MODE, {});
@@ -1001,14 +1012,14 @@
             try { busy = Alpine.store("stream").state !== "idle"; } catch (e) {}
             var typing = false;
             try { typing = !!(window.AdvType && window.AdvType.isBusy && window.AdvType.isBusy()); } catch (e) {}
-            if (busy || typing) {
-                try {
-                    Alpine.store("ui").notice = typing
-                        ? "Wait for the passage to finish typing before rewinding."
-                        : "Wait for the story to finish generating before rewinding.";
-                } catch (e) {}
-                return;
-            }
+            // busy clicks are refused SILENTLY: the button already dims for
+            // exactly these moments, a notice on top just shouts at a
+            // mistap. the dim says no, quietly.
+            if (busy || typing) return;
+            // destructive: undo the passage's stat/item/quest changes too,
+            // so ask before the hammer falls (both sidebar and chat-header
+            // rewind buttons funnel through here)
+            if (!confirm("Rewind the last passage and undo its changes?")) return;
             var history = Alpine.store("chat").turnHistory || [];
             if (history.length === 0) return;
             var last = history[history.length - 1];
@@ -1025,10 +1036,6 @@
                     return simpleSocketSend({ type: "message_delete", index: firstIndex });
                 })
                 .then(function () {
-                    /* rewinding the very first passage can empty the chat -
-                       tell the clear-detector this blank page was earned,
-                       not wiped */
-                    advJustRewound[chatId] = Date.now();
                     /* the restored campaign carries OLD sfx/stinger stamps;
                        the adv:state watcher reads this timestamp and re-arms
                        its stamp trackers instead of replaying an undone sound */
@@ -1316,36 +1323,15 @@
     }
     window.advRepairPassage = advRepairPassage;
 
-    /* a cleared chat is a cleared campaign: the core /clear command (and
-       the header's trash button, which sends it) leaves no trace modules
-       can hook, so the page itself plays detective - when a chat that HAS
-       a campaign sits idle with a completely empty passage page, the
-       history was wiped, and the backend is told to wipe the campaign
-       with it. the saw-passage flag keeps a never-rendered chat (fresh
-       open, mid-load) from ever counting as cleared. */
-    var advSawPassage = {};
-    var advJustRewound = {};
-    function advDetectClear() {
-        var chatId = currentChat();
-        if (!chatId) return;
-        var busy = false;
-        try { busy = Alpine.store("stream").state !== "idle"; } catch (e) { return; }
-        if (busy) return;
-        var box = document.getElementById("messages");
-        if (!box) return;
-        if (box.querySelectorAll(".turn").length > 0) { advSawPassage[chatId] = true; return; }
-        if (!advSawPassage[chatId]) return;
-        // a rewind that just emptied the page is not a chat clear
-        if (Date.now() - (advJustRewound[chatId] || 0) < 5000) return;
-        delete advSawPassage[chatId];   // fire once, then the refresh settles it
-        simpleApiPost("/api/ext/adventure_games/chat_cleared", { chat: chatId })
-            .then(function () {
-                var st = Alpine.store("adv");
-                st._prev = null;
-                return st.refresh(chatId, false);
-            })
-            .catch(function () {});
-    }
+    /* a cleared chat is a cleared campaign - but the page is NOT the one to
+       notice it: an idle tick that caught #messages without a single .turn
+       node (the core's mount-window recycles turn DOM; x-ifs also need a
+       tick to paint after a load or a mode flip) used to report a bogus
+       "cleared" here and delete a perfectly alive campaign. the core now
+       fires on_chat_clear() on module classes when the history is really
+       wiped, so the backend drops the campaign itself; deleted chats are
+       reconciled against the chat index on the /state heartbeat.
+       the clear-detector and its saw-passage ledger are gone for good. */
 
     /* the passage page is append-only, and that is enforced entirely here:
        the core stream machine retracts the provisional final bubble every
@@ -2687,13 +2673,25 @@
         var twBusy2 = false;
         try { twBusy2 = !!(window.AdvType && window.AdvType.isBusy && window.AdvType.isBusy()); } catch (e) {}
         if (st.revealBusy !== twBusy2) st.revealBusy = twBusy2;
+        /* the adventure sidebar tab and panel hide out-of-game (css keyed
+           on html.adv-on) - so the sidebar must never KEEP that tab
+           selected while it's hidden, or the shell shows a blank panel.
+           forceAdventureTab bounces the active->inactive moment, but the
+           choice also survives reloads (localStorage) and chat switches:
+           walk back to Chats whenever it's selected out of game. */
+        if (!st.active) {
+            var advTab = document.querySelector(
+                '.sidebar-tab[data-tab="adventure_games/adventure"].active');
+            if (advTab) {
+                var homeTab = document.querySelector('.sidebar-tab[data-tab=""]');
+                if (homeTab) homeTab.click();
+            }
+        }
         /* safety sweep for reload paths without the stream_complete hook
            (chat switches, sync): re-append mid-turn prose that the backend
            history renders into hidden chain steps. no-op once a turn has
            been repaired, so this is cheap even at idle */
         if (st.active) advRepairPassage();
-        /* a cleared chat is a cleared campaign */
-        if (st.campaign) advDetectClear();
         var busy = false;
         try { busy = Alpine.store("stream").state !== "idle"; } catch (e) { return; }
         if (!busy) return;

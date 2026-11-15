@@ -812,13 +812,17 @@ class AdventureGamesModule(core.module.Module):
         return list(self._amb_layers(c))
 
     def _parse_ambience(self, spec, asset_pack):
-        # "rain:70, summer-night.ogg" -> ("rain:70,summer-night", None);
-        # "off"/"" -> ("", None); unknown stem -> ("", error). The stem may
-        # only come from the campaign's asset pack or the default base - a
-        # loop that lives in some OTHER pack is as unknown as one that was
-        # never installed.
+        # "rain:70, summer-night.ogg" -> ("rain:70,summer-night", []);
+        # "off"/"" -> ("", []). Bad parts are skipped ONE BY ONE with a
+        # note and the good ones still join the bed; when NOTHING survives
+        # the parse the running bed must not be silently cleared, so that
+        # returns (None, notes) = "leave the bed exactly as it plays".
+        # The stem may only come from the campaign's asset pack or the
+        # default base - a loop that lives in some OTHER pack is as unknown
+        # as one that was never installed.
         loops = self._ambience_tracks(asset_pack)
         layers = {}
+        notes = []
         for part in str(spec or "").split(","):
             stem, sep, vol_str = part.strip().lower().partition(":")
             # tolerate "thunder.ogg" style answers: keep the stem
@@ -830,18 +834,23 @@ class AdventureGamesModule(core.module.Module):
                         "no ambient loops are installed (neither the "
                         "campaign's asset pack nor the default base has an "
                         "ambience/ file)")
-                return "", f"unknown ambience track '{stem}' - {hint}"
+                notes.append(f"skipped ambience loop '{stem}' - {hint}")
+                continue
             if not sep:
                 layers[stem] = 100
                 continue
             try:
                 vol = int(vol_str)
             except ValueError:
-                return "", f"invalid volume '{vol_str.strip()}' for '{stem}' - use a percentage, like rain:70"
+                notes.append(f"skipped ambience loop '{stem}' - invalid volume "
+                             f"'{vol_str.strip()}', use a percentage like rain:70")
+                continue
             layers[stem] = max(0, min(100, vol))
-        return self._amb_spec(layers), None
+        if not layers and notes:
+            return None, notes
+        return self._amb_spec(layers), notes
 
-    def _env_apply(self, c, ambience="", music="", weather="", sky="", effects=None, banner=None):
+    def _env_apply(self, c, ambience="", music="", weather="", sky="", effects=None):
         # the shared environment setter behind game_start AND set_scene:
         # a scene transition restages the whole world in one stroke.
         # Tolerant by design - an unknown loop/track/sky/overlay is skipped
@@ -854,10 +863,12 @@ class AdventureGamesModule(core.module.Module):
         notes = []
         apack = self._pack_of(c)
         if ambience:
-            beds, err = self._parse_ambience(ambience, apack)
-            if err:
-                notes.append("skipped ambience - " + err)
-            else:
+            # bad parts are skipped one by one and the good ones still set
+            # the bed; None means every named loop was bad, so the running
+            # bed stays untouched instead of being silently cleared
+            beds, amb_notes = self._parse_ambience(ambience, apack)
+            notes.extend(amb_notes)
+            if beds is not None:
                 c["ambience"] = beds
         if music:
             tune, ext = os.path.splitext(str(music).strip().lower())
@@ -900,9 +911,6 @@ class AdventureGamesModule(core.module.Module):
                     continue
                 parsed[name] = 0
             c["effects"] = parsed
-        if banner is not None:
-            b = str(banner).strip()
-            c["banner"] = "" if b.lower() == "off" else str(banner)[:4000]
         return notes
 
     # one-shot sound effects live in <pack>/sfx/: drop any
@@ -1334,7 +1342,7 @@ class AdventureGamesModule(core.module.Module):
     @staticmethod
     def _palette_view(pal):
         """palettes carry both light and dark variants; pick the variant that
-        matches the palette's native character (for banner color hints)"""
+        matches the palette's native character"""
         if not isinstance(pal, dict):
             return {}
         variants = pal.get("variants")
@@ -1474,7 +1482,7 @@ class AdventureGamesModule(core.module.Module):
             self.data.save()
 
     GAME_RULES = """
-## GAME RULES
+## Game basics
 The player's stats, inventory, scene and overall game state are tracked by the engine and returned to you on every turn. They are your ultimate source of truth for the current game state.
 
 End every story message with 2-4 choices as a bulleted markdown list, using [[This syntax]] to create clickable links that send the choice as a message. Optionally, you can make some choices conditional by appending (StatName N+) to the displayed text, e.g. [[Seduce the guard (Charm 60+)]]. Only reference stats that exist.
@@ -1482,25 +1490,61 @@ End every story message with 2-4 choices as a bulleted markdown list, using [[Th
 ## Images
 If images are available within your selected asset pack, you can use {{img|name_of_image}} to insert it, with optional {{img|name_of_image|left}} and {{name_of_image|right}} to align it on the page. You cannot use {{img}} for images generated with Stable Diffusion, use {{sd}} for those instead.
 
-## Macros
-You have access to a special text macro system. This system allows you to write text macros like {{item|Gold +10}} within your text, and directly affect the game state that way. Available text macros:
-- sound effects: {{sfx|name_of_the_sound}}. Use these throughout the story.
-- stat changes: {{stat|HP -10}}, {{stat|MP +10, EXP +20}} and so on
-- status effects: {{status|🌀 Dazed 3t}} to add for 3 turns. The emoji becomes its icon in the UI. You can inflict a status without a turn amount, like {{status|🌀 Dazed}}, which will apply it permanently. {{statusoff|🌀 Dazed}} removes a status effect.
-- items:
-    - grant: {{item|⚔️ Wooden Sword +1 ~a sword made of wood}}
-    - increase amount: {{item|🍵 Health Potion +2}}
-    - decrease amount: {{item|🍵 Health Potion -1}} - decrease by total quantity in inventory to completely remove the item
-    - simply mention: just use {{item|⚔️ Wooden Sword}} without a quantity modifier
-- quest manipulation:
-    - {{quest|🛡️ Quest name ~description}} adds a quest and starts it. The emoji becomes its icon in the UI.
-    - {{subgoal|🛡️ Quest name :: subgoal name}} adds a subgoal to an existing quest (quest must already exist!), {{subdone|🛡️ Quest name}} marks the subgoal as done
-    - {{questdone|🛡️ Name}} / {{questfail|🛡️ Name ~reason}} / {{questoff|🛡️ Name}} finish, break or drop the whole quest.
-- text decorations: Use these when you want to emphasize or style some text in a special way. Never use it for full paragraphs. Example {{whisper|This text is whispered}}. The results of the game_assets() tool contains all available text macros.
+## THE GOLDEN RULE: NO GHOST CHANGES
+**A change in prose is not a change in reality unless accompanied by a Macro or Tool.**
+- If the story says a player loses gold, you **MUST** include `{{stat|Gold -X}}`.
+- If the story says a player finds a key, you **MUST** include `{{item|Key +1}}`.
+- **Failure to include a macro for a narrated change is a Critical Error (State Desync).**
 
-NEVER state a change to game state (for example "you gain 10 gold") without its macro ({{stat|Gold +10}}). ALWAYS use macros for game state changes.
+## STATE MANAGEMENT HIERARCHY
+1. **TOOLS (Backend/Structural):** Use `adventure_games_*` tools for "Setup" and "Meta" actions.
+   - `game_start`: To initialize the world, stats, and inventory.
+   - `set_scene`: Call this when the story demands a change in location, atmosphere, or scenery.
+   - `quest_add`: To introduce a new major objective.
+   - `set_turn_minutes`: To adjust game pacing.
+   - `advance_time`: For large jumps (days/weeks).
+2. **MACROS (Frontend/Narrative):** Use `{{macro|args}}` for "Real-time" changes during prose.
+   - Stat changes, item gains/losses, status effects, and quest sub-goal completions.
 
-YOU MUST strictly adhere to the provided list of available macros. Never invent a macro.
+## MACRO CHEAT-SHEET (STRICT SYNTAX)
+### 1. Stats & Status
+- `{{stat|Name -X}}` or `{{stat|Name +X}}` (e.g., `{{stat|HP -10}}`)
+- `{{stat|Name}}` (to mention/display current value)
+- `{{status|🌀 Name}}` (Apply permanent/timed effect)
+- `{{statusoff|🌀 Name}}` (Remove effect)
+
+### 2. Items & Inventory
+- `{{item|Name +1}}` (Grant a new item)
+- `{{item|Name -1}}` (Remove an item)
+- `{{item|Name +X ~description}}` (Grant with flavor)
+- `{{item|Name}}` (Mention an item in text)
+
+### 3. Quests & Subgoals
+- `{{quest|🛡️ Name ~description}}` (Start new quest)
+- `{{subgoal|🛡️ Name :: Subgoal Text}}` (Add subgoal to existing quest)
+- `{{subdone|🛡️ Name}}` (Mark subgoal as complete)
+- `{{questdone|🛡️ Name}}` (Complete whole quest)
+- `{{questfail|🛡️ Name ~reason}}` (Fail quest)
+
+### 4. Atmosphere & Sensory
+- `{{sfx|sound_name}}` (One-shot sound)
+- `{{music|track_name}}` (Change background music)
+- `{{play_stinger|stinger_name}}` (Major cinematic cue)
+- `{{img|name}}` / `{{sd|prompt}}` (Visuals)
+
+## GAMEPLAY LOOP (THE ENGINE CYCLE)
+1. **Initialization:** `get_assets(pack)` $\rightarrow$ `game_start(...)`.
+2. **Verification (Internal):** Before every turn, mentally (or via `get_campaign()`) verify: "What is the current HP/Gold/Inventory?" to prevent hallucination.
+3. **Narrative Generation:** Write descriptive, immersive prose based on the current `scene`.
+4. **State Execution:** Embed all required Macros/Tools within the response.
+5. **Player Agency:** End every response with 2-4 choices using `[[Choice Text]]`.
+   - *Conditional Logic:* `[[Choice (StatName N+)]]` (e.g., `[[Kick down door (STR 15+)]]`).
+
+## CONSTRAINTS
+- **NO INVENTED MACROS:** Use only the provided syntax.
+- **NO NARRATIVE STAT CHANGES:** Never say "You are now poisoned" without `{{status|🤢 Poisoned}}`.
+- **SOURCE OF TRUTH:** The state block provided by the system is the only truth. If your prose contradicts it, correct your prose immediately.
+
 """
 
     # -------------------------
@@ -1550,8 +1594,8 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
         return self.result(held + "\n".join(lines), success=True)
 
     @core.module.tool(bypass_timeout=True)
-    async def game_start(self, asset_pack: str, title: str, stats: dict, palette: str, font: str = "georgia", start_day: int = 1, start_hour: int = 8, inventory: dict = None, quests: dict = None, ambience: str = "", music: str = "", weather: str = "", sky: str = "sunny", effects: list = None, banner: str = "", scene: str = "Prologue", location: str = "", turn_minutes: int = 15):
-        """Starts or restarts a campaign. Call when the player asks to play an adventure. Call get_assets() before calling this. Set the opening scene, gear, quests, ambience, music, sky, weather, effects and banner here in ONE call so the world is alive from the very first passage.
+    async def game_start(self, asset_pack: str, title: str, stats: dict, palette: str, font: str = "georgia", start_day: int = 1, start_hour: int = 8, inventory: dict = None, quests: dict = None, ambience: str = "", music: str = "", weather: str = "", sky: str = "sunny", effects: list = None, scene: str = "Prologue", location: str = "", turn_minutes: int = 15):
+        """Starts or restarts a campaign. Call when the player asks to play an adventure. Call get_assets() before calling this. Set the opening scene, gear, quests, ambience, music, sky, weather and effects here in ONE call so the world is alive from the very first passage.
 
         Args:
             title: Adventure name
@@ -1560,14 +1604,13 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
             font: name from the campaign's font inventory (get_assets / the state block list stacks AND real font files a pack ships) or any CSS font-family
             start_day: Starting calendar day (default 1)
             start_hour: Starting hour 0-23 (default 8)
-            inventory: Opening gear, same shape as inventory_add. Example: {"Rations": 3, "Silver key": {"icon": "\U0001f511", "desc": "Cold to the touch"}}
-            quests: Opening quests, name -> one-line description or {desc?, subgoals?, icon?}. Sub-goals close in any order and the quest completes when the last one does. Example: {"The Missing Bell": {"desc": "Find the stolen chapel bell", "subgoals": ["Ask around", "Track it down", "Return it"], "icon": "\U0001f514"}}
+            inventory: Opening gear, name -> quantity or {qty?, icon?, desc?} (icon is a single emoji, desc an optional flavor line). Example: {"Rations": 3, "Silver key": {"qty": 1, "icon": "\U0001f511", "desc": "Cold to the touch"}}
+            quests: Opening quests, name -> one-line description or {desc?, subgoals?, icon?}. Sub-goals close in any order and the quest completes when the last one does. ALWAYS add subgoals. Example: {"The Missing Bell": {"desc": "Find the stolen chapel bell", "subgoals": ["Ask around", "Track it down", "Return it"], "icon": "\U0001f514"}}
             ambience: Opening ambience bed from the chosen asset pack's loop list - comma-separated, each loop optionally with a volume percentage ("rain:70, summer-night:40"); omit for silence
             music: Opening soundtrack from the chosen asset pack's track list; omit for silence; changes crossfade
             weather: Opening foreground weather (falling motes over the sky) from the chosen asset pack's weather inventory; omit for none
             sky: Opening sky backdrop from the chosen asset pack's sky inventory (each weather's inventory entry names a recommended backdrop - a suggestion only, any sky mixes freely with any weather); omit for a clear sky
             effects: Opening held overlays from the chosen asset pack's overlay inventory, e.g. ["fog", "dark"]; one-shot pulses belong in prose instead, fired as their inline {{name}} macros
-            banner: Opening banner under the header (raw HTML, palette-styled, max 2 lines)
             scene: Opening scene title (default "Prologue")
             location: Opening location, e.g. "The rain-slicked docks of Vellmoor"
             turn_minutes: In-game minutes the clock advances automatically EVERY turn (default 15; 10-20 conversation, 60-240 travel/action, 0 frozen). Change anytime with set_turn_minutes.
@@ -1669,7 +1712,6 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
             "weather": "",
             "sky": "",
             "effects": {},
-            "banner": str(banner or "")[:4000],
             "palette": self._resolve_palette(palette, resolved_pack),
             "font": self._resolve_font(font, resolved_pack),
             "ended": False,
@@ -1684,7 +1726,7 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
             "stinger_event": None,
         }
         env_notes = self._env_apply(campaign, ambience=ambience, music=music,
-                                    weather=weather, sky=sky, effects=effects, banner=banner)
+                                    weather=weather, sky=sky, effects=effects)
         if isinstance(palette, str) and palette.strip() and \
                 palette.strip().lower() not in self._palettes_for(resolved_pack):
             env_notes.append("unknown palette '" + palette.strip() + "' - '"
@@ -1693,11 +1735,6 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
         self._save_campaign(chat_id, campaign)
         await self._ui_push(chat_id, True)
 
-        pal = self._palette_view(campaign.get("palette") or {})
-        pal_line = ""
-        if pal:
-            pal_line = (f"\n\nPalette (match these in any banner= HTML): "
-                        f"accent {pal.get('accent', '')} / ink {pal.get('ink', '')} / page {pal.get('page', '')}")
         if given_pack and given_pack != resolved_pack:
             if resolved_pack:
                 env_notes.append(f"unknown asset pack '{given_pack}' - loaded '{resolved_pack}' instead")
@@ -1713,7 +1750,7 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
                           "\nBe creative and free in your storytelling, use the world inspiration as inspiration, but don't follow it as instructions or a guideline."
                          )
         return self.result(
-            f"Campaign '{title}' started.{pal_line}{note_str}\n\n"
+            f"Campaign '{title}' started.{note_str}\n\n"
             f"Asset pack '{resolved_pack}' loaded.{world_line}\n\nCurrent state:\n{self._state_block(campaign)}{held}",
             success=True,
         )
@@ -1901,8 +1938,8 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
         return self.result("\U0001fa99 " + str(reason or "a coin spins") + f" \u2014 the coin lands: {side.upper()}!" + held, success=True)
 
     @core.module.tool(bypass_timeout=True)
-    async def set_scene(self, title: str, location: str, ambience: str = "", music: str = "", weather: str = "", sky: str = "", effects: list = None, banner: str = None):
-        """Call this when the location or scene changes in the story. Sets the current scene - and restages the ENTIRE environment in the same call, so every scene transition automatically shifts ambience, music, sky, weather, overlays and banner together. Pass the args that fit the new scene; omit an arg to keep it exactly as it plays now; "off" clears it. Unknown loops/tracks/skies/weathers/overlays are skipped with a note instead of failing the call. Mid-passage music shifts stay inline instead ({{music|track}}); a lone overlay change mid-passage goes to the screen_effect tool.
+    async def set_scene(self, title: str, location: str, ambience: str = "", music: str = "", weather: str = "", sky: str = "", effects: list = None):
+        """Always call this when the location or scene changes in the story. Sets the current scene - and restages the ENTIRE environment in the same call, so every scene transition automatically shifts ambience, music, sky, weather and overlays together. Pass the args that fit the new scene; omit an arg to keep it exactly as it plays now; "off" clears it. Unknown loops/tracks/skies/weathers/overlays are skipped with a note instead of failing the call. Mid-passage music shifts stay inline instead ({{music|track}}); a lone overlay change mid-passage goes to the screen_effect tool.
 
         Args:
             title: Short scene name, e.g. "The Drowned Chapel"
@@ -1912,7 +1949,6 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
             weather: Foreground weather (motes riding over the sky) from your campaign's weather inventory (its pack over the default base; also fades in its audible bed); "off" clears; omit to keep
             sky: Sky backdrop (the layer everything else rides over) from your campaign's sky inventory (its pack over the default base; also fades in its sky_<name> audible bed); "off" clears; omit to keep
             effects: Held overlays for the new scene, e.g. ["fog", "dark"] - REPLACES the live set; ["off"] clears all; omit to keep. Any mood of the campaign's overlay inventory (its set over the default base); one-shot pulses belong in prose, fired as their inline {{name}} macros
-            banner: Banner under the header (raw HTML, palette-styled, max 2 lines); "off" clears; omit to keep
         """
         chat_id = self._chat_id()
         c = self._get_campaign(chat_id)
@@ -1926,7 +1962,7 @@ YOU MUST strictly adhere to the provided list of available macros. Never invent 
         self._snapshot(chat_id)
         # the environment moves WITH the scene: one call restages everything
         notes = self._env_apply(c, ambience=ambience, music=music,
-                                weather=weather, sky=sky, effects=effects, banner=banner)
+                                weather=weather, sky=sky, effects=effects)
 
         c["scene_title"] = str(title)
         # arriving SOMEWHERE ELSE earns its own stamp - compare the

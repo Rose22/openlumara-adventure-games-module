@@ -798,6 +798,12 @@ html.adv-on #chat-window > header {
     margin-bottom: 6px;
 }
 .adv-journal .adv-jp p:empty { display: none; }
+/* the core's * { margin:0 } reset flattens every rendered paragraph -
+   the journal needs its own prose rhythm: air between paragraphs, none
+   before the very first (the passage label already provides that) */
+.adv-journal .adv-jp p + p {
+    margin-top: 0.85em;
+}
 /* on phones the core makes modals full-screen (flex column) and the body
    becomes the flex scroll region - the 65vh cap above would defeat that,
    leaving a short scrollable strip over empty modal */

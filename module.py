@@ -14,9 +14,11 @@ import channels.webui.api as webui
 
 def _clean_name(name):
     """Strips every character that isn't a letter, a space or a hyphen from an
-    entity name (stat / item / quest) handed to game_start, then collapses the
-    leftover whitespace."""
-    cleaned = re.sub(r"[^\w\s-]|_", "", str(name), flags=re.UNICODE)
+    entity name (stat / item / quest), then collapses the leftover whitespace.
+    Per-character on purpose: str.isalpha() keeps Unicode letters (accents,
+    cyrillic...) while dropping digits, which a [^\\w\\s-] regex would let
+    through."""
+    cleaned = "".join(ch for ch in str(name) if ch.isalpha() or ch.isspace() or ch == "-")
     return re.sub(r"\s+", " ", cleaned).strip()
 
 
@@ -24,6 +26,14 @@ class AdventureGamesModule(core.module.Module):
     """Turn any webui chat into an audiovisual adventure game."""
 
     category = "Games"
+
+    # anti-double ledger: chat_id -> set of (kind, clean lower entity name,
+    # op) signatures for every stat/item/quest change a TOOL made during the
+    # CURRENT turn. inline macros check here first and no-op on a match, so
+    # "gold -50 via tool + {{stat|Gold -50}} in prose" moves gold only once.
+    # one ledger per turn: cleared on every player message, on game start,
+    # when a campaign is dropped and when a turn is rewound.
+    _turn_ops = {}
 
     settings = {
         # (hide_process_chain moved out of settings: the in-game sidebar
@@ -226,6 +236,7 @@ class AdventureGamesModule(core.module.Module):
         if not chat_id:
             return False
         key = str(chat_id)
+        self._turn_ops.pop(key, None)
         campaigns = self._campaigns()
         had = key in campaigns
         if had:
@@ -494,6 +505,10 @@ class AdventureGamesModule(core.module.Module):
 
     async def on_message_inject(self, user_message: str):
         chat_id = self._chat_id()
+        # new player message = new turn: whatever tools did last turn must
+        # no longer mute this turn's macros
+        if chat_id:
+            self._turn_ops.pop(str(chat_id), None)
         c = self._get_campaign(chat_id)
         if not c:
             return None
@@ -1484,6 +1499,8 @@ You have access to a special text macro system. This system allows you to write 
 - text decorations: Use these when you want to emphasize or style some text in a special way. Never use it for full paragraphs. Example {{whisper|This text is whispered}}. The results of the game_assets() tool contains all available text macros.
 
 NEVER state a change to game state (for example "you gain 10 gold") without its macro ({{stat|Gold +10}}). ALWAYS use macros for game state changes.
+
+YOU MUST strictly adhere to the provided list of available macros. Never invent a macro.
 """
 
     # -------------------------
@@ -1492,7 +1509,8 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def get_assets(self, asset_pack: str = ""):
-        """Inspect the asset packs BEFORE dressing a campaign in one. With no argument: one line per installed pack with per-kind counts of what the pack carries itself (the chooser view). With asset_pack: that pack's full EFFECTIVE inventory - its world sketch (world.txt, when it ships one), every ambience loop, music track, {{sfx}} sound, {{img}} picture, stinger, overlay mood, weather kind, sky kind, one-shot pulse, inline text decoration, palette and font a campaign of it may name, plus the pack's chrome (thinking sigil + skin, dice skin + glyphs, typewriter caret - single root files, applied automatically), the default pack's base merged in as one continuous list per kind. Check here before game_start so the chosen pack and its opening ambience/music use real names; mid-game, the live campaign's own inventory rides on get_campaign.
+        """
+        Inspect the asset packs. ALWAYS call this before game_start()
 
         Args:
             asset_pack: An installed pack name to list in full; omit for the overview of all packs
@@ -1533,7 +1551,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def game_start(self, asset_pack: str, title: str, stats: dict, palette: str, font: str = "georgia", start_day: int = 1, start_hour: int = 8, inventory: dict = None, quests: dict = None, ambience: str = "", music: str = "", weather: str = "", sky: str = "sunny", effects: list = None, banner: str = "", scene: str = "Prologue", location: str = "", turn_minutes: int = 15):
-        """Starts or restarts a campaign. Call when the player asks to play an adventure. Set the opening scene, gear, quests, ambience, music, sky, weather, effects and banner here in ONE call so the world is alive from the very first passage. An unknown ambience loop / music track / weather kind / sky kind / overlay name is skipped with a note instead of failing the start. Call get_assets first to pick the asset_pack that fits the game's world (the installed packs are named in the system prompt): the result then lists that pack's full inventory of every kind - loops, tracks, sounds, pictures, stingers, overlay moods, weather kinds, sky kinds, pulses and inline text decorations, the pack's assets merged over the default base as one continuous list per kind - and the campaign may only ever name assets from it or that base. When the pack ships a world.txt, its deliberately vague world sketch rides along in the result too: lean into it, fill its blanks yourself.
+        """Starts or restarts a campaign. Call when the player asks to play an adventure. Call get_assets() before calling this. Set the opening scene, gear, quests, ambience, music, sky, weather, effects and banner here in ONE call so the world is alive from the very first passage.
 
         Args:
             title: Adventure name
@@ -1621,6 +1639,20 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                 "subgoals": [{"text": str(g), "done": False} for g in (goals or [])],
             }
 
+        # a fresh campaign starts a fresh anti-double ledger, and its
+        # opening stats/gear/quests count as this turn's tool changes:
+        # identical macros in the opening prose no-op instead of
+        # double-charging the world the start just set up
+        self._turn_ops[str(chat_id)] = set()
+        for name, s in parsed_stats.items():
+            self._op_mark(chat_id, "stat", name, s["value"])
+        for name, s in parsed_inv.items():
+            self._op_mark(chat_id, "item", name, s["qty"])
+        for name, q in parsed_quests.items():
+            self._op_mark(chat_id, "quest", name, "create")
+            for g in q["subgoals"]:
+                self._op_mark(chat_id, "quest", name, "subadd::" + g["text"].strip().lower())
+
         campaign = {
             "title": str(title),
             "asset_pack": resolved_pack,
@@ -1688,7 +1720,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def stat_add(self, stats: dict):
-        """Adds new stats to the sidebar (batch).
+        """Adds NEW stats to the sidebar (batch). Does not overwrite existing stats. To mutate an existing stat, use the {{stat|Name -N}} macro in prose.
 
         Args:
             stats: name -> number, or {value, max?, min?, icon?} (max makes a bar). Example: {"Courage": {"value": 50, "max": 100, "icon": "\U0001f981"}, "Gold": 0}
@@ -1698,12 +1730,23 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         if not c:
             return self.result("no active campaign in this chat - call game_start first", success=False)
 
+        # validate the whole batch before touching anything, so a late
+        # collision cannot leave earlier stats half-applied
+        cleaned = {}
+        for name, spec in (stats or {}).items():
+            name = _clean_name(name)
+            clash = self._macro_resolve(name, c["stats"])
+            if clash:
+                return self.result(f"stat '{clash}' already exists - stat_add never overwrites; "
+                                   f"to change it use the {{{{stat|{clash} -N}}}} macro in prose, "
+                                   f"or stat_remove it first", success=False)
+            cleaned[name] = spec
+
         held = await self._await_typing(chat_id)
         self._snapshot(chat_id)
 
         added = []
-        for name, spec in (stats or {}).items():
-            name = _clean_name(name)
+        for name, spec in cleaned.items():
             if isinstance(spec, (int, float)):
                 c["stats"][name] = {"value": int(spec), "min": None, "max": None, "icon": ""}
             elif isinstance(spec, dict):
@@ -1720,6 +1763,9 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                     return self.result(f"invalid stat definition for '{name}'", success=False)
             else:
                 return self.result(f"invalid stat definition for '{name}'", success=False)
+            # a fresh stat starts at its value: record that as this turn's
+            # move, so an identical {{stat|Name +N}} macro no-ops
+            self._op_mark(chat_id, "stat", name, c["stats"][name]["value"])
             added.append(name)
         self._save_campaign(chat_id, c)
         return self.result(f"added stats: {', '.join(added)}{held}", success=True)
@@ -1779,6 +1825,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                 return self.result(f"invalid item definition for '{name}'", success=False)
             entry = c["inventory"].setdefault(name, {"qty": 0, "icon": ""})
             entry["qty"] += qty
+            self._op_mark(chat_id, "item", name, qty)
             if icon:
                 entry["icon"] = icon
             if isinstance(spec, dict) and spec.get("desc"):
@@ -1834,7 +1881,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def coinflip(self, reason: str = ""):
-        """Flips a coin (spins in front of the player). Binary fate only - never invent the side.
+        """Flips a coin, for random choices that need a 50/50 chance
 
         Args:
             reason: Short flavor, e.g. "who goes first"
@@ -1937,9 +1984,6 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
     async def advance_time(self, days: int = 0, hours: int = 0, minutes: int = 0):
         """Extra one-off clock jump BEYOND the automatic per-turn tick (set_turn_minutes). Do NOT use it for the passage itself - only for big single beats: days of travel, recuperation, a ritual till dawn.
 
-        Only ONE call per passage is allowed (the per-turn tick already carries
-        the passage's own time; more jumps would double-count it).
-
         Args:
             days: Days to add
             hours: Hours to add
@@ -1970,7 +2014,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def set_turn_minutes(self, minutes: int):
-        """Sets how many in-game minutes the clock auto-advances EVERY turn, right before you reply - the heartbeat of the world, so you never have to remember the clock again. Match it to pacing: 10-20 for conversation scenes, 60-240 while travelling or in the thick of action, 0 to freeze the clock and do it all by hand with advance_time.
+        """Sets how many in-game minutes the clock auto-advances EVERY turn. Match it to pacing: 10-20 for conversation scenes, 60-240 while travelling or in the thick of action, 0 to freeze the clock and do it all by hand with advance_time.
 
         Args:
             minutes: Minutes per turn (0-1440). Applies from the NEXT message; the tick already spent for this one stands.
@@ -2014,6 +2058,9 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             "status": "active",
             "subgoals": goals,
         }
+        self._op_mark(chat_id, "quest", name, "create")
+        for g in goals:
+            self._op_mark(chat_id, "quest", name, "subadd::" + g["text"].strip().lower())
         self._save_campaign(chat_id, c)
         return self.result(f"quest added: {name}" + (f" ({len(goals)} sub-goals)" if goals else "") + held, success=True)
 
@@ -2070,6 +2117,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         self._snapshot(chat_id)
         ok, msg, completed = self._check_subgoal(q, subgoal)
         if ok:
+            self._op_mark(chat_id, "quest", str(name), "subdone::" + str(subgoal).strip().lower())
             self._sfx_event(c, "quest" if completed else "stage")
             self._save_campaign(chat_id, c)
         return self.result(msg + held, success=ok)
@@ -2094,6 +2142,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         q["status"] = "done"
         for g in q.get("subgoals") or []:
             g["done"] = True
+        self._op_mark(chat_id, "quest", name, "done")
         self._sfx_event(c, "quest")
         self._save_campaign(chat_id, c)
         return self.result(f"quest complete: {name}{held}", success=True)
@@ -2119,6 +2168,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         q["status"] = "failed"
         if reason:
             q["fail_reason"] = str(reason)
+        self._op_mark(chat_id, "quest", name, "failed")
         self._sfx_event(c, "fumble")
         self._save_campaign(chat_id, c)
         return self.result(f"quest failed: {name}" + (f" ({reason})" if reason else "") + held, success=True)
@@ -2142,6 +2192,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             if str(name) in c["quests"]:
                 del c["quests"][str(name)]
                 removed.append(str(name))
+                self._op_mark(chat_id, "quest", str(name), "removed")
         if not removed:
             return self.result("no matching quests found", success=False)
         self._save_campaign(chat_id, c)
@@ -2149,7 +2200,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def screen_effect(self, effect: str, on: bool = True):
-        """Puts one mood overlay on the story window (names and meanings ride with your campaign's "Overlays available" inventory) - or takes it off. The overlay holds until changed; for big beats keep it to 1-2 at once, cleared with effect="off" once past. Complements set_scene's effects=, which replaces the whole set when restaging a scene.
+        """Puts one mood overlay on the story window (names and meanings ride with your campaign's "Overlays available" inventory) - or takes it off. The overlay holds until changed; cleared with effect="off" once past. Complements set_scene's effects=
 
         Args:
             effect: Overlay name from your campaign's "Overlays available" inventory, or "off" to clear every overlay at once
@@ -2186,7 +2237,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def status_visual(self, status: str, effect: str):
-        """Links a status condition to a story-window overlay - YOU decide which mood belongs to which condition (Cursed -> static, Love-sick -> bloom, Poisoned -> venom...). The overlay follows the status by itself: it fades in while the condition holds and out when it is cured or ticks out. Re-linking replaces the old effect; the link waits patiently for a status that is not applied yet.
+        """Links a status condition to a story-window overlay - YOU decide which mood belongs to which condition (Cursed -> static, Love-sick -> bloom, Poisoned -> venom...)
 
         Args:
             status: Exact status name
@@ -2218,7 +2269,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
 
     @core.module.tool(bypass_timeout=True)
     async def play_stinger(self, name: str, description: str = ""):
-        """Fires a stinger: a longer, MUSICAL one-shot that depicts a cue moment in the story - a revelation, a level-up, a quest's bitter end, a time-skip. While one plays, the soundtrack smoothly fades out and pauses, then resumes right where it left off and fades back in when the stinger finishes. Stingers are TOOL-ONLY - there is no {{stinger}} macro and the {{sfx}} macro does not reach them; they are the instrument of the story's cue moments. Pick from the stinger list the game_start result returned for your campaign's asset pack; like every sound, the moment it scores must be narrated. This call HOLDS until the stinger has fully played out in the player's browser (the same pacing handshake as the dice flourish), so whatever you write next lands after the music.
+        """Fires a stinger: a longer, MUSICAL one-shot that depicts a cue moment in the story - a revelation, a level-up, a quest's bitter end, a time-skip. While one plays, the soundtrack smoothly fades out and pauses, then resumes right where it left off and fades back in when the stinger finishes.
 
         Args:
             name: A stinger from your campaign's asset pack (any music file dropped in the module's webui/assets/asset_packs/<asset pack>/stingers/ folder)
@@ -2668,16 +2719,52 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                 parts.append(head)
         return ", ".join(parts)
 
+    # --- anti-double ledger ---------------------------------------------------
+    # a tool call lands before the prose streams, so a GM that pays out gold
+    # twice (once via tool, once via {{stat|...}}) lands it exactly once:
+    # tools record here, macros check first and no-op on a match. signature:
+    # (kind, clean lower name, op) - op is a signed delta for stat/item, a
+    # bare word for quest ops (create/done/failed/removed), and
+    # "verb::beat" for sub-goals, matched forgiving in the spirit of
+    # _check_subgoal (exact, or either side a fragment of the other).
+    def _op_mark(self, chat_id, kind, name, op):
+        if chat_id:
+            self._turn_ops.setdefault(str(chat_id), set()).add(
+                (kind, str(name).strip().lower(), str(op)))
+
+    def _op_seen(self, chat_id, kind, name, op):
+        return (kind, str(name).strip().lower(), str(op)) in self._turn_ops.get(str(chat_id), set())
+
+    def _op_seen_goal(self, chat_id, quest_name, verb, goal):
+        needle = str(goal).strip().lower()
+        if not needle:
+            return False
+        wanted = verb + "::"
+        qname = str(quest_name).strip().lower()
+        for kind, name, op in self._turn_ops.get(str(chat_id), set()):
+            if kind != "quest" or name != qname or not op.startswith(wanted):
+                continue
+            other = op[len(wanted):]
+            if needle == other or needle in other or other in needle:
+                return True
+        return False
+
     def _macro_stat(self, chat_id, c, text):
         parsed = self._macro_deltas(text)
         if parsed is None:
             return {"success": False, "data": "cannot parse - use 'Name +N' or 'Name -N'"}
         targets = []
+        notes = []
         for name, delta in parsed:
             target = self._macro_resolve(name, c["stats"])
             if target is None:
                 return {"success": False, "data": f"unknown stat '{name}' - existing: {', '.join(c['stats']) or '(none)'}"}
+            if self._op_seen(chat_id, "stat", target, delta):
+                notes.append(f"{target} {delta:+d} already applied via tool this turn - skipped")
+                continue
             targets.append((target, delta))
+        if not targets:
+            return {"success": True, "data": "; ".join(notes)}
         self._snapshot(chat_id)
         changes = []
         for target, delta in targets:
@@ -2690,7 +2777,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                 new = min(new, s["max"])
             s["value"] = new
             changes.append(f"{target}: {old} -> {new}")
-        return {"success": True, "data": "; ".join(changes)}
+        return {"success": True, "data": "; ".join(changes + notes)}
 
     def _macro_item(self, chat_id, c, text):
         # ONLY an explicit delta hands an item over: a positive one on an
@@ -2729,6 +2816,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             return {"success": False, "data": "cannot parse - use 'Name +N' or 'Name -N'"}
         targets = []
         mentions = []
+        notes = []
         for name, delta, icon, desc in parsed:
             target = self._macro_resolve(name, c["inventory"])
             if delta is None:
@@ -2736,13 +2824,20 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
                 # unheld in a ditch; it keeps its resolved name
                 mentions.append(target or name)
                 continue
+            if self._op_seen(chat_id, "item", target or name, delta):
+                notes.append(f"{target or name} {delta:+d} already applied via tool this turn - skipped")
+                continue
             if target is None and delta <= 0:
                 return {"success": False, "data": f"player does not have '{name}' - inventory: {', '.join(c['inventory']) or '(empty)'}"}
             targets.append((name if target is None else target, delta, icon, desc))
         if not any(delta or icon or desc for _, delta, icon, desc in targets):
-            # mentions and explicit zeros only: nothing moves - no
-            # snapshot, no sfx, nothing to diff.
-            return {"success": True, "data": "mentioned: " + ", ".join(mentions or [t for t, _, _, _ in targets])}
+            # mentions, explicit zeros and tool-skipped segments only:
+            # nothing moves - no snapshot, no sfx, nothing to diff.
+            bits = []
+            if mentions or targets:
+                bits.append("mentioned: " + ", ".join(mentions or [t for t, _, _, _ in targets]))
+            bits.extend(notes)
+            return {"success": True, "data": "; ".join(bits) if bits else "nothing to apply"}
         self._snapshot(chat_id)
         done = []
         for target, delta, icon, desc in targets:
@@ -2761,6 +2856,8 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         out = "inventory updated: " + ", ".join(done)
         if mentions:
             out += "; mentioned: " + ", ".join(mentions)
+        if notes:
+            out += "; " + "; ".join(notes)
         return {"success": True, "data": out}
 
     def _macro_status(self, chat_id, c, text):
@@ -2824,7 +2921,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         c["music"] = "" if track in ("", "off") else track
         return {"success": True, "data": f"music: {c['music'] or 'off'}"}
 
-    def _macro_quest(self, c, text):
+    def _macro_quest(self, chat_id, c, text):
         # {{quest|\U0001f514 Name ~optional description}} - open a quest inline.
         # A leading symbol run is its icon (same trick as items and statuses);
         # sub-goals join afterwards via the {{subgoal|...}} macro.
@@ -2839,6 +2936,8 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         seg = _clean_name(seg)
         if not seg:
             return {"success": False, "data": "quest macro needs a name: {{quest|Name ~description}}"}
+        if self._op_seen(chat_id, "quest", seg, "create"):
+            return {"success": True, "data": f"quest '{seg}' already added via tool this turn - skipped"}
         quests = c.setdefault("quests", {})
         target = self._macro_resolve(seg, quests)
         if target:
@@ -2854,7 +2953,7 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             return None, None, f"no quest matching '{name.strip()}' - quests: {', '.join(quests) or '(none)'}"
         return target, quests[target], ""
 
-    def _macro_subgoal(self, c, text):
+    def _macro_subgoal(self, chat_id, c, text):
         # {{subgoal|Quest Name :: the new beat}} - add one open sub-goal
         name, sep, goal = text.partition("::")
         if not sep:
@@ -2866,10 +2965,12 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             return {"success": False, "data": f"quest '{target}' is {q.get('status')} - no beats to add"}
         if not goal.strip():
             return {"success": False, "data": "the sub-goal text after :: is empty"}
+        if self._op_seen_goal(chat_id, target, "subadd", goal):
+            return {"success": True, "data": "sub-goal already added via tool this turn - skipped"}
         q.setdefault("subgoals", []).append({"text": goal.strip(), "done": False})
         return {"success": True, "data": f"sub-goal added to '{target}': {goal.strip()}"}
 
-    def _macro_subdone(self, c, text):
+    def _macro_subdone(self, chat_id, c, text):
         # {{subdone|Quest Name :: sub-goal text}} - close one beat (any
         # order); the quest itself completes when its last beat closes.
         name, sep, goal = text.partition("::")
@@ -2880,34 +2981,42 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             return {"success": False, "data": err}
         if q.get("status") != "active":
             return {"success": False, "data": f"quest '{target}' is already {q.get('status')}"}
+        if self._op_seen_goal(chat_id, target, "subdone", goal):
+            return {"success": True, "data": "sub-goal already closed via tool this turn - skipped"}
         ok, msg, completed = self._check_subgoal(q, goal)
         if ok:
             self._sfx_event(c, "quest" if completed else "stage")
         return {"success": ok, "data": msg}
 
-    def _macro_questdone(self, c, text):
+    def _macro_questdone(self, chat_id, c, text):
         target, q, err = self._macro_quest_for(c, text)
         if not q:
             return {"success": False, "data": err}
+        if self._op_seen(chat_id, "quest", target, "done"):
+            return {"success": True, "data": f"quest '{target}' already completed via tool this turn - skipped"}
         q["status"] = "done"
         for g in q.get("subgoals") or []:
             g["done"] = True
         self._sfx_event(c, "quest")
         return {"success": True, "data": f"quest complete: {target}"}
 
-    def _macro_questfail(self, c, text):
+    def _macro_questfail(self, chat_id, c, text):
         # {{questfail|Name ~optional reason}}
         name, _, reason = text.partition("~")
         target, q, err = self._macro_quest_for(c, name)
         if not q:
             return {"success": False, "data": err}
+        if self._op_seen(chat_id, "quest", target, "failed"):
+            return {"success": True, "data": f"quest '{target}' already failed via tool this turn - skipped"}
         q["status"] = "failed"
         if reason.strip():
             q["fail_reason"] = reason.strip()
         self._sfx_event(c, "fumble")
         return {"success": True, "data": f"quest failed: {target}" + (f" ({reason.strip()})" if reason.strip() else "")}
 
-    def _macro_questoff(self, c, text):
+    def _macro_questoff(self, chat_id, c, text):
+        if self._op_seen(chat_id, "quest", text.strip(), "removed"):
+            return {"success": True, "data": f"quest '{text.strip()}' already removed via tool this turn - skipped"}
         target, q, err = self._macro_quest_for(c, text)
         if not q:
             return {"success": False, "data": err}
@@ -2954,17 +3063,17 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
             # quests move the log like any other world change: rewindable
             self._snapshot(chat_id)
             if kind == "quest":
-                out = self._macro_quest(c, text)
+                out = self._macro_quest(chat_id, c, text)
             elif kind == "subgoal":
-                out = self._macro_subgoal(c, text)
+                out = self._macro_subgoal(chat_id, c, text)
             elif kind == "subdone":
-                out = self._macro_subdone(c, text)
+                out = self._macro_subdone(chat_id, c, text)
             elif kind == "questdone":
-                out = self._macro_questdone(c, text)
+                out = self._macro_questdone(chat_id, c, text)
             elif kind == "questfail":
-                out = self._macro_questfail(c, text)
+                out = self._macro_questfail(chat_id, c, text)
             else:
-                out = self._macro_questoff(c, text)
+                out = self._macro_questoff(chat_id, c, text)
         else:
             out = {"success": False, "data": f"unknown macro kind '{kind}'"}
         if not out.get("success"):
@@ -3019,6 +3128,9 @@ NEVER state a change to game state (for example "you gain 10 gold") without its 
         self.data["campaigns"] = campaigns
         undo[str(chat_id)] = stack[:idx]
         self.data["undo"] = undo
+        # the rewound turn replays: tools of the old attempt must not mute
+        # the retry's macros
+        self._turn_ops.pop(str(chat_id), None)
         self.data.save()
         return {"success": True, "data": True}
 

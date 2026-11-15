@@ -13,6 +13,7 @@ window.ADV_CONFIG = {
     weather_effects: {{ 'true' if module_config.get('weather_effects', true) else 'false' }},
     torch_logic: {{ 'true' if module_config.get('torch_logic', true) else 'false' }},
     phone_performance_mode: {{ 'true' if module_config.get('phone_performance_mode', True) else 'false' }},
+    mobile_panel_toggle: "{{ module_config.get('mobile_panel_toggle', 'edge swipe') }}",
     typewriter: {{ 'true' if module_config.get('typewriter', True) else 'false' }},
     typewriter_speed: {{ module_config.get('typewriter_speed', 150) | int }},
     typewriter_pause: {{ 'true' if module_config.get('typewriter_pause', True) else 'false' }},

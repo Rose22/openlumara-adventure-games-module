@@ -3,13 +3,9 @@
 
 <div class="adv-panel" x-data="advPanel()">
 
-    {# mobile only: the mobile overlay needs a dismiss button (its tabbar is
-       hidden while immersed); desktop keeps the panel open during the
-       adventure, since immersive view hides the tabbar it reopens with #}
-    <button type="button" class="adv-close" title="Close panel" x-show="$store.ui.isMobile" x-cloak
-            @click="$store.ui.showSidebar = false">✕</button>
-
-    {# no campaign: the panel stays completely blank #}
+    {# no campaign: the panel stays completely blank; and out-of-game the
+       whole tab hides, so the panel is never reachable - the mobile
+       dismiss ✕ lives in the action bar below now #}
     {# the stepped-out view is gone: the whole tab hides out-of-game now
        (css keyed on html.adv-on), so its "you stepped out / use the header
        re-enter button" guidance could never render anyway. re-entering is
@@ -23,7 +19,7 @@
                refused mid-generation and mid-typing (rewindLast guards it);
                the button dims with those moments so the refusal never comes
                as a surprise #}
-            <div class="adv-actions adv-bar" style="margin-top: 0; margin-bottom: 8px;">
+            <div class="adv-actions" style="margin-top: 0; margin-bottom: 8px;">
                 <div class="adv-bar-left">
                 <button type="button" title="Rewind the last passage" aria-label="Rewind the last passage"
                         @click="rewind()"
@@ -83,6 +79,17 @@
                         <line x1="21" y1="12" x2="9" y2="12"></line>
                     </svg>
                 </button>
+                {# mobile only: the mobile overlay needs a dismiss button
+                   (its tabbar is hidden while immersed) - part of the bar's
+                   right section, so it never floats over the other buttons #}
+                <button type="button" title="Close panel" aria-label="Close panel"
+                        x-show="$store.ui.isMobile" x-cloak
+                        @click="$store.ui.showSidebar = false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
                 </div>
             </div>
 
@@ -124,7 +131,7 @@
                         </span>
                     </div>
                     <template x-if="row.s.max != null">
-                        <div class="adv-bar" :class="{ 'adv-low': isLow(row.s) }">
+                        <div class="adv-stat-track" :class="{ 'adv-low': isLow(row.s) }">
                             <div class="adv-bar-fill" :style="`width: ${barWidth(row.s)}`"></div>
                         </div>
                     </template>

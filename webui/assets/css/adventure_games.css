@@ -462,6 +462,12 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
 .adv-float-host ~ * {
     clear: both;
 }
+/* the picture-only paragraph a float was moved out of (games.js walk-down
+   into the prose paragraph) - an empty husk that would otherwise still
+   take its margins' worth of air */
+.adv-float-vacated {
+    display: none;
+}
 .adv-bfc {
     display: flow-root;
 }
@@ -494,10 +500,22 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
     color: var(--adv-accent);
 }
 
+/* the mobile campaign overlay sliding in (edge swipe / triskelion):
+   the core's x-show flips display without any motion, so openCampaignPanel
+   rides this class onto #sidebar for exactly one animation. translateX
+   only - compositor-cheap even under the atmosphere layers. */
+@keyframes adv-sidebar-in {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+#sidebar.adv-slide-in {
+    animation: adv-sidebar-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* =================sidebar panel=================== */
-/* close affordance: the immersive view hides the tabbar, and on mobile the
-   sidebar is an overlay without its own close button - the panel provides
-   one (and the floating ⚜ button reopens it) */
+/* mobile dismiss: the ✕ the overlay needs lives INSIDE the action bar
+   now (see the template), not as a floating corner button - so nothing
+   overlaps the bar anymore. The floating triskelion button reopens it. */
 .adv-panel {
     position: relative;
     /* long campaigns (stats + inventory + quests) scroll inside the panel:
@@ -507,27 +525,6 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-}
-.adv-close {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 26px;
-    height: 26px;
-    padding: 0;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background: transparent;
-    color: var(--text-secondary);
-    font-size: 13px;
-    line-height: 1;
-    cursor: pointer;
-    z-index: 2;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-.adv-close:hover {
-    border-color: var(--accent);
-    color: var(--accent);
 }
 .adv-panel {
     padding: 14px;
@@ -583,16 +580,46 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
     font-variant-numeric: tabular-nums;
     color: var(--text-secondary);
 }
-.adv-bar {
-    margin-top: 4px;
+/* the stat bar track. the class used to be adv-bar - the SAME name the
+   action row carried - and mobile content blockers hide generic
+   "ad-like" class names such as .adv-bar (ad-blocker element hiding),
+   which made the whole button row and every stat track vanish on the
+   phone only. renamed to distinctive names so no filter list matches.
+   the track needs a height of its OWN - the fill is height:100%, and a
+   percentage against an auto-sized parent resolves to zero. the faint
+   trough makes an empty (0%) bar readable as a bar. */
+/* pins raised while an edge-swipe owns the sidebar (JS adds this class
+   on <html> at grab, removes it once the core settles on the verdict).
+   the gesture engine in adventure_plus.js drives the drawer itself:
+   inline transform under the finger, WAAPI slide on release.
+   - display: the stylesheet !important outranks Alpine's inline
+     display:none from x-show, so the drawer can be mounted and parked
+     offscreen BEFORE the core flag ever flips - zero wake-up delay.
+   - transition: none freezes Alpine's x-show machinery (and the core's
+     own transitions): its enter/leave become instant, invisible flips
+     instead of repainting the panel at its natural fullscreen spot -
+     that repaint was the old flash. the slide never relies on CSS
+     transitions anyway (WAAPI runs the release), so freezing them costs
+     nothing. Alpine's inline transform classes (-translate-x-full) lose
+     to the gesture's inline transform the normal way: inline > class. */
+html.adv-drag #sidebar {
+    display: flex !important;
+    transition: none !important;
 }
-.adv-bar .adv-bar-fill {
+.adv-stat-track {
+    height: 6px;
+    margin-top: 4px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--text-secondary, #999) 22%, transparent);
+}
+.adv-stat-track .adv-bar-fill {
     height: 100%;
     border-radius: 999px;
     background: var(--adv-bar, linear-gradient(90deg, #f472b6, #a78bfa));
     transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.adv-bar.adv-low .adv-bar-fill {
+.adv-stat-track.adv-low .adv-bar-fill {
     background: var(--adv-bar-low, linear-gradient(90deg, #f43f5e, #fb7185));
 }
 
@@ -658,10 +685,10 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
    right edge (margin-left:auto eats the slack the text buttons used to
    share by flexing). NO state glow anywhere: the chain toggle's slashed
    eye is its own state. */
-.adv-actions.adv-bar {
+.adv-actions {
     flex-wrap: nowrap;
 }
-.adv-actions.adv-bar button {
+.adv-actions button {
     flex: 0 0 auto;
     min-width: 0;
     width: 32px;
@@ -671,27 +698,27 @@ html.adv-on:not(.adv-hide-chain) #messages > .message-wrapper:has(.prompt-proces
     align-items: center;
     justify-content: center;
 }
-.adv-actions.adv-bar button svg {
+.adv-actions button svg {
     pointer-events: none;
 }
 /* borderless icon buttons: kill the inherited outline and the boxed
    hover glow; a soft color shift carries the hover instead */
-.adv-actions.adv-bar button,
-.adv-actions.adv-bar button:hover,
-.adv-actions.adv-bar button.adv-off,
-.adv-actions.adv-bar button.adv-off:hover {
+.adv-actions button,
+.adv-actions button:hover,
+.adv-actions button.adv-off,
+.adv-actions button.adv-off:hover {
     border: none;
     box-shadow: none;
 }
 /* two flex sections: left rides the panel edge, right is pushed by a
    single auto margin - no slack ever splits between two buttons again */
-.adv-actions.adv-bar .adv-bar-left,
-.adv-actions.adv-bar .adv-bar-right {
+.adv-actions .adv-bar-left,
+.adv-actions .adv-bar-right {
     display: flex;
     align-items: center;
     gap: 7px;
 }
-.adv-actions.adv-bar .adv-bar-right {
+.adv-actions .adv-bar-right {
     margin-left: auto;
 }
 .adv-panel button {
@@ -737,6 +764,13 @@ html.adv-on #chat-window > header {
 .adv-journal {
     max-width: 46rem;
 }
+/* no code-copy buttons in the journal: they're position:absolute with no
+   positioned <pre> to anchor to, so every one of them flies to the
+   modal's top-right corner - straight over the close button. reading
+   material doesn't need them anyway. */
+.adv-journal .copy-btn {
+    display: none;
+}
 .adv-journal .adv-journal-body {
     padding: 18px 26px 26px 26px;
     overflow-y: auto;
@@ -764,6 +798,14 @@ html.adv-on #chat-window > header {
     margin-bottom: 6px;
 }
 .adv-journal .adv-jp p:empty { display: none; }
+/* on phones the core makes modals full-screen (flex column) and the body
+   becomes the flex scroll region - the 65vh cap above would defeat that,
+   leaving a short scrollable strip over empty modal */
+@media (max-width: 768px) {
+    .adv-journal .adv-journal-body {
+        max-height: none;
+    }
+}
 
 /* =================modals above the atmosphere=================== */
 /* the story's fixed layers (sky, weather, tint, overlays, beats, dice,
@@ -795,8 +837,11 @@ html.adv-on:has(.modal-overlay) #adv-stinger-caption {
     .adv-dice {
         animation: none;
     }
-    .adv-bar .adv-bar-fill {
+    .adv-stat-track .adv-bar-fill {
         transition: none;
+    }
+    #sidebar.adv-slide-in {
+        animation: none;
     }
 }
 

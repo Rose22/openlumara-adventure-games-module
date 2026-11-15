@@ -55,6 +55,16 @@ class AdventureGamesModule(core.module.Module):
             "description": "Automatically lighten the show on phones and tablets (the interface's own screen-size detection decides): lower-resolution shaders, fewer of them at once, fewer weather particles, a gentler typewriter and caret, fewer ambience layers and cheaper css effects (no page refraction, softer blurs). The look stays the same - it just renders lighter.",
             "default": True
         },
+        "mobile_panel_toggle": {
+            "type": "select",
+            "description": "How the campaign panel opens on phones and tablets (the adventure hides the normal header, so the panel needs its own door):",
+            "default": "edge swipe",
+            "options": {
+                "edge swipe": "Swipe right from the left edge of the screen to open the panel - nothing floats over the story.",
+                "floating button": "A floating button in the top-left corner opens the panel.",
+                "both": "Offer the edge swipe and the floating button together."
+            }
+        },
         "shaders_enabled": {
             "description": "Render GLSL shader assets (sky backdrops, weathers, overlay moods, pulse effects) as live WebGL canvases. Off means every asset plays its plain css look - nothing else changes.",
             "default": True

@@ -380,7 +380,7 @@ canvas.adv-fx {
 /* the core header is hidden during adventures, so this strip IS the header:
    full width, content auto-centered (side padding keeps the floating ⚜
    button clear) */
-#adv-banner {
+#adv-strip {
     display: none;
     width: 100%;
     max-width: none;
@@ -399,7 +399,7 @@ canvas.adv-fx {
     border-bottom: 1px solid var(--adv-line, var(--border-color));
     animation: adv-passage-in 0.6s ease both;
 }
-#adv-banner > * {
+#adv-strip > * {
     margin-left: auto;
     margin-right: auto;
 }
@@ -723,7 +723,7 @@ html.adv-on #adv-prompt.adv-choice:hover {
 /* reduced motion (decoration loops are guarded inside their own sheets
    in asset_packs/default/text_decoration/ - one guard per look) */
 @media (prefers-reduced-motion: reduce) {
-    #adv-banner,
+    #adv-strip,
     .adv-flash {
         animation: none;
     }

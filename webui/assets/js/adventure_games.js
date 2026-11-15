@@ -651,6 +651,26 @@
                 hasContent = true;
                 break;
             }
+            // an EMPTY host is a GM habit: the macro on its own markdown
+            // line becomes a picture-only paragraph, and anchoring the
+            // float to that empty box parks it a paragraph's margins ABOVE
+            // the prose it was meant to hug (the sticking-out corner).
+            // hand the frames down to the next block instead - the prose
+            // paragraph (or, mid-stream, the next empty one, until one
+            // holds words or the walk runs out) - and hide the husk. the
+            // observer re-runs the pass on the new host, where hasContent
+            // decides clearing normally.
+            if (!hasContent) {
+                var nxt = host.nextElementSibling;
+                if (nxt && nxt.classList && !nxt.classList.contains("adv-float-vacated")) {
+                    for (var mv = 0; mv < list.length; mv++) {
+                        if (list[mv].parentNode === nxt && list[mv] === nxt.firstChild) continue;
+                        nxt.insertBefore(list[mv], nxt.firstChild || null);
+                    }
+                    host.classList.add("adv-float-vacated");
+                    continue;
+                }
+            }
             // walk backwards so each frame lines up behind the one after
             // it: the stack at the top ends in the very source order
             for (var k = list.length - 1; k >= 0; k--) {

@@ -1163,7 +1163,7 @@
      * AI banner (raw HTML, sanitized)
      * ------------------------- */
     function applyBanner() {
-        var el = document.getElementById("adv-banner");
+        var el = document.getElementById("adv-strip");
         if (!el) return;
         var st = A();
         var c = st && st.active ? st.campaign : null;
@@ -2124,10 +2124,252 @@
         thinkingLoopSet(want);
     }
 
-    /* floating ⚜ button: the adventure hides the core header (and with it
-     * the mobile hamburger), so the campaign panel gets its own toggle.
-     * Rewind/Journal duties already live inside the panel. */
+    /* Which door opens the campaign panel on phones: the "mobile_panel_toggle"
+     * setting (ADV_CONFIG) - "edge swipe" (the default: swipe right from the
+     * left screen edge), "floating button" (the classic top-left triskelion),
+     * or "both". */
+    var panelMode = cfg.mobile_panel_toggle || "edge swipe";
+
+    function openCampaignPanel() {
+        var ui;
+        try { ui = Alpine.store("ui"); } catch (e) { return; }
+        ui.showSidebar = true;
+        var t = document.querySelector('.sidebar-tab[data-tab="adventure_games/adventure"]');
+        if (t && !t.classList.contains("active")) t.click();
+        // the core opens the mobile overlay instantly (x-show is a bare
+        // display flip) - ride a one-shot slide-in with it, so the edge
+        // swipe feels like it actually PUSHED the panel on screen. the
+        // class clears itself on animationend (+ safety timeout) so the
+        // next open replays it; display:none-to-block restarts the
+        // animation on its own.
+        try {
+            var sb = document.getElementById("sidebar");
+            if (sb) {
+                sb.classList.remove("adv-slide-in");
+                void sb.offsetWidth;   // reflow: restart even without a hide cycle
+                sb.classList.add("adv-slide-in");
+                setTimeout(function () { sb.classList.remove("adv-slide-in"); }, 420);
+            }
+        } catch (e) {}
+    }
+
+    /* edge swipe, BOTH directions:
+     * - OPEN: a rightward drag starting against the LEFT screen edge (28px
+     *   zone) rides the panel in under the finger.
+     * - CLOSE: the mirrored gesture at the RIGHT edge while the overlay is
+     *   open - same follow, mirrored verdict.
+     * Release commits when the drawer is dragged past half the screen OR
+     * the finger was FLICKING at the moment of letting go: the last ~120ms
+     * of finger positions are sampled, and lifting with >550 px/s of
+     * gesture-direction speed commits wherever the finger stopped - a
+     * short, fast toss opens/closes, a slow drag parked short of halfway
+     * snaps back. (Deceleration before the lift is included in the window,
+     * so the verdict reflects how the gesture actually ended.)
+     * Intent locks at 4px of travel with 1.2x horizontal dominance (or on
+     * raw speed), so the drawer wakes the instant a pull reads as
+     * horizontal, while vertical scrolling and diagonal flukes are never
+     * hijacked; the move listener only starts preventDefault-ing once the
+     * gesture has locked, leaving unrecognized drags fully passive. */
+    function ensureEdgeSwipe() {
+        if (panelMode !== "edge swipe" && panelMode !== "both") return;
+        var EDGE_ZONE = 24;    // how far from the edge a grab may start
+        var TRIP = 6;          // px of horizontal travel before the grab bites
+        var FLICK_V = 0.45;    // px/ms - newest-stretch speed that commits
+        var GLIDE = 280;       // release slide, ms
+        // g: the one live gesture - candidate until TRIP bites, then it
+        // owns the panel; vx is the newest finger velocity (px/ms, signed)
+        var g = null;
+        // generation counter + the one live WAAPI slide: a stale release
+        // (its timers still armed, its fill-forwards animation still
+        // winning the cascade over inline styles) must never stomp a newer
+        // gesture - that was the stuck half-open drawer. every async
+        // cleanup captures the generation and bails when it has aged out.
+        var gen = 0;
+        var liveAnim = null;
+        function sbEl() { return document.getElementById("sidebar"); }
+        function inGame() {
+            try {
+                return !!(Alpine.store("adv") && Alpine.store("adv").active)
+                    && Alpine.store("ui").isMobile === true;
+            } catch (e) { return false; }
+        }
+        function isOpen() {
+            try { return Alpine.store("ui").showSidebar === true; } catch (e) { return false; }
+        }
+        // grab: the gesture takes the panel. PARK the inline transform
+        // FIRST (fully offscreen for an open drag, at rest for a close
+        // one), THEN raise the pins (html.adv-drag: display flex +
+        // transition none, !important, module CSS) in the same task - so
+        // the panel's first ever frame is the parked one, and every Alpine
+        // flip afterwards is an instant, position-ours show/hide that can
+        // never repaint the drawer at its natural fullscreen spot.
+        function grab(dir) {
+            var sb = sbEl();
+            if (!sb) return null;
+            var w = sb.offsetWidth || window.innerWidth;
+            var x0 = dir > 0 ? -w : 0;
+            // you can grab again mid-slide: retire the previous owner -
+            // its fill-forwards animation would otherwise outrank this
+            // grab's inline transform forever (frozen half-open drawer),
+            // and its armed timers would stomp the new gesture
+            gen++;
+            if (liveAnim) { try { liveAnim.cancel(); } catch (e) {} liveAnim = null; }
+            sb.classList.remove("adv-slide-in");
+            sb.style.transform = "translateX(" + x0 + "px)";
+            document.documentElement.classList.add("adv-drag");
+            if (dir > 0) {
+                // point the tab bar at the campaign panel NOW (its button
+                // lives inside the mounted-offscreen sidebar, so clicking
+                // is safe) - a committed flick must show the right page
+                try {
+                    var t = document.querySelector('.sidebar-tab[data-tab="adventure_games/adventure"]');
+                    if (t && !t.classList.contains("active")) t.click();
+                } catch (e) {}
+            }
+            return { sb: sb, dir: dir, w: w, x: x0 };
+        }
+        // release verdict + the slide that completes it. Phone drawers
+        // never teleport: the drawer ALWAYS animates from the release
+        // point to wherever the verdict says - past half, or a genuine
+        // flick - and anything else slides back the way it came. Then the
+        // core flag flips, and the mute (html.adv-drag: display +
+        // transition pins) lifts once the panel demonstrably sits in the
+        // core's own shown/hidden state.
+        function release(vx) {
+            var gg = g;
+            g = null;
+            if (!gg) return;
+            var sb = gg.sb;
+            var my = ++gen;                    // THIS release owns the pins now
+            var progress = (gg.x + gg.w) / gg.w;   // 0 shut .. 1 open
+            var open = gg.dir > 0
+                ? (progress > 0.5 || vx >= FLICK_V)
+                : (progress <= 0.5 && vx > -FLICK_V);
+            var target = open ? 0 : -gg.w;
+            // one live animation, ever: retire whatever an earlier release
+            // left in flight before it can fight this one
+            if (liveAnim) { try { liveAnim.cancel(); } catch (e) {} liveAnim = null; }
+            var anim = null;
+            try {
+                anim = sb.animate(
+                    [{ transform: "translateX(" + gg.x + "px)" },
+                     { transform: "translateX(" + target + "px)" }],
+                    { duration: reducedMotion() ? 1 : GLIDE,
+                      easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
+                );
+            } catch (e) {}
+            liveAnim = anim;
+            // hand the panel back to the core - only if THIS release is
+            // still the newest owner (a fresh grab bumped the generation)
+            var unlift = function () {
+                if (my !== gen) return;
+                document.documentElement.classList.remove("adv-drag");
+                sb.style.transform = "";
+                if (anim) { try { anim.cancel(); } catch (e) {} }
+                if (liveAnim === anim) liveAnim = null;
+            };
+            var done = function () {
+                if (my !== gen) return;
+                if (liveAnim === anim) liveAnim = null;
+                sb.style.transform = "translateX(" + target + "px)";
+                try { Alpine.store("ui").showSidebar = open; } catch (e) {}
+                if (open) {
+                    // Alpine's enter lifecycle (classes toggled, durations
+                    // muted to instant) must be over before the pins lift,
+                    // or its cleanup would restyle the panel a second time
+                    setTimeout(unlift, 400);
+                    return;
+                }
+                // closing: poll (never guess) until the core's display
+                // flip has committed. NOTE: the pin forces display while
+                // up, so the first tick usually only succeeds after the
+                // fallback below lifts it early - the poll exists for the
+                // core's own late commits, not ours.
+                var wait = 0;
+                var check = function () {
+                    if (my !== gen) return;
+                    var hidden = false;
+                    try { hidden = getComputedStyle(sb).display === "none"; } catch (e) { hidden = true; }
+                    // give the core's flip a few ticks, then stop waiting
+                    // on it entirely - it CANNOT observe through our pin,
+                    // and leaving pins up would strand the drawer
+                    if (hidden || wait > 160) { unlift(); return; }
+                    wait += 40;
+                    setTimeout(check, 40);
+                };
+                check();
+            };
+            if (anim && anim.finished) anim.finished.then(done, done);
+            else done();
+            // watchdog: a hidden tab / screen-off freezes the finish
+            // promise forever - never leave the pins trusting it
+            setTimeout(function () {
+                if (my === gen) done();
+            }, GLIDE + 900);
+        }
+        document.addEventListener("touchstart", function (e) {
+            g = null;
+            var t = e.touches && e.touches[0];
+            if (!t || !inGame()) return;
+            var W = window.innerWidth;
+            var dir = 0;
+            if (t.clientX <= EDGE_ZONE && !isOpen()) dir = 1;
+            else if (t.clientX >= W - EDGE_ZONE && isOpen()) dir = -1;
+            if (!dir) return;
+            // opening drags never start on the panel's own chrome; closing
+            // ones legitimately do (the overlay fills the screen)
+            if (dir > 0 && t.target && t.target.closest && t.target.closest("#sidebar")) return;
+            g = { dir: dir, sx: t.clientX, sy: t.clientY, grabbed: false,
+                  x: 0, vx: 0, lx: t.clientX, lt: e.timeStamp };
+        }, { passive: true });
+        // non-passive, but only a GRABBED drag ever cancels a scroll;
+        // before the trip, a vertical intent simply abandons the candidate
+        // and the page scrolls exactly as it always did
+        document.addEventListener("touchmove", function (e) {
+            if (!g) return;
+            var t = e.touches && e.touches[0];
+            if (!t) return;
+            var dx = t.clientX - g.sx, dy = t.clientY - g.sy;
+            if (!g.grabbed) {
+                if (dy > 8 && dy > Math.abs(dx)) { g = null; return; }
+                // trip in the gesture's OWN direction: open pulls right
+                // (dx >= +TRIP), close pulls left (dx <= -TRIP)
+                if (g.dir > 0 ? dx < TRIP : dx > -TRIP) return;
+                var real = grab(g.dir);
+                if (!real) { g = null; return; }
+                real.sx = g.sx; real.sy = g.sy; real.vx = g.vx;
+                real.lx = g.lx; real.lt = g.lt;
+                g = real;
+                g.grabbed = true;
+                // recompute from the ORIGINAL origin so the drawer lands
+                // under the finger at once - no jump at trip time
+                dx = t.clientX - g.sx;
+            }
+            var dt = e.timeStamp - g.lt;
+            if (dt > 0) {
+                g.vx = (t.clientX - g.lx) / dt;
+                g.lx = t.clientX; g.lt = e.timeStamp;
+            }
+            e.preventDefault();
+            var x = (g.dir > 0 ? -g.w : 0) + dx;
+            if (x > 0) x = 0;
+            if (x < -g.w) x = -g.w;
+            g.x = x;
+            g.sb.style.transform = "translateX(" + x + "px)";
+        }, { passive: false });
+        document.addEventListener("touchend", function () {
+            if (g && g.grabbed) release(g.vx);
+            else g = null;
+        });
+        document.addEventListener("touchcancel", function () {
+            if (g && g.grabbed) release(0);
+            else g = null;
+        });
+    }
+    ensureEdgeSwipe();
+
     function ensurePanelToggle() {
+        if (panelMode !== "floating button" && panelMode !== "both") return;
         if (document.getElementById("adv-panel-toggle")) return;
         var b = document.createElement("button");
         b.id = "adv-panel-toggle";
@@ -2140,13 +2382,7 @@
         b.setAttribute("x-cloak", "");
         b.title = "Show the campaign panel";
         b.textContent = "\u269C";
-        b.addEventListener("click", function () {
-            var ui;
-            try { ui = Alpine.store("ui"); } catch (e) { return; }
-            ui.showSidebar = true;
-            var t = document.querySelector('.sidebar-tab[data-tab="adventure_games/adventure"]');
-            if (t && !t.classList.contains("active")) t.click();
-        });
+        b.addEventListener("click", openCampaignPanel);
         document.body.appendChild(b);
     }
 

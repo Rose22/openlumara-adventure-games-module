@@ -1,6 +1,6 @@
 /* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08) harness:openlumara
    adventure_games :: immersion layer styles — drop caps, epigraphs, text
-   macros, choice rail, weather, tint, banner, sidebar extras. */
+   macros, choice rail, weather, tint, sidebar extras. */
 
 /* =================drop cap + scene ornament=================== */
 html.adv-on .turn.adv-current .message.assistant > p:first-of-type::first-letter {
@@ -375,45 +375,6 @@ canvas.adv-fx {
    on #adv-diceroll (rolling | show-total | out), the .adv-dr-* element
    names, and the glyphs a dice/<name>.json may override. */
 
-
-/* =================AI banner = the adventure's header=================== */
-/* the core header is hidden during adventures, so this strip IS the header:
-   full width, content auto-centered (side padding keeps the floating ⚜
-   button clear) */
-#adv-strip {
-    display: none;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 10px 64px;
-    text-align: center;
-    box-sizing: border-box;
-    font-family: var(--adv-sans);
-    font-size: 14px;
-    line-height: 1.5;
-    /* matches the sidebar and the window behind the page (campaigns paint
-       --bg-primary with their own ui color) - header, sidebar and page form
-       one continuous surface; the accent underline keeps the strip defined */
-    background: var(--bg-primary, var(--bg-tertiary));
-    color: var(--adv-ink, var(--text-primary));
-    border-bottom: 1px solid var(--adv-line, var(--border-color));
-    animation: adv-passage-in 0.6s ease both;
-}
-#adv-strip > * {
-    margin-left: auto;
-    margin-right: auto;
-}
-/* mobile: the strip IS the header, but on a phone screen that band is
-   precious vertical space - hide it (the floating panel-toggle button and
-   the campaign panel still carry scene info). !important because
-   applyBanner sets display inline. Breakpoint matches the core's
-   isMobile (<= 768px). */
-@media (max-width: 768px) {
-    #adv-strip {
-        display: none !important;
-    }
-}
-
 /* =================stat row flash=================== */
 .adv-flash {
     animation: adv-row-flash 0.95s ease;
@@ -733,7 +694,6 @@ html.adv-on #adv-prompt.adv-choice:hover {
 /* reduced motion (decoration loops are guarded inside their own sheets
    in asset_packs/default/text_decoration/ - one guard per look) */
 @media (prefers-reduced-motion: reduce) {
-    #adv-strip,
     .adv-flash {
         animation: none;
     }

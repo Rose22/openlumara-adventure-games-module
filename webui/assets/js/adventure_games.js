@@ -2228,7 +2228,7 @@
         c.classList.add("on");
         setTimeout(function () {
             // behind the cover: swap everything (applyMode -> theme,
-            // banner, dock, adv:state watchers all run now)
+            // dock, adv:state watchers all run now)
             store._applyModeNow();
             // let the freshly painted interface settle one frame, then lift
             requestAnimationFrame(function () {

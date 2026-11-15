@@ -1,6 +1,6 @@
 /* -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08) harness:openlumara
    adventure_games :: immersion layer. Theme override, day/night tint,
-   sky & weather particles, ambience + synthesized SFX, AI banner, text
+   sky & weather particles, ambience + synthesized SFX, text
    macros, per-speaker colors, choice rail, forced sidebar, campaign
    launcher. */
 (function () {
@@ -74,7 +74,7 @@
         if (c.font) {
             // the campaign font must ride the module's OWN text channels:
             // the passage is styled with --adv-serif and all chrome (the
-            // banner, headings, chips, the panel, the journal) with
+            // headings, chips, the panel, the journal) with
             // --adv-sans, both defined on :root inside adventure_games.css
             // - so --font-primary alone never touched the story text. The
             // inline write wins over the sheet, and clearThemeVars hands
@@ -1160,26 +1160,6 @@
     hookWebAudio();
 
     /* -------------------------
-     * AI banner (raw HTML, sanitized)
-     * ------------------------- */
-    function applyBanner() {
-        var el = document.getElementById("adv-strip");
-        if (!el) return;
-        var st = A();
-        var c = st && st.active ? st.campaign : null;
-        var html = (c && c.banner) || "";
-        if (!html) {
-            el.innerHTML = "";
-            el.style.display = "none";
-            return;
-        }
-        el.innerHTML = window.DOMPurify
-            ? DOMPurify.sanitize(html, { ADD_ATTR: ["style", "class"] })
-            : "";
-        el.style.display = "block";
-    }
-
-    /* -------------------------
      * sidebar forcing
      * ------------------------- */
     var lastForced = null;
@@ -1754,7 +1734,6 @@
         applyWeather();
         applyEffects();
         applyAmbience();
-        applyBanner();
         forceAdventureTab();
         var c0 = st && st.active ? st.campaign : null;
         var key = "";

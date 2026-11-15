@@ -7,9 +7,17 @@ import time
 import core
 import copy
 import random
-import re
+import regex as re
 
 import channels.webui.api as webui
+
+
+def _clean_name(name):
+    """Strips every character that isn't a letter, a space or a hyphen from an
+    entity name (stat / item / quest) handed to game_start, then collapses the
+    leftover whitespace."""
+    cleaned = re.sub(r"[^\w\s-]|_", "", str(name), flags=re.UNICODE)
+    return re.sub(r"\s+", " ", cleaned).strip()
 
 
 class AdventureGamesModule(core.module.Module):
@@ -20,6 +28,11 @@ class AdventureGamesModule(core.module.Module):
     settings = {
         # (hide_process_chain moved out of settings: the in-game sidebar
         # carries a live toggle button for it now, session-scoped by design)
+        "nudge_prompt": {
+            "type": "long_text",
+            "default": "End the passage with 2-4 [[choice links]] unless the game is over.",
+            "description": "Prompt that gets inserted before every story page. Use this to nudge the AI to do something on every story page"
+        },
         "sound_enabled": {
             "description": "Enable sounds: the music soundtrack, scene ambience loops and soft synthesized effects (choice chimes, stat sparkles, dice tumble, page turns).",
             "default": True
@@ -456,18 +469,6 @@ class AdventureGamesModule(core.module.Module):
         return " \u00b7 ".join(segs)
 
     async def on_system_prompt(self):
-        # Built ONCE when a chat opens, so this block must stay forever-static:
-        # no campaign facts here. The live world reaches the GM through the
-        # [world: ...] tag injected into every player message instead, and the
-        # palette hexes come back once in the game_start confirmation.
-        # The per-kind asset inventories (loops / tracks / sfx / images /
-        # stingers AND the visual vocabulary: overlay moods with meanings,
-        # sky kinds, weather kinds, one-shot pulses) are NOT listed here: those lists
-        # are the default pack's assets, and the default pack belongs to
-        # whichever campaign runs. Every kind's full inventory (the
-        # campaign's pack merged over the default base, one continuous list
-        # per kind) arrives with get_assets(asset_pack=...) and with every
-        # game_start, and stays visible in the campaign's state block.
         parts = [self.GAME_RULES]
         packs = self._asset_packs()
         if packs:
@@ -475,6 +476,7 @@ class AdventureGamesModule(core.module.Module):
                          ". Each pack bundles its own ambience loops, music tracks, sound effects, overlays, weathers, skies, images, stingers, palettes, fonts, inline text decorations ({{name|text}} macros), thinking sigils, dice flourish skins and typewriter caret effects. Call get_assets BEFORE game_start to see a pack's full effective inventory, then pass the pack that fits the game's world.")
         else:
             parts.append("\nAsset packs available (game_start asset_pack=): none installed (webui/assets/asset_packs/ holds no pack folders) - games run without loops, music, sound effects, images or stingers.")
+
         return "\n".join(parts)
 
     async def on_end_prompt(self):
@@ -487,7 +489,8 @@ class AdventureGamesModule(core.module.Module):
             return None
         if c.get("paused"):
             return None
-        return "End the passage with 2-4 [[choice links]] unless the game is over."
+
+        return self.config.get("nudge_prompt")
 
     async def on_message_inject(self, user_message: str):
         chat_id = self._chat_id()
@@ -1455,22 +1458,32 @@ class AdventureGamesModule(core.module.Module):
             self.data["campaigns"][str(self._chat_id())] = c
             self.data.save()
 
-    GAME_RULES = """GAME RULES \u2014 save these and follow them for the whole game:
-- Conditional choices: append (StatName N+) to the displayed text, e.g. [[Seduce the guard (Charm 60+)]] \u2014 the interface automatically greys it out when the stat is below the threshold. Only reference stats that exist.
-- The player's stats, inventory and scene are tracked by your tools \u2014 the source of truth. The player sees them in a sidebar.
-- Mutate the world INLINE the moment you narrate the consequence - state macros fire as the word streams: {{stat|Gold +40, Health -15}} (comma-chained), {{item|Torch +1}} / {{item|Ration -1}} (ONLY an explicit number hands an item over - +N on an item not held yet creates it as a fresh pickup, and a leading emoji plus a ~tail dress the item it grants: {{item|🗝 Silver key +1 ~cold to the touch}}; a bare {{item|Silver key}} is a PURE MENTION - it styles the word and shows the icon but NEVER changes the inventory, and any ~tail on a mention is ignored), {{status|Poisoned 3t}} / {{statusoff|Poisoned}}, {{music|tavern_1}}. Never state a change ("you gain 10 gold") without its macro.
-- Risky actions with real stakes: call roll_dice BEFORE writing the outcome, and honor the result. Pure binary fate (tossed coin, yes/no oracle): coinflip instead.
-- Call set_scene when the location or story beat changes - and bring the new scene's atmosphere along AS ARGS on that same call (ambience=, music=, sky=, weather=, effects=, banner=), so every transition restages the world automatically; omit an arg to keep it as-is, "off" to clear it. Call end_game when the story reaches an ending \u2014 then write one closing passage (a game-over banner appears automatically, so no choices after it).
-- Keep continuity with the [world: ...] snapshot every player message carries (clock, stats, statuses, quests, inventory, overlays, sky, weather, music) - your freshest source of truth.
-- Time flows AUTOMATICALLY: the clock ticks turn_minutes on every player message, BEFORE you reply - narrate along the fresh [world:] time, never contradict it. Keep the tick matched to pace with set_turn_minutes (10-20 conversation, 60-240 travel/action, 0 frozen). advance_time is ONLY for extra one-off jumps beyond the tick, never for the passage itself.
-- Quests: quest_add when the player commits to a goal (with subgoals for the beats that make it up). Sub-goals close in ANY order - subgoal_done checks one off and the quest completes itself when the last one closes; quest_done/quest_fail end one outright. Inline equivalents: {{quest|🔔 Name ~description}} opens, {{subgoal|Name :: new beat}} adds one, {{subdone|Name :: that beat}} closes one, {{questdone|Name}} / {{questfail|Name ~reason}} / {{questoff|Name}} finish, break or drop the whole quest.
-- Statuses: {{status|Blinded 3t}} inflicts (turns optional; a leading emoji becomes the chip icon, e.g. {{status|✨ Blessed}}), {{statusoff|Blinded}} cures; status_visual links the overlay each drags along (e.g. Cursed \u2192 static, Love-sick \u2192 bloom) - it rides exactly as long as the status.
-- Atmosphere rides WITH the scene: on every set_scene pass the ambience loops that fit (your campaign's loop list, from the game_start result - "off" for silence), comma-separated to LAYER them, each with a relative volume: "rain:70, summer-night:40", and bring sky= and weather= along whenever the backdrop or the falling things change: sky= is the backdrop (a wash, a shader sky, its own particle kinds like stars or clouds), weather= the foreground motes riding over it - the two mix freely, so snow under a clear starfield is weather=snow sky=stars. Each weather's inventory entry names a recommended backdrop sky in parentheses - for a plain scene of one weather that pairing plays safest, but sky and weather are free to mix any other way; "off" clears either alone. Whenever the scene changes, the ambience, sky and weather change with it.
-- The interface animates its own beats: gold max rolls, red min rolls, scene title cards, day-rollover fades, the game-over curtain. An animated tool call (roll_dice, coinflip, set_scene, end_game, day-crossing advance_time) returns only once the player has watched it. And ANY tool call that lands while the typewriter is still revealing your prose is held until the passage has finished typing - the result then carries a [held Ns...] note, so a delayed call is never a mystery to you. Music (from the game_start asset inventory - "off" for silence) crossfades via {{music|track}} mid-passage, or on the next set_scene's music= when the mood turns - not every passage. When a game starts, pick the asset_pack that matches your world and set the opening inventory, quests, ambience, music, sky, weather, banner, scene and location DIRECTLY on game_start - one call.
-- Dialogue format: start a spoken line with **Name:** - the UI reads that prefix to give each speaker a consistent color. Nothing else about how you write dialogue is dictated.
-- Text decoration macros style single words or short phrases, never whole paragraphs: {{name|decorated text}} with a name from the campaign's "Text decorations" list (the game_start result and the per-message state block) - e.g. {{whisper|a soft word}}. The list is the whole vocabulary: the campaign's asset pack ships it, so never invent a decoration name that is not on it.
-- Scene art: {{img|name}} drops a picture from the campaign's "Images available" list (in the game_start result) straight into the passage, e.g. {{img|tavern}} - place it where it belongs and narrate toward it. A placement tail steers the frame: {{img|name|left}} / {{img|name|right}} float the picture beside the paragraph with the prose wrapping around it (lovely for scenery during dialogue or long description), {{img|name|center}} or a plain {{img|name}} gives it its own full-width line (use for the passage's hero shot). Only ever use a name from that list; if the list is empty there are no pictures to place, so don't invent one.
-- Sound: {{sfx|sword_clash}} fires a one-shot as the words stream - pick names from the campaign's "Sound effects" list (in the game_start result), sprinkle them through combat and set-pieces, and ALWAYS narrate what is heard ("{{sfx|sword_slash}} the blade bites - a wet crack"); STINGERS are the other tier - musical scores for the story's CUE MOMENTS: revelation, boss falling, omens, major world-scale events, betrayal, time-skip. Fire play_stinger (tool-only) BEFORE the beat's prose - the call waits for the music."""
+    GAME_RULES = """
+## GAME RULES
+The player's stats, inventory, scene and overall game state are tracked by the engine and returned to you on every turn. They are your ultimate source of truth for the current game state.
+
+End every story message with 2-4 choices as a bulleted markdown list, using [[This syntax]] to create clickable links that send the choice as a message. Optionally, you can make some choices conditional by appending (StatName N+) to the displayed text, e.g. [[Seduce the guard (Charm 60+)]]. Only reference stats that exist.
+
+## Images
+If images are available within your selected asset pack, you can use {{img|name_of_image}} to insert it, with optional {{img|name_of_image|left}} and {{name_of_image|right}} to align it on the page. You cannot use {{img}} for images generated with Stable Diffusion, use {{sd}} for those instead.
+
+## Macros
+You have access to a special text macro system. This system allows you to write text macros like {{item|Gold +10}} within your text, and directly affect the game state that way. Available text macros:
+- sound effects: {{sfx|name_of_the_sound}}. Use these throughout the story.
+- stat changes: {{stat|HP -10}}, {{stat|MP +10, EXP +20}} and so on
+- status effects: {{status|🌀 Dazed 3t}} to add for 3 turns. The emoji becomes its icon in the UI. You can inflict a status without a turn amount, like {{status|🌀 Dazed}}, which will apply it permanently. {{statusoff|🌀 Dazed}} removes a status effect.
+- items:
+    - grant: {{item|⚔️ Wooden Sword +1 ~a sword made of wood}}
+    - increase amount: {{item|🍵 Health Potion +2}}
+    - decrease amount: {{item|🍵 Health Potion -1}} - decrease by total quantity in inventory to completely remove the item
+- quest manipulation:
+    - {{quest|🛡️ Quest name ~description}} adds a quest and starts it. The emoji becomes its icon in the UI.
+    - {{subgoal|🛡️ Quest name :: subgoal name}} adds a subgoal to an existing quest (quest must already exist!), {{subdone|🛡️ Quest name}} marks the subgoal as done
+    - {{questdone|🛡️ Name}} / {{questfail|🛡️ Name ~reason}} / {{questoff|🛡️ Name}} finish, break or drop the whole quest.
+- text decorations: Use these when you want to emphasize or style some text in a special way. Never use it for full paragraphs. Example {{whisper|This text is whispered}}. The results of the game_assets() tool contains all available text macros.
+
+NEVER state a change to game state (for example "you gain 10 gold") without its macro ({{stat|Gold +10}}). ALWAYS use macros for game state changes.
+"""
 
     # -------------------------
     #   AI TOOLS
@@ -1552,14 +1565,15 @@ class AdventureGamesModule(core.module.Module):
 
         parsed_stats = {}
         for name, spec in (stats or {}).items():
+            name = _clean_name(name)
             if isinstance(spec, (int, float)):
-                parsed_stats[str(name)] = {"value": int(spec), "min": None, "max": None, "icon": ""}
+                parsed_stats[name] = {"value": int(spec), "min": None, "max": None, "icon": ""}
             elif isinstance(spec, dict):
                 try:
                     value = int(spec.get("value", 0))
                     mx = spec.get("max")
                     mn = spec.get("min", 0 if mx is not None else None)
-                    parsed_stats[str(name)] = {
+                    parsed_stats[name] = {
                         "value": value,
                         "min": int(mn) if mn is not None else None,
                         "max": int(mx) if mx is not None else None,
@@ -1572,7 +1586,7 @@ class AdventureGamesModule(core.module.Module):
 
         parsed_inv = {}
         for name, spec in (inventory or {}).items():
-            name = str(name)
+            name = _clean_name(name)
             if isinstance(spec, (int, float)):
                 parsed_inv[name] = {"qty": int(spec), "icon": ""}
             elif isinstance(spec, dict):
@@ -1589,7 +1603,7 @@ class AdventureGamesModule(core.module.Module):
 
         parsed_quests = {}
         for name, spec in (quests or {}).items():
-            name = str(name)
+            name = _clean_name(name)
             if isinstance(spec, str):
                 spec = {"desc": spec}
             elif isinstance(spec, (int, float)):
@@ -1688,7 +1702,7 @@ class AdventureGamesModule(core.module.Module):
 
         added = []
         for name, spec in (stats or {}).items():
-            name = str(name)
+            name = _clean_name(name)
             if isinstance(spec, (int, float)):
                 c["stats"][name] = {"value": int(spec), "min": None, "max": None, "icon": ""}
             elif isinstance(spec, dict):
@@ -1751,7 +1765,7 @@ class AdventureGamesModule(core.module.Module):
 
         done = []
         for name, spec in (items or {}).items():
-            name = str(name)
+            name = _clean_name(name)
             if isinstance(spec, (int, float)):
                 qty, icon = int(spec), ""
             elif isinstance(spec, dict):
@@ -1840,7 +1854,7 @@ class AdventureGamesModule(core.module.Module):
 
     @core.module.tool(bypass_timeout=True)
     async def set_scene(self, title: str, location: str, ambience: str = "", music: str = "", weather: str = "", sky: str = "", effects: list = None, banner: str = None):
-        """Sets the current scene - and restages the ENTIRE environment in the same call, so every scene transition automatically shifts ambience, music, sky, weather, overlays and banner together. Pass the args that fit the new scene; omit an arg to keep it exactly as it plays now; "off" clears it. Unknown loops/tracks/skies/weathers/overlays are skipped with a note instead of failing the call. Mid-passage music shifts stay inline instead ({{music|track}}); a lone overlay change mid-passage goes to the screen_effect tool.
+        """Call this when the location or scene changes in the story. Sets the current scene - and restages the ENTIRE environment in the same call, so every scene transition automatically shifts ambience, music, sky, weather, overlays and banner together. Pass the args that fit the new scene; omit an arg to keep it exactly as it plays now; "off" clears it. Unknown loops/tracks/skies/weathers/overlays are skipped with a note instead of failing the call. Mid-passage music shifts stay inline instead ({{music|track}}); a lone overlay change mid-passage goes to the screen_effect tool.
 
         Args:
             title: Short scene name, e.g. "The Drowned Chapel"
@@ -1991,8 +2005,9 @@ class AdventureGamesModule(core.module.Module):
         held = await self._await_typing(chat_id)
         self._snapshot(chat_id)
 
+        name = _clean_name(name)
         goals = [{"text": str(g), "done": False} for g in (subgoals or [])]
-        c["quests"][str(name)] = {
+        c["quests"][name] = {
             "desc": str(description),
             "icon": str(icon),
             "status": "active",
@@ -2188,11 +2203,12 @@ class AdventureGamesModule(core.module.Module):
             return self.result(f"unknown effect '{effect}' - options: {', '.join(self._overlays_for(apack))}, or '' to clear", success=False)
         held = await self._await_typing(chat_id)
         self._snapshot(chat_id)
+        status = _clean_name(status)
         links = dict(c.get("status_fx") or {})
         if effect:
-            links[str(status)] = effect
+            links[status] = effect
         else:
-            links.pop(str(status), None)
+            links.pop(status, None)
         c["status_fx"] = links
         self._save_campaign(chat_id, c)
         if effect:
@@ -2703,11 +2719,11 @@ class AdventureGamesModule(core.module.Module):
                 seg = m_icon.group(2).strip()
             m = re.match(r"^(.+?)\s*([+-]?\d+)$", seg)
             if m and m.group(1).strip():
-                parsed.append((m.group(1).strip(), int(m.group(2)), icon, desc))
+                parsed.append((_clean_name(m.group(1)), int(m.group(2)), icon, desc))
             else:
                 # bare segment: a mention keeps its icon for the badge and
                 # loses its description - neither ever reaches the entry
-                parsed.append((seg, None, icon, ""))
+                parsed.append((_clean_name(seg), None, icon, ""))
         if not parsed:
             return {"success": False, "data": "cannot parse - use 'Name +N' or 'Name -N'"}
         targets = []
@@ -2764,9 +2780,9 @@ class AdventureGamesModule(core.module.Module):
                 seg = m_icon.group(2).strip()
             m = re.match(r"^(.+?)\s+(\d+)t$", seg, re.IGNORECASE)
             if m:
-                name, turns = m.group(1).strip(), int(m.group(2))
+                name, turns = _clean_name(m.group(1)), int(m.group(2))
             else:
-                name, turns = seg, 0
+                name, turns = _clean_name(seg), 0
             if not name:
                 return {"success": False, "data": "cannot parse - use 'Name' or 'Name 3t'"}
             existing = self._macro_resolve(name, c["statuses"])
@@ -2819,6 +2835,7 @@ class AdventureGamesModule(core.module.Module):
         m_icon = re.match(r"^([^\w\s]+)\s+(.+)$", seg, re.UNICODE)
         if m_icon:
             icon, seg = m_icon.group(1), m_icon.group(2).strip()
+        seg = _clean_name(seg)
         if not seg:
             return {"success": False, "data": "quest macro needs a name: {{quest|Name ~description}}"}
         quests = c.setdefault("quests", {})

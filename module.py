@@ -1476,6 +1476,7 @@ You have access to a special text macro system. This system allows you to write 
     - grant: {{item|⚔️ Wooden Sword +1 ~a sword made of wood}}
     - increase amount: {{item|🍵 Health Potion +2}}
     - decrease amount: {{item|🍵 Health Potion -1}} - decrease by total quantity in inventory to completely remove the item
+    - simply mention: just use {{item|⚔️ Wooden Sword}} without a quantity modifier
 - quest manipulation:
     - {{quest|🛡️ Quest name ~description}} adds a quest and starts it. The emoji becomes its icon in the UI.
     - {{subgoal|🛡️ Quest name :: subgoal name}} adds a subgoal to an existing quest (quest must already exist!), {{subdone|🛡️ Quest name}} marks the subgoal as done

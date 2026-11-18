@@ -1,0 +1,17 @@
+{# -- AI GENERATED CODE (Qwen3.8 Flash Next) :: (2026-11-08)
+   adventure_games: the header's re-enter button. The core header is hidden
+   while an adventure runs (its Rewind/Journal duties live in the campaign
+   panel, and a floating ⚜ button toggles the panel), so this button only
+   ever shows when a paused campaign waits in this chat: one icon click
+   steps back into the story without opening the sidebar first. #}
+
+{% macro right() %}
+<button type="button" class="btn" id="adv-reenter" title="Re-enter adventure"
+        x-show="$store.adv && $store.adv.campaign && !$store.adv.active"
+        x-cloak @click="$store.adv.reenterAdventure()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.586 12 8 4.414 9.414 3l9 9-9 9L8 19.586 15.586 12Z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v16"/>
+    </svg>
+</button>
+{% endmacro %}

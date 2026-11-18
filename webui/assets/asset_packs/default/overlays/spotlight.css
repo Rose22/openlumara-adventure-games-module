@@ -1,0 +1,11 @@
+/* overlay mood: spotlight - default set
+   interrogations, stage moments, being watched: the room goes dark
+   except a bright circle on the story column that drifts and breathes */
+.adv-fx-spotlight {
+    background: radial-gradient(circle at 50% 42%, transparent 0 16%, rgba(4, 2, 8, 0.86) 46%, rgba(2, 1, 6, 0.96) 100%);
+    animation: adv-fx-in 0.9s ease forwards, adv-spot-drift 13s ease-in-out 0.9s infinite alternate;
+}
+@keyframes adv-spot-drift {
+    from { background-position: 2% 3%; }
+    to   { background-position: -2% -3%; }
+}

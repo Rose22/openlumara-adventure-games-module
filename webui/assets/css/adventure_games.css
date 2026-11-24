@@ -43,7 +43,40 @@ html.adv-dark {
     --adv-bad: #fca5a5;
 }
 
+/* =================user background image stands down=================== */
+/* the story page owns the whole window: the campaign theme paints
+   #chat-window itself and the sky/weather layers ride over it, so the
+   webui's background picture (#bg-layer, injected inside #chat-window in
+   chat mode, body-level fixed in page mode) must vanish while playing -
+   otherwise it shines through the transparent passage. the page-mode
+   !important transparency from background.css is undone too, so the
+   window keeps the campaign's own primary color. */
+html.adv-on #bg-layer {
+    display: none !important;
+}
+html.has-bg.bg-page.adv-on #chat-window {
+    background-color: var(--bg-primary) !important;
+}
+
 /* =================passage view=================== */
+/* the story page fills the chat width setting (the .message-wrapper
+   already carries --chat-content-width from the appearance slider - the
+   story simply owns that whole width): no 46rem column, no bubble caps
+   (max/min/width 85% !important in chat-bubbles mode) and no bubble card
+   (bg, border, radius, frost) - the page IS the story surface, the
+   campaign theme paints it and the atmosphere layers ride over it */
+html.adv-on #messages .turn.adv-current .message.assistant {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
 /* hide everything but the current passage */
 html.adv-on #messages .turn {
     display: none;
@@ -96,7 +129,6 @@ html.adv-on #messages .message-buttons {
    campaign theme paints with its own ui color anyway, so the whole window
    IS the story page */
 html.adv-on #messages .turn.adv-current .message.assistant {
-    max-width: 46rem;
     margin: 0 auto 24px auto;
     background: transparent;
     /* core's .message applies a backdrop blur; on a transparent card it
@@ -122,6 +154,17 @@ html.adv-on #messages .turn.adv-current .message.assistant blockquote {
     margin: 0.8em 0;
     padding-left: 1em;
     color: var(--adv-ink-soft);
+}
+
+/* the live turn's answer now sits in a core .live-answer wrapper (inside
+   .live-turn-shell) whose own font-size/line-height/color rules beat plain
+   inheritance from .message - restore the story typography on it */
+html.adv-on .live-answer,
+html.adv-on .live-answer .content {
+    color: var(--adv-ink);
+    font-family: var(--adv-serif);
+    font-size: var(--adv-font-size, 17.5px);
+    line-height: 1.75;
 }
 
 /* story links the AI writes as plain markdown links inside passages */
@@ -221,7 +264,7 @@ html.adv-on .message.assistant li > .adv-choice:hover {
 /* =================game over ribbon=================== */
 #adv-gameover {
     display: none;
-    max-width: 46rem;
+    width: 100%;
     margin: 0 auto 14px auto;
     padding: 12px 22px;
     text-align: center;
